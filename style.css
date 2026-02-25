@@ -1,0 +1,709 @@
+/* ═══════════════════════════════════════════════════════
+   DUELZONE  ·  Main Menu Styles
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --bg:          #07080f;
+  --surface:     #0d0f1c;
+  --surface-2:   #12152a;
+  --border:      rgba(255,255,255,0.07);
+  --text:        #e2e8ff;
+  --muted:       #4a5080;
+  --title-from:  #00e5ff;
+  --title-to:    #f50057;
+  --radius:      18px;
+  --transition:  0.32s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ── Body & fonts ──────────────────────────────────────── */
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Atmospheric layers ────────────────────────────────── */
+/*
+   FIX: All decorative background layers get pointer-events: none.
+   These are position:fixed and cover the full viewport — without this,
+   they silently swallow every click before it ever reaches a card.
+*/
+
+/* Deep radial fog blob */
+.bg-fog {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 50%,  rgba(0,229,255,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 60%,  rgba(245,0,87,0.06)  0%, transparent 70%),
+    radial-gradient(ellipse 80% 80% at 50% 100%, rgba(0,230,118,0.04) 0%, transparent 70%);
+  pointer-events: none; /* ✅ decorative — never intercept clicks */
+  z-index: 0;
+}
+
+/* Horizontal scanlines */
+.bg-scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.18) 3px,
+    rgba(0,0,0,0.18) 4px
+  );
+  pointer-events: none; /* ✅ decorative — never intercept clicks */
+  z-index: 1;
+}
+
+/* Subtle perspective grid at the bottom */
+.bg-grid {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40vh;
+  background:
+    linear-gradient(to bottom, transparent, rgba(0,229,255,0.03)),
+    repeating-linear-gradient(90deg, rgba(0,229,255,0.07) 0px, transparent 1px, transparent 80px),
+    repeating-linear-gradient(0deg,  rgba(0,229,255,0.07) 0px, transparent 1px, transparent 80px);
+  pointer-events: none; /* ✅ decorative — never intercept clicks */
+  mask-image: linear-gradient(to bottom, transparent, black);
+  z-index: 1;
+}
+
+/* ── Utility ─────────────────────────────────────────────── */
+/* Single source of truth for hiding screens and elements */
+.hidden { display: none !important; }
+
+/* ── Screen layout ───────────────────────────────────────── */
+/*
+  Both screens sit in the same document. Only one is visible at a time.
+  JS adds/removes .hidden to switch between them.
+  Both fill the full viewport and center their content.
+*/
+
+/* ── Page shell (Hub screen) ───────────────────────────── */
+#screen-hub {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 24px 40px;
+  gap: 48px;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+#header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: slideDown 0.7s 0.1s cubic-bezier(0.23,1,0.32,1) forwards;
+}
+
+.header-center { text-align: center; }
+
+.sword {
+  font-size: 2rem;
+  opacity: 0.5;
+  filter: drop-shadow(0 0 8px var(--title-from));
+  user-select: none;
+}
+.sword.left  { transform: scaleX(-1); }
+
+/* Gradient shimmer title */
+#title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.8rem, 7vw, 5.2rem);
+  letter-spacing: 0.12em;
+  background: linear-gradient(90deg, var(--title-from) 0%, #b06aff 50%, var(--title-to) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+  line-height: 1;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 200% center; }
+}
+
+#subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+  letter-spacing: 0.45em;
+  color: var(--muted);
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+/* Decorative line under subtitle */
+.title-bar {
+  width: 80px;
+  height: 2px;
+  margin: 10px auto 0;
+  background: linear-gradient(90deg, var(--title-from), var(--title-to));
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* ── Arena grid ────────────────────────────────────────── */
+#arena-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 860px;
+}
+
+/* ── Cards ─────────────────────────────────────────────── */
+.arena-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  /*
+    FIX: Removed `isolation: isolate`.
+    isolation:isolate created a new stacking context where .card-glow
+    (position:absolute; inset:0) would sit in the same hit-test layer as
+    .card-inner even at z-index:-1 in certain browsers, silently eating
+    pointer events from buttons inside .card-inner.
+    We manage stacking explicitly via z-index on child elements instead.
+  */
+  pointer-events: auto; /* ✅ explicit — never inherited as none */
+  z-index: 0;
+
+  /* Staggered entrance */
+  opacity: 0;
+  transform: translateY(40px) scale(0.96);
+  animation: cardIn 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
+
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+/* Each card enters with a delay */
+.arena-card:nth-child(1) { animation-delay: 0.3s; }
+.arena-card:nth-child(2) { animation-delay: 0.42s; }
+.arena-card:nth-child(3) { animation-delay: 0.54s; }
+.arena-card:nth-child(4) { animation-delay: 0.66s; }
+
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hover lift + glow */
+.arena-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 1px var(--accent),
+    0 20px 60px -10px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 8px  24px -4px  color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.arena-card:active {
+  transform: translateY(-4px) scale(1.01);
+  transition-duration: 0.1s;
+}
+
+/* Colored top accent bar */
+.card-top-bar {
+  height: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 18px 2px var(--accent);
+  transition: height var(--transition);
+  pointer-events: none; /* ✅ FIX: decorative bar was intercepting clicks at the card top */
+}
+.arena-card:hover .card-top-bar { height: 4px; }
+
+/* ── Ambient glow behind card ── */
+.card-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 110%, var(--accent), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none; /* ✅ decorative absolute fill — must never intercept clicks */
+  z-index: 0;           /* ✅ FIX: was z-index:-1 inside isolation:isolate which caused
+                               hit-test ambiguity. Now z-index:0 but pointer-events:none
+                               means it never captures events. .card-inner is z-index:1
+                               so it always paints and hit-tests above this layer. */
+}
+.arena-card:hover .card-glow { opacity: 0.12; }
+
+/* ── Card inner layout ─────────────────────────────────── */
+.card-inner {
+  /*
+    FIX: Added position:relative + z-index:1.
+    Without this, .card-inner (static flow) had no explicit stacking guarantee
+    over .card-glow (position:absolute). Now it is unambiguously above the glow
+    layer in all browsers, ensuring all child elements (icon, text, button)
+    receive pointer events correctly.
+  */
+  position: relative;
+  z-index: 1;
+  pointer-events: auto; /* ✅ explicit — inherit must never override this */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 28px 28px 24px;
+}
+
+/* Icon wrapper */
+.card-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: background var(--transition), box-shadow var(--transition);
+  flex-shrink: 0;
+}
+.arena-card:hover .card-icon {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+  box-shadow: 0 0 20px -4px var(--accent);
+}
+
+/* Text */
+.card-text { flex: 1; }
+
+.card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  color: var(--text);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+/* Play button */
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  cursor: pointer;          /* ✅ pointer cursor on button */
+  pointer-events: auto;     /* ✅ FIX: explicit override ensures button is always hittable
+                                  even if a parent somehow gains pointer-events:none */
+  position: relative;       /* ✅ FIX: establishes stacking context so button sits above
+                                  any siblings or pseudo-elements within .card-inner */
+  z-index: 2;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition),
+    transform 0.15s;
+}
+
+.card-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #07080f;
+  box-shadow: 0 0 20px -4px var(--accent);
+}
+
+.card-btn:active { transform: scale(0.95); }
+
+.btn-arrow {
+  transition: transform var(--transition);
+}
+.card-btn:hover .btn-arrow { transform: translateX(3px); }
+
+/* ── Footer ────────────────────────────────────────────── */
+#footer {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 0.6s 1s ease forwards;
+}
+
+/* ── Launch overlay ────────────────────────────────────── */
+/*
+  FIX: Added visibility:hidden to the inactive state.
+  opacity:0 + pointer-events:none is usually sufficient, but during the
+  0.3s fade-out CSS transition, there is a brief window where the overlay
+  is still partially visible. Using visibility:hidden removes the element
+  from hit-testing entirely in its resting state, making this bulletproof.
+  visibility transitions instantly on .active so the spinner appears
+  immediately without any perceptible flicker.
+*/
+#launch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 8, 15, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;       /* ✅ FIX: removed from hit-testing when inactive */
+  pointer-events: none;     /* ✅ belt-and-suspenders: also not a pointer target */
+  transition: opacity 0.3s ease;
+}
+
+#launch-overlay.active {
+  opacity: 1;
+  visibility: visible;      /* ✅ restored for the active (visible) state */
+  pointer-events: auto;     /* ✅ FIX: use 'auto' instead of 'all' for spec correctness */
+}
+
+#launch-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Spinning ring – accent colour is set via JS */
+#launch-ring {
+  width: 72px;
+  height: 72px;
+  border: 3px solid transparent;
+  border-top-color: var(--launch-color, #00e5ff);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#launch-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  color: var(--muted);
+}
+
+#launch-game {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--launch-color, #00e5ff);
+  text-shadow: 0 0 30px var(--launch-color, #00e5ff);
+}
+
+/* ── Shared animations ─────────────────────────────────── */
+@keyframes slideDown {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 560px) {
+  #arena-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  #page { padding: 36px 16px 32px; gap: 32px; }
+
+  .card-inner { padding: 22px 20px 18px; }
+
+  .sword { display: none; }
+}
+
+@media (min-width: 561px) and (max-width: 720px) {
+  .card-inner { padding: 22px 20px 18px; }
+  .card-title  { font-size: 0.9rem; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 2: Tic Tac Toe
+   All rules scoped under #screen-ttt to prevent collisions
+   with hub classes that share the same names.
+   ════════════════════════════════════════════════════════════ */
+
+/* TTT CSS variables — override hub vars inside this screen only */
+#screen-ttt {
+  --ttt-bg:        #0d0d0f;
+  --ttt-surface:   #16161a;
+  --ttt-border:    #2a2a30;
+  --ttt-x:         #ff4d6d;
+  --ttt-o:         #4cc9f0;
+  --ttt-bot:       #b388ff;
+  --ttt-text:      #e8e8f0;
+  --ttt-muted:     #6b6b7e;
+  --ttt-accent:    #f8f800;
+  --ttt-radius:    12px;
+
+  /* Screen layout */
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 24px 40px;
+  font-family: 'DM Mono', monospace;
+  color: var(--ttt-text);
+}
+
+/* Back to Hub button */
+#back-to-hub {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  margin-bottom: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--ttt-muted);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#back-to-hub:hover {
+  color: var(--ttt-text);
+  border-color: var(--ttt-accent);
+  background: rgba(248,248,0,0.06);
+}
+
+/* TTT App shell */
+#ttt-app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Subtle grid texture behind TTT */
+#screen-ttt::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--ttt-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ttt-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* TTT Header */
+#ttt-header { text-align: center; }
+
+#mode-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--ttt-accent);
+  margin-bottom: 4px;
+  transition: color 0.3s;
+}
+
+#ttt-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.8rem, 8vw, 4rem);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--ttt-text);
+  font-weight: 400;
+}
+
+/* Mode selector */
+#mode-selector {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 11px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  background: var(--ttt-surface);
+  color: var(--ttt-muted);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.mode-btn:hover { color: var(--ttt-text); border-color: #444; }
+.mode-btn.active { background: var(--ttt-accent); color: #000; border-color: var(--ttt-accent); font-weight: 500; }
+
+/* Difficulty selector */
+#difficulty-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--ttt-surface);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  padding: 10px 14px;
+  gap: 12px;
+}
+#diff-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--ttt-muted); flex-shrink: 0; }
+#diff-buttons { display: flex; gap: 8px; }
+.diff-btn {
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--ttt-muted);
+  border: 1px solid var(--ttt-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.diff-btn:hover { color: var(--ttt-text); border-color: #444; }
+.diff-btn.active#btn-easy   { background: #2a9d2a; border-color: #2a9d2a; color: #fff; }
+.diff-btn.active#btn-medium { background: #e08c00; border-color: #e08c00; color: #fff; }
+.diff-btn.active#btn-hard   { background: #cc2222; border-color: #cc2222; color: #fff; }
+
+/* Scorecards — prefixed .ttt-* to avoid hub class name collisions */
+#scorecards { display: flex; align-items: center; gap: 12px; width: 100%; }
+
+.ttt-scorecard {
+  flex: 1;
+  background: var(--ttt-surface);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ttt-scorecard.active { border-color: var(--ttt-accent); box-shadow: 0 0 18px -4px var(--ttt-accent); }
+
+.ttt-mark { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; }
+.ttt-mark.x   { color: var(--ttt-x);   }
+.ttt-mark.o   { color: var(--ttt-o);   }
+.ttt-mark.bot { color: var(--ttt-bot); }
+
+.ttt-name  { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--ttt-muted); text-transform: uppercase; }
+.ttt-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--ttt-text); line-height: 1; }
+.ttt-vs    { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em; color: var(--ttt-muted); flex-shrink: 0; }
+
+/* Status banner */
+#status-wrap {
+  width: 100%;
+  background: var(--ttt-surface);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  padding: 14px 20px;
+  text-align: center;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#status { font-size: 0.95rem; letter-spacing: 0.06em; color: var(--ttt-text); transition: color 0.2s; }
+#status.win  { color: var(--ttt-accent); font-size: 1.05rem; }
+#status.draw { color: var(--ttt-muted);  font-size: 1.05rem; }
+#status.thinking { color: var(--ttt-bot); animation: blink 0.7s ease infinite alternate; }
+@keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* Board */
+#board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+#board.disabled { pointer-events: none; opacity: 0.75; }
+
+.cell {
+  aspect-ratio: 1;
+  background: var(--ttt-surface);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 10vw, 3.4rem);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.cell:hover:not(.taken) { background: #1e1e24; border-color: #444; transform: scale(1.03); }
+.cell.x { color: var(--ttt-x); border-color: rgba(255,77,109,0.35); }
+.cell.o { color: var(--ttt-o); border-color: rgba(76,201,240,0.35); }
+#board.bot-mode .cell.o { color: var(--ttt-bot); border-color: rgba(179,136,255,0.35); }
+.cell.winner { animation: cellPulse 0.7s ease forwards; }
+@keyframes cellPulse { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1.06); } }
+@keyframes cellPop   { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+.cell.x, .cell.o { animation: cellPop 0.2s ease forwards; }
+
+/* Restart button */
+#restart {
+  width: 100%;
+  padding: 15px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  background: transparent;
+  color: var(--ttt-text);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+#restart:hover { background: var(--ttt-accent); border-color: var(--ttt-accent); color: #000; }
+
+/* TTT Responsive */
+@media (max-width: 480px) {
+  #screen-ttt { padding: 16px 16px 32px; }
+  #ttt-app    { gap: 14px; }
+}
