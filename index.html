@@ -5,13 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DuelZone – Choose Your Arena</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <!-- Hub fonts: Orbitron + Rajdhani  |  TTT fonts: Bebas Neue + DM Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!--
+    Hub:          Orbitron + Rajdhani
+    Tic Tac Toe:  Bebas Neue + DM Mono
+    Connect Four: Russo One + Barlow Condensed
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600&family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Russo+One&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Atmospheric background layers (pointer-events:none — never block clicks) -->
+  <!-- Atmospheric background layers -->
   <div class="bg-fog"></div>
   <div class="bg-scanlines"></div>
   <div class="bg-grid"></div>
@@ -21,7 +25,6 @@
        ══════════════════════════════════════════════ -->
   <div id="screen-hub">
 
-    <!-- Header -->
     <header id="header">
       <div class="sword left">⚔</div>
       <div class="header-center">
@@ -32,15 +35,14 @@
       <div class="sword right">⚔</div>
     </header>
 
-    <!-- Arena grid -->
     <main id="arena-grid">
 
-      <!-- Tic Tac Toe — data-screen="ttt" tells JS to switch screens -->
+      <!-- Tic Tac Toe — data-screen="ttt" triggers screen switch -->
       <article class="arena-card" data-game="Tic Tac Toe" data-screen="ttt" data-color="cyan" style="--accent:#00e5ff">
         <div class="card-top-bar"></div>
         <div class="card-inner">
           <div class="card-icon">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+            <svg viewBox="0 0 48 48" fill="none" width="46" height="46">
               <line x1="16" y1="4"  x2="16" y2="44" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
               <line x1="32" y1="4"  x2="32" y2="44" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
               <line x1="4"  y1="16" x2="44" y2="16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
@@ -59,12 +61,12 @@
         <div class="card-glow"></div>
       </article>
 
-      <!-- Connect Four -->
-      <article class="arena-card" data-game="Connect Four" data-color="orange" style="--accent:#ff6d00">
+      <!-- Connect Four — data-screen="c4" triggers screen switch -->
+      <article class="arena-card" data-game="Connect Four" data-screen="c4" data-color="orange" style="--accent:#ff6d00">
         <div class="card-top-bar"></div>
         <div class="card-inner">
           <div class="card-icon">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+            <svg viewBox="0 0 48 48" fill="none" width="46" height="46">
               <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="3"/>
               <circle cx="36" cy="12" r="6" stroke="currentColor" stroke-width="3"/>
               <circle cx="12" cy="36" r="6" fill="currentColor"/>
@@ -89,7 +91,7 @@
         <div class="card-top-bar"></div>
         <div class="card-inner">
           <div class="card-icon">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+            <svg viewBox="0 0 48 48" fill="none" width="46" height="46">
               <rect x="10" y="20" width="28" height="20" rx="5" stroke="currentColor" stroke-width="3"/>
               <rect x="14" y="10" width="7"  height="12" rx="3.5" stroke="currentColor" stroke-width="3"/>
               <rect x="23" y="8"  width="7"  height="14" rx="3.5" stroke="currentColor" stroke-width="3"/>
@@ -113,7 +115,7 @@
         <div class="card-top-bar"></div>
         <div class="card-inner">
           <div class="card-icon">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+            <svg viewBox="0 0 48 48" fill="none" width="46" height="46">
               <circle cx="24" cy="24" r="10" stroke="currentColor" stroke-width="3"/>
               <circle cx="24" cy="24" r="3"  fill="currentColor"/>
               <line x1="24" y1="4"  x2="24" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
@@ -149,10 +151,8 @@
        ══════════════════════════════════════════════ -->
   <div id="screen-ttt" class="hidden">
 
-    <!-- Back button — always at the top of the game screen -->
     <button id="back-to-hub">← Back to Hub</button>
 
-    <!-- TTT app shell (mirrors the standalone game's #app) -->
     <div id="ttt-app">
 
       <header id="ttt-header">
@@ -160,13 +160,11 @@
         <h2 id="ttt-title">Tic Tac Toe</h2>
       </header>
 
-      <!-- Mode selector -->
       <div id="mode-selector">
         <button class="mode-btn active" id="btn-pvp">👥 Player vs Player</button>
         <button class="mode-btn"        id="btn-pve">🤖 Player vs Bot</button>
       </div>
 
-      <!-- Difficulty selector (hidden in PvP) -->
       <div id="difficulty-selector" class="hidden">
         <span id="diff-label">DIFFICULTY</span>
         <div id="diff-buttons">
@@ -176,7 +174,6 @@
         </div>
       </div>
 
-      <!-- Player scorecards -->
       <div id="scorecards">
         <div class="ttt-scorecard" id="card-p1">
           <span class="ttt-mark x">X</span>
@@ -191,12 +188,10 @@
         </div>
       </div>
 
-      <!-- Status banner -->
       <div id="status-wrap">
         <p id="status">Player 1's Turn</p>
       </div>
 
-      <!-- Game board -->
       <div id="board">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>
@@ -209,14 +204,105 @@
         <div class="cell" data-index="8"></div>
       </div>
 
-      <!-- Restart button (resets current game only, stays on TTT screen) -->
       <button id="restart">↺ New Game</button>
 
     </div><!-- /#ttt-app -->
   </div><!-- /#screen-ttt -->
 
 
-  <!-- Launch overlay (used by non-TTT cards) -->
+  <!-- ══════════════════════════════════════════════
+       SCREEN 3: Connect Four  (hidden by default)
+       All IDs are prefixed with c4- to avoid collisions
+       with Tic Tac Toe IDs that share the same names.
+       ══════════════════════════════════════════════ -->
+  <div id="screen-c4" class="hidden">
+
+    <!-- Back button — mirrors the TTT pattern exactly -->
+    <button id="c4-back-to-hub">← Back to Hub</button>
+
+    <!-- C4 app shell -->
+    <div id="c4-app">
+
+      <!-- Header -->
+      <header id="c4-game-header">
+        <p class="c4-eyebrow">DUELZONE ARENA</p>
+        <h2 id="c4-game-title">CONNECT FOUR</h2>
+      </header>
+
+      <!-- Controls row -->
+      <div id="c4-controls">
+
+        <div class="c4-control-group">
+          <label class="c4-control-label">MODE</label>
+          <div class="c4-btn-group">
+            <button class="c4-ctrl-btn active" id="c4-btn-pvp">👥 PvP</button>
+            <button class="c4-ctrl-btn"        id="c4-btn-bot">🤖 vs Bot</button>
+          </div>
+        </div>
+
+        <div class="c4-control-group hidden" id="c4-diff-group">
+          <label class="c4-control-label">DIFFICULTY</label>
+          <div class="c4-btn-group">
+            <button class="c4-diff-btn active" id="c4-diff-easy">Easy</button>
+            <button class="c4-diff-btn"        id="c4-diff-med">Medium</button>
+            <button class="c4-diff-btn"        id="c4-diff-hard">Hard</button>
+          </div>
+        </div>
+
+        <button id="c4-btn-reset">↺ Reset</button>
+
+      </div>
+
+      <!-- Player info bar -->
+      <div id="c4-player-bar">
+        <div class="c4-player-card" id="c4-p1-card">
+          <span class="c4-disc-dot red"></span>
+          <span class="c4-player-label">Player 1</span>
+          <span class="c4-player-score" id="c4-score-p1">0</span>
+        </div>
+        <div id="c4-status-wrap">
+          <p id="c4-status-text">Player 1's Turn</p>
+        </div>
+        <div class="c4-player-card" id="c4-p2-card">
+          <span class="c4-disc-dot yellow"></span>
+          <span class="c4-player-label" id="c4-p2-label">Player 2</span>
+          <span class="c4-player-score" id="c4-score-p2">0</span>
+        </div>
+      </div>
+
+      <!-- Drop zone: 7 ghost-disc hover indicators above the board -->
+      <div id="c4-drop-zone">
+        <div class="c4-drop-cell" data-col="0"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="1"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="2"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="3"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="4"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="5"><span class="c4-ghost-disc"></span></div>
+        <div class="c4-drop-cell" data-col="6"><span class="c4-ghost-disc"></span></div>
+      </div>
+
+      <!-- Board: 42 .c4-board-cell divs injected by JS in c4RenderBoard() -->
+      <div id="c4-board-wrap">
+        <div id="c4-board">
+          <!-- cells injected by JS -->
+        </div>
+        <!-- Column overlays: invisible full-height click/hover targets per column -->
+        <div id="c4-col-overlays">
+          <div class="c4-col-overlay" data-col="0"></div>
+          <div class="c4-col-overlay" data-col="1"></div>
+          <div class="c4-col-overlay" data-col="2"></div>
+          <div class="c4-col-overlay" data-col="3"></div>
+          <div class="c4-col-overlay" data-col="4"></div>
+          <div class="c4-col-overlay" data-col="5"></div>
+          <div class="c4-col-overlay" data-col="6"></div>
+        </div>
+      </div>
+
+    </div><!-- /#c4-app -->
+  </div><!-- /#screen-c4 -->
+
+
+  <!-- Launch overlay (used by cards with no built-in screen yet) -->
   <div id="launch-overlay" aria-hidden="true">
     <div id="launch-inner">
       <div id="launch-ring"></div>

@@ -707,3 +707,397 @@ html, body {
   #screen-ttt { padding: 16px 16px 32px; }
   #ttt-app    { gap: 14px; }
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 3: Connect Four
+   All rules are scoped under #screen-c4 or use the c4- prefix
+   to guarantee zero collisions with hub or Tic Tac Toe styles.
+   ════════════════════════════════════════════════════════════ */
+
+/*
+  C4 design tokens — defined on #screen-c4 so they're isolated.
+  These mirror the standalone game's :root vars but don't pollute
+  the global scope (which would override hub/TTT colours).
+*/
+#screen-c4 {
+  --c4-bg:          #07090f;
+  --c4-frame:       #0e1a35;
+  --c4-frame-hi:    #162447;
+  --c4-frame-edge:  #1f3464;
+  --c4-cell-hole:   #060810;
+  --c4-red:         #ff2d4b;
+  --c4-red-glow:    rgba(255, 45, 75, 0.6);
+  --c4-yellow:      #ffc700;
+  --c4-yellow-glow: rgba(255, 199, 0, 0.55);
+  --c4-text:        #c8d4f0;
+  --c4-muted:       #3d5080;
+  --c4-accent:      #4fc3f7;
+  --c4-radius-ui:   10px;
+  --c4-board-gap:   10px;
+  --c4-cell-size:   clamp(46px, 8vw, 70px);
+  --c4-font-display:'Russo One', sans-serif;
+  --c4-font-ui:     'Barlow Condensed', sans-serif;
+
+  /* Screen layout */
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 48px;
+  gap: 18px;
+  font-family: var(--c4-font-ui);
+  color: var(--c4-text);
+}
+
+/* Subtle grid texture scoped to C4 screen */
+#screen-c4::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(79,195,247,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 10% 100%, rgba(255,45,75,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 90% 100%, rgba(255,199,0,0.05) 0%, transparent 50%),
+    repeating-linear-gradient(to bottom, transparent 0px, transparent 3px,
+      rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Back to Hub ─────────────────────────────── */
+#c4-back-to-hub {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-family: var(--c4-font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--c4-muted);
+  border: 1px solid var(--c4-frame-edge);
+  border-radius: var(--c4-radius-ui);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#c4-back-to-hub:hover {
+  color: var(--c4-text);
+  border-color: var(--c4-accent);
+  background: rgba(79, 195, 247, 0.06);
+}
+
+/* ── App shell ───────────────────────────────── */
+#c4-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+/* ── Header ──────────────────────────────────── */
+#c4-game-header { text-align: center; }
+
+.c4-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.4em;
+  color: var(--c4-accent);
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+#c4-game-title {
+  font-family: var(--c4-font-display);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #4fc3f7 0%, #81d4fa 40%, #b3e5fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(79,195,247,0.4));
+  font-weight: 400;
+}
+
+/* ── Controls row ────────────────────────────── */
+#c4-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.c4-control-group { display: flex; flex-direction: column; gap: 6px; }
+.c4-control-label { font-size: 0.6rem; letter-spacing: 0.22em; color: var(--c4-muted); }
+.c4-btn-group     { display: flex; gap: 6px; }
+
+.c4-ctrl-btn,
+.c4-diff-btn {
+  padding: 8px 16px;
+  font-family: var(--c4-font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--c4-muted);
+  border: 1px solid var(--c4-muted);
+  border-radius: var(--c4-radius-ui);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.c4-ctrl-btn:hover,
+.c4-diff-btn:hover { color: var(--c4-text); border-color: var(--c4-text); }
+
+.c4-ctrl-btn.active {
+  background: var(--c4-accent);
+  color: #07090f;
+  border-color: var(--c4-accent);
+  box-shadow: 0 0 14px rgba(79,195,247,0.45);
+}
+
+.c4-diff-btn.active#c4-diff-easy {
+  background: #1a7a2a; border-color: #1a7a2a; color: #fff;
+  box-shadow: 0 0 12px rgba(26,122,42,0.5);
+}
+.c4-diff-btn.active#c4-diff-med {
+  background: #9a6000; border-color: #9a6000; color: #fff;
+  box-shadow: 0 0 12px rgba(154,96,0,0.5);
+}
+.c4-diff-btn.active#c4-diff-hard {
+  background: #9a1010; border-color: #9a1010; color: #fff;
+  box-shadow: 0 0 12px rgba(154,16,16,0.5);
+}
+
+#c4-btn-reset {
+  padding: 9px 20px;
+  font-family: var(--c4-font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--c4-muted);
+  border: 1px solid var(--c4-frame-edge);
+  border-radius: var(--c4-radius-ui);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  align-self: flex-end;
+}
+#c4-btn-reset:hover {
+  background: var(--c4-frame-hi);
+  color: var(--c4-text);
+  border-color: var(--c4-accent);
+}
+
+/* ── Player info bar ─────────────────────────── */
+#c4-player-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: calc(var(--c4-cell-size) * 7 + var(--c4-board-gap) * 8);
+}
+
+.c4-player-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--c4-frame);
+  border: 1px solid var(--c4-frame-edge);
+  border-radius: var(--c4-radius-ui);
+  flex: 0 0 auto;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.c4-player-card.active-turn { border-color: var(--c4-accent); box-shadow: 0 0 16px -4px var(--c4-accent); }
+.c4-player-card.active-turn#c4-p1-card { border-color: var(--c4-red);    box-shadow: 0 0 16px -4px var(--c4-red-glow); }
+.c4-player-card.active-turn#c4-p2-card { border-color: var(--c4-yellow); box-shadow: 0 0 16px -4px var(--c4-yellow-glow); }
+
+.c4-disc-dot {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+}
+.c4-disc-dot.red    { background: var(--c4-red);    box-shadow: 0 0 8px var(--c4-red-glow); }
+.c4-disc-dot.yellow { background: var(--c4-yellow); box-shadow: 0 0 8px var(--c4-yellow-glow); }
+
+.c4-player-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; color: var(--c4-text); }
+.c4-player-score {
+  font-family: var(--c4-font-display);
+  font-size: 1.2rem;
+  color: var(--c4-accent);
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Status centre panel */
+#c4-status-wrap {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  background: var(--c4-frame);
+  border-top: 1px solid var(--c4-frame-edge);
+  border-bottom: 1px solid var(--c4-frame-edge);
+}
+#c4-status-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--c4-text);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+#c4-status-text.win     { color: var(--c4-accent); font-size: 1rem; }
+#c4-status-text.draw    { color: var(--c4-muted); }
+#c4-status-text.p1-turn { color: var(--c4-red); }
+#c4-status-text.p2-turn { color: var(--c4-yellow); }
+#c4-status-text.thinking {
+  color: var(--c4-yellow);
+  animation: c4StatusBlink 0.6s ease infinite alternate;
+}
+@keyframes c4StatusBlink { from { opacity: 1; } to { opacity: 0.35; } }
+
+/* ── Drop zone (ghost disc row above board) ──── */
+#c4-drop-zone {
+  display: grid;
+  grid-template-columns: repeat(7, var(--c4-cell-size));
+  gap: var(--c4-board-gap);
+  padding: 0 var(--c4-board-gap);
+}
+.c4-drop-cell {
+  width: var(--c4-cell-size);
+  height: var(--c4-cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.c4-ghost-disc {
+  width: calc(var(--c4-cell-size) * 0.78);
+  height: calc(var(--c4-cell-size) * 0.78);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.15s, transform 0.15s;
+  pointer-events: none;
+}
+
+/* ── Board wrap (the steel frame) ────────────── */
+#c4-board-wrap {
+  position: relative;
+  border-radius: 14px;
+  background: var(--c4-frame);
+  border: 3px solid var(--c4-frame-edge);
+  box-shadow:
+    0 0 0 1px rgba(79,195,247,0.08),
+    0 24px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ── Board grid ──────────────────────────────── */
+#c4-board {
+  display: grid;
+  grid-template-columns: repeat(7, var(--c4-cell-size));
+  grid-template-rows:    repeat(6, var(--c4-cell-size));
+  gap: var(--c4-board-gap);
+  padding: var(--c4-board-gap);
+}
+
+/* ── Individual cell (the hole) ──────────────── */
+.c4-board-cell {
+  width: var(--c4-cell-size);
+  height: var(--c4-cell-size);
+  border-radius: 50%;
+  background: var(--c4-cell-hole);
+  box-shadow: inset 0 4px 12px rgba(0,0,0,0.7);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+/* Disc pseudo-element — hidden until a colour class is applied */
+.c4-board-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.08s;
+}
+.c4-board-cell.red::after {
+  background: radial-gradient(circle at 35% 30%, #ff6b80, var(--c4-red) 60%, #8b0018);
+  box-shadow: inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 18px var(--c4-red-glow);
+  opacity: 1;
+}
+.c4-board-cell.yellow::after {
+  background: radial-gradient(circle at 35% 30%, #ffe066, var(--c4-yellow) 60%, #7a5900);
+  box-shadow: inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 18px var(--c4-yellow-glow);
+  opacity: 1;
+}
+
+/* Disc drop animation */
+.c4-board-cell.dropping::after {
+  animation: c4DiscDrop 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes c4DiscDrop {
+  0%   { transform: translateY(calc(-1 * var(--c4-drop-from, 300px))); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Win pulse */
+.c4-board-cell.winner-cell {
+  animation: c4WinPulse 0.5s ease 0.1s 3 alternate;
+}
+@keyframes c4WinPulse {
+  0%   { box-shadow: inset 0 4px 12px rgba(0,0,0,0.7); }
+  100% {
+    box-shadow:
+      inset 0 4px 12px rgba(0,0,0,0.3),
+      0 0 28px 6px rgba(255,255,255,0.35),
+      0 0 48px 10px rgba(255,255,255,0.15);
+  }
+}
+
+/* ── Column overlays (click/hover targets) ───── */
+#c4-col-overlays {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 5;
+}
+.c4-col-overlay {
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+.c4-col-overlay:hover {
+  background: rgba(79, 195, 247, 0.06);
+}
+/* Board locked after game ends or while bot thinks */
+#c4-board-wrap.locked .c4-col-overlay {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── C4 Responsive ───────────────────────────── */
+@media (max-width: 560px) {
+  #screen-c4 {
+    --c4-cell-size: 42px;
+    --c4-board-gap: 7px;
+    padding: 16px 16px 32px;
+  }
+  #c4-player-bar  { flex-wrap: wrap; justify-content: center; }
+  .c4-player-card { padding: 8px 12px; }
+  #c4-status-wrap {
+    width: 100%;
+    border: 1px solid var(--c4-frame-edge);
+    border-radius: var(--c4-radius-ui);
+  }
+  #c4-game-title  { font-size: 1.8rem; }
+}
+@media (max-width: 380px) {
+  #screen-c4 { --c4-cell-size: 36px; --c4-board-gap: 5px; }
+}
