@@ -24,17 +24,18 @@ var ck = (function () {
   function ckResetState() {
     state = {
       board:          ckInitBoard(),
-      currentTurn:    1,           // 1 | 2
-      selected:       null,        // [r, c] or null
-      validMoves:     [],          // array of move objects
-      forcedCaptures: [],          // array of move objects (subset)
-      multiJumpPiece: null,        // [r, c] if mid multi-jump
-      gameMode:       null,        // 'pvp' | 'bot'
-      difficulty:     'medium',    // 'easy'|'medium'|'hard'
+      currentTurn:    1,
+      selected:       null,
+      validMoves:     [],
+      forcedCaptures: [],
+      multiJumpPiece: null,
+      gameMode:       null,
+      difficulty:     'medium',
       gameOver:       false,
       winner:         null,
       aiThinking:     false,
-      gamePhase:      'modeselect' // 'modeselect' | 'battle' | 'gameover'
+      gamePhase:      'modeselect',
+      moveHistory:    []   // { player, from, to, captures }
     };
   }
 
@@ -205,8 +206,63 @@ var ck = (function () {
   // ─────────────────────────────────────────────────────────────
   function ckPromoteToKing(board, r, c) {
     var val = board[r][c];
-    if (val === P1 && r === 0) board[r][c] = K1;
-    if (val === P2 && r === 7) board[r][c] = K2;
+    var promoted = false;
+    if (val === P1 && r === 0) { board[r][c] = K1; promoted = true; }
+    if (val === P2 && r === 7) { board[r][c] = K2; promoted = true; }
+    if (promoted) {
+      // Trigger crown animation on the destination cell
+      setTimeout(function() {
+        var el = ckCellEl(r, c);
+        if (!el) return;
+        el.classList.add('ck-anim-king-promote');
+        // Crown burst particles
+        ckSpawnCrownParticles(r, c, val === P1 ? '#ef4444' : '#475569');
+        setTimeout(function() { if (el) el.classList.remove('ck-anim-king-promote'); }, 700);
+        // Show "KING!" toast
+        ckShowKingToast(r, c);
+      }, 100);
+    }
+  }
+
+  function ckSpawnCrownParticles(r, c, color) {
+    var boardEl = ckDom('ck-board');
+    if (!boardEl) return;
+    var sq = ckCellEl(r, c);
+    if (!sq) return;
+    var rect = sq.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top  + rect.height / 2;
+    for (var i = 0; i < 14; i++) {
+      (function(i) {
+        var p = document.createElement('div');
+        p.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;' +
+          'left:' + cx + 'px;top:' + cy + 'px;' +
+          'width:' + (5 + Math.random()*5) + 'px;height:' + (5 + Math.random()*5) + 'px;' +
+          'background:' + (i % 2 === 0 ? color : '#fbbf24') + ';' +
+          'border-radius:50%;transform:translate(-50%,-50%);opacity:1;' +
+          'transition:all 0.6s cubic-bezier(.17,.84,.44,1)';
+        document.body.appendChild(p);
+        var angle = (Math.PI * 2 * i) / 14;
+        var speed = 30 + Math.random() * 40;
+        setTimeout(function() {
+          p.style.left = (cx + Math.cos(angle) * speed) + 'px';
+          p.style.top  = (cy + Math.sin(angle) * speed) + 'px';
+          p.style.opacity = '0';
+        }, 20);
+        setTimeout(function() { p.remove(); }, 680);
+      })(i);
+    }
+  }
+
+  function ckShowKingToast(r, c) {
+    var sq = ckCellEl(r, c);
+    if (!sq) return;
+    var toast = document.createElement('div');
+    toast.className = 'ck-king-toast';
+    toast.textContent = '♛ KING!';
+    sq.style.position = 'relative';
+    sq.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 1400);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -224,6 +280,19 @@ var ck = (function () {
     move.captures.forEach(function(cap) {
       state.board[cap[0]][cap[1]] = EMPTY;
     });
+
+    // Record move in history
+    var cols = 'abcdefgh';
+    var notation = cols[fc] + (SIZE - fr) + '-' + cols[tc] + (SIZE - tr);
+    if (move.captures.length > 0) notation += ' x' + move.captures.length;
+    state.moveHistory.push({
+      player:   state.currentTurn,
+      from:     [fr, fc],
+      to:       [tr, tc],
+      captures: move.captures.length,
+      notation: notation
+    });
+    ckUpdateMoveHistory();
 
     // Promote
     ckPromoteToKing(state.board, tr, tc);
@@ -456,22 +525,92 @@ var ck = (function () {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // PUBLIC: ckAIMoveHard — minimax-style evaluation
+  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 7 = near-unbeatable)
   // ─────────────────────────────────────────────────────────────
   function ckAIMoveHard() {
     var all = ckGetAllMoves(state.board, 2);
     var pool = all.captures.length > 0 ? all.captures : all.moves;
     if (!pool.length) return null;
+    var result = ckMinimax(state.board, 7, -Infinity, Infinity, true, 2);
+    return result.move || pool[0];
+  }
 
-    var best = null, bestScore = -Infinity;
+  function ckMinimax(board, depth, alpha, beta, maximizing, player) {
+    var currentPlayer = maximizing ? player : ckOpponent(player);
+    var all = ckGetAllMoves(board, currentPlayer);
+    var pool = all.captures.length > 0 ? all.captures : all.moves;
 
-    pool.forEach(function(m) {
-      var nb = ckCloneBoard(state.board);
-      ckApplyMoveToBoard(nb, m);
-      var score = ckEvaluateBoard(nb, 2, m);
-      if (score > bestScore) { bestScore = score; best = m; }
-    });
-    return best || pool[0];
+    if (depth === 0 || pool.length === 0) {
+      return { score: ckEvalBoard(board), move: null };
+    }
+
+    var bestMove = null;
+    if (maximizing) {
+      var best = -Infinity;
+      for (var i = 0; i < pool.length; i++) {
+        var m = pool[i];
+        var nb = ckCloneBoard(board);
+        ckApplyMoveToBoard(nb, m);
+        var child = ckMinimax(nb, depth - 1, alpha, beta, false, player);
+        if (child.score > best) { best = child.score; bestMove = m; }
+        alpha = Math.max(alpha, best);
+        if (beta <= alpha) break;
+      }
+      return { score: best, move: bestMove };
+    } else {
+      var best2 = Infinity;
+      for (var j = 0; j < pool.length; j++) {
+        var m2 = pool[j];
+        var nb2 = ckCloneBoard(board);
+        ckApplyMoveToBoard(nb2, m2);
+        var child2 = ckMinimax(nb2, depth - 1, alpha, beta, true, player);
+        if (child2.score < best2) { best2 = child2.score; bestMove = m2; }
+        beta = Math.min(beta, best2);
+        if (beta <= alpha) break;
+      }
+      return { score: best2, move: bestMove };
+    }
+  }
+
+  // Deep positional + material evaluation for minimax
+  function ckEvalBoard(board) {
+    var score = 0;
+    var p2pieces=0, p1pieces=0;
+    for (var r = 0; r < SIZE; r++) {
+      for (var c = 0; c < SIZE; c++) {
+        var v = board[r][c];
+        if (v === P2) {
+          score += 100;
+          // Advancement bonus
+          score += (7 - r) * 5;
+          // Center control
+          if (c >= 2 && c <= 5 && r >= 3 && r <= 4) score += 15;
+          // Edge penalty
+          if (c === 0 || c === 7) score -= 8;
+          p2pieces++;
+        } else if (v === K2) {
+          score += 280;
+          // Kings prefer center
+          score += (3 - Math.abs(r-3.5)) * 8;
+          score += (3 - Math.abs(c-3.5)) * 8;
+          p2pieces++;
+        } else if (v === P1) {
+          score -= 100;
+          score -= r * 5;
+          if (c >= 2 && c <= 5 && r >= 3 && r <= 4) score -= 15;
+          if (c === 0 || c === 7) score += 8;
+          p1pieces++;
+        } else if (v === K1) {
+          score -= 280;
+          score -= (3 - Math.abs(r-3.5)) * 8;
+          score -= (3 - Math.abs(c-3.5)) * 8;
+          p1pieces++;
+        }
+      }
+    }
+    // Bonus for being ahead in pieces (endgame weight)
+    score += (p2pieces - p1pieces) * 30;
+    return score;
   }
 
   function ckEvaluateBoard(board, player, move) {
@@ -724,6 +863,20 @@ var ck = (function () {
     var el2 = ckDom('ck-p2-count');
     if (el1) el1.textContent = p1 + ' pieces' + (k1 ? ' (' + k1 + ' kings)' : '');
     if (el2) el2.textContent = p2 + ' pieces' + (k2 ? ' (' + k2 + ' kings)' : '');
+  }
+
+  function ckUpdateMoveHistory() {
+    var el = ckDom('ck-move-history');
+    if (!el) return;
+    var history = state.moveHistory;
+    // Show last 8 moves
+    var shown = history.slice(-8);
+    el.innerHTML = shown.map(function(m) {
+      var pClass = m.player === 1 ? 'ck-hist-p1' : 'ck-hist-p2';
+      var capIcon = m.captures > 0 ? ' <span class="ck-hist-cap">×' + m.captures + '</span>' : '';
+      return '<span class="ck-hist-entry ' + pClass + '">P' + m.player + ': ' + m.notation + capIcon + '</span>';
+    }).join('');
+    el.scrollTop = el.scrollHeight;
   }
 
   // ─────────────────────────────────────────────────────────────

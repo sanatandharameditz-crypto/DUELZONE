@@ -31,8 +31,23 @@ var screenPB       = document.getElementById('screen-passbreach');
 var screenChess        = document.getElementById('screen-chess');
 var screenBattleship   = document.getElementById('screen-battleship');
 var screenCheckers     = document.getElementById('screen-checkers');
+var screenDarts        = document.getElementById('screen-darts');
+var screenTanks        = document.getElementById('screen-tanks');
+var screenStarCatcher  = document.getElementById('screen-starcatcher');
+var screenSpaceDodge   = document.getElementById('screen-spacedodge');
+var screenPingPong     = document.getElementById('screen-pingpong');
+var screenSnake        = document.getElementById('screen-snake');
+var screenTyping       = document.getElementById('screen-typing');
+var screenMinesweeper  = document.getElementById('screen-minesweeper');
+var screenBlackjack    = document.getElementById('screen-blackjack');
+var screenTetris       = document.getElementById('screen-tetris');
+var screenBomberman    = document.getElementById('screen-bomberman');
+var screenDrawGuess    = document.getElementById('screen-drawguess');
+var screenPixelRacer   = document.getElementById('screen-pixelracer');
+var screenReaction     = document.getElementById('screen-reaction');
+var screenTerritory    = document.getElementById('screen-territory');
 
-var ALL_SCREENS = [screenHub, screenTTT, screenRPS, screenTap, screen2048, screenC4, screenCricket, screenAH, screenPB, screenChess, screenBattleship, screenCheckers];
+var ALL_SCREENS = [screenHub, screenTTT, screenRPS, screenTap, screen2048, screenC4, screenCricket, screenAH, screenPB, screenChess, screenBattleship, screenCheckers, screenDarts, screenTanks, screenStarCatcher, screenSpaceDodge, screenPingPong, screenSnake, screenTyping, screenMinesweeper, screenBlackjack, screenTetris, screenBomberman, screenDrawGuess, screenPixelRacer, screenReaction, screenTerritory];
 // Note: screenMFD and screenCDD are push()ed to ALL_SCREENS
 // later in their respective sections once their vars are declared.
 
@@ -126,6 +141,117 @@ function showCheckers() {
   hideAllScreens();
   screenCheckers.classList.remove('hidden');
   if (typeof ckInit === 'function') { ckInit(); }
+  window.scrollTo(0, 0);
+}
+
+function showDarts() {
+  hideAllScreens();
+  screenDarts.classList.remove('hidden');
+  if (typeof dartsInit === 'function') { dartsInit(); }
+  window.scrollTo(0, 0);
+}
+
+function showTanks() {
+  hideAllScreens();
+  screenTanks.classList.remove('hidden');
+  if (typeof tanksDestroy === 'function') { tanksDestroy(); }
+  if (typeof tanksInit === 'function') { tanksInit(); }
+  window.scrollTo(0, 0);
+}
+
+function showStarCatcher() {
+  hideAllScreens();
+  screenStarCatcher.classList.remove('hidden');
+  if (typeof scDestroy === 'function') { scDestroy(); }
+  if (typeof scInit === 'function') { scInit(); }
+  window.scrollTo(0, 0);
+}
+
+function showSpaceDodge() {
+  hideAllScreens();
+  screenSpaceDodge.classList.remove('hidden');
+  var sdHome = document.getElementById('sd-home');
+  var sdPlay = document.getElementById('sd-play-panel');
+  if (sdHome) sdHome.classList.remove('hidden');
+  if (sdPlay) sdPlay.classList.add('hidden');
+  if (typeof sdStopGame === 'function') sdStopGame();
+  window.scrollTo(0, 0);
+}
+
+function showPingPong() {
+  hideAllScreens();
+  screenPingPong.classList.remove('hidden');
+  if (typeof ppInit === 'function') ppInit();
+  window.scrollTo(0, 0);
+}
+
+function showSnake() {
+  hideAllScreens();
+  if (screenSnake) screenSnake.classList.remove('hidden');
+  if (typeof snakeInit === 'function') snakeInit();
+  window.scrollTo(0, 0);
+}
+
+function showTyping() {
+  hideAllScreens();
+  if (screenTyping) screenTyping.classList.remove('hidden');
+  if (typeof typingInit === 'function') typingInit();
+  window.scrollTo(0, 0);
+}
+
+function showMinesweeper() {
+  hideAllScreens();
+  if (screenMinesweeper) screenMinesweeper.classList.remove('hidden');
+  if (typeof mineInit === 'function') mineInit();
+  window.scrollTo(0, 0);
+}
+
+function showBlackjack() {
+  hideAllScreens();
+  if (screenBlackjack) screenBlackjack.classList.remove('hidden');
+  if (typeof blackjackInit === 'function') blackjackInit();
+  window.scrollTo(0, 0);
+}
+
+function showTetris() {
+  hideAllScreens();
+  if (screenTetris) screenTetris.classList.remove('hidden');
+  if (typeof tetrisInit === 'function') tetrisInit();
+  window.scrollTo(0, 0);
+}
+
+function showBomberman() {
+  hideAllScreens();
+  if (screenBomberman) screenBomberman.classList.remove('hidden');
+  if (typeof bombermanInit === 'function') bombermanInit();
+  window.scrollTo(0, 0);
+}
+
+function showDrawGuess() {
+  hideAllScreens();
+  if (screenDrawGuess) screenDrawGuess.classList.remove('hidden');
+  if (typeof drawguessInit === 'function') drawguessInit();
+  window.scrollTo(0, 0);
+}
+
+function showPixelRacer() {
+  hideAllScreens();
+  if (screenPixelRacer) screenPixelRacer.classList.remove('hidden');
+  if (typeof pixelracerInit === 'function') pixelracerInit();
+  window.scrollTo(0, 0);
+}
+
+function showReaction() {
+  hideAllScreens();
+  if (screenReaction) screenReaction.classList.remove('hidden');
+  if (typeof reactionInit === 'function') reactionInit();
+  window.scrollTo(0, 0);
+}
+
+function showTerritory() {
+  hideAllScreens();
+  if (screenTerritory) screenTerritory.classList.remove('hidden');
+  if (typeof territoryInit === 'function') territoryInit();
   window.scrollTo(0, 0);
 }
 
@@ -386,7 +512,60 @@ document.addEventListener('DOMContentLoaded', function() {
       muteBtn.textContent = m ? '🔇' : '🔊';
     });
   }
+
+  // Dark/Light mode toggle
+  var themeBtn = document.getElementById('dz-theme-btn');
+  if (themeBtn) {
+    // Restore saved preference
+    var savedTheme = localStorage.getItem('dz-theme');
+    if (savedTheme === 'light') { document.body.classList.add('light-mode'); themeBtn.textContent = '☀️'; }
+    themeBtn.addEventListener('click', function() {
+      var isLight = document.body.classList.toggle('light-mode');
+      themeBtn.textContent = isLight ? '☀️' : '🌙';
+      localStorage.setItem('dz-theme', isLight ? 'light' : 'dark');
+    });
+  }
+
+  // Recently played
+  dzUpdateRecentlyPlayed();
 });
+
+function dzTrackRecentGame(gameName, screen, accent) {
+  try {
+    var recent = JSON.parse(localStorage.getItem('dz-recent') || '[]');
+    recent = recent.filter(function(g){ return g.screen !== screen; });
+    recent.unshift({ name: gameName, screen: screen, accent: accent || '#00e5ff' });
+    recent = recent.slice(0, 4);
+    localStorage.setItem('dz-recent', JSON.stringify(recent));
+    dzUpdateRecentlyPlayed();
+  } catch(e) {}
+}
+
+function dzUpdateRecentlyPlayed() {
+  try {
+    var wrap = document.getElementById('recently-played');
+    var list = document.getElementById('recently-played-list');
+    if (!wrap || !list) return;
+    var recent = JSON.parse(localStorage.getItem('dz-recent') || '[]');
+    if (recent.length === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    list.innerHTML = recent.map(function(g) {
+      return '<button onclick="showGame(\'' + g.screen + '\')" style="' +
+        'background:rgba(255,255,255,0.06);border:1.5px solid ' + g.accent + '40;' +
+        'color:' + g.accent + ';border-radius:20px;padding:5px 14px;' +
+        'font-family:\'Rajdhani\',sans-serif;font-size:0.78rem;letter-spacing:0.06em;' +
+        'cursor:pointer;transition:background 0.15s;white-space:nowrap;"' +
+        ' onmouseover="this.style.background=\'rgba(255,255,255,0.12)\'"' +
+        ' onmouseout="this.style.background=\'rgba(255,255,255,0.06)\'">' +
+        g.name + '</button>';
+    }).join('');
+  } catch(e) {}
+}
+
+function showGame(screen) {
+  var card = document.querySelector('[data-screen="' + screen + '"]');
+  if (card) card.click();
+}
 
 // ─────────────────────────────────────────────────────────────
 // SECTION B: Hub Logic (game card clicks + launch overlay)
@@ -403,6 +582,22 @@ var GAMES = [
   { name: 'Password Breaker',    screen: 'passbreach',  url: null, accent: '#00ff88' },
   { name: 'Chess',               screen: 'chess',       url: null, accent: '#f5c518' },
   { name: 'Checkers',            screen: 'checkers',    url: null, accent: '#e85d04' },
+  { name: 'Darts Duel',          screen: 'darts',       url: null, accent: '#ff1744' },
+  { name: 'Battleship',          screen: 'battleship',  url: null, accent: '#06b6d4' },
+  { name: 'Tanks Arena',         screen: 'tanks',       url: null, accent: '#ffab00' },
+  { name: 'Star Catcher',        screen: 'starcatcher', url: null, accent: '#ffd600' },
+  { name: 'Space Dodge',         screen: 'spacedodge',  url: null, accent: '#b400ff' },
+  { name: 'Ping Pong',            screen: 'pingpong',    url: null, accent: '#00e5ff' },
+  { name: 'Snake Duel',           screen: 'snake',       url: null, accent: '#00e676' },
+  { name: 'Typing Race',          screen: 'typing',      url: null, accent: '#fbbf24' },
+  { name: 'Minesweeper Duel',     screen: 'minesweeper', url: null, accent: '#ef4444' },
+  { name: 'Blackjack Duel',       screen: 'blackjack',   url: null, accent: '#a855f7' },
+  { name: 'Tetris Battle',        screen: 'tetris',      url: null, accent: '#00e5ff' },
+  { name: 'Bomberman Duel',       screen: 'bomberman',   url: null, accent: '#ff6d00' },
+  { name: 'Draw and Guess',       screen: 'drawguess',   url: null, accent: '#f50057' },
+  { name: 'Pixel Racer',          screen: 'pixelracer',  url: null, accent: '#00e676' },
+  { name: 'Reaction Duel',        screen: 'reaction',    url: null, accent: '#aa00ff' },
+  { name: 'Territory Wars',       screen: 'territory',   url: null, accent: '#ffd600' },
 ];
 
 var overlay    = document.getElementById('launch-overlay');
@@ -474,6 +669,9 @@ hubCards.forEach(function(card) {
 
     spawnRipple(card, evt);
 
+    // Track recently played
+    if (game) dzTrackRecentGame(gameName, game.screen, accentColor);
+
     // Route to correct screen
     if (game && game.screen === 'ttt')        { showTTT();     return; }
     if (game && game.screen === 'rps')        { showRPS();     return; }
@@ -488,7 +686,21 @@ hubCards.forEach(function(card) {
     if (game && game.screen === 'chess')       { if (typeof showChess === 'function') { showChess(); return; } }
     if (game && game.screen === 'battleship')  { showBattleship(); return; }
     if (game && game.screen === 'checkers')    { showCheckers();   return; }
-
+    if (game && game.screen === 'darts')       { showDarts();      return; }
+    if (game && game.screen === 'tanks')       { showTanks();      return; }
+    if (game && game.screen === 'starcatcher') { showStarCatcher(); return; }
+    if (game && game.screen === 'spacedodge')  { showSpaceDodge();  return; }
+    if (game && game.screen === 'pingpong')    { showPingPong();     return; }
+    if (game && game.screen === 'snake')       { showSnake();        return; }
+    if (game && game.screen === 'typing')      { showTyping();       return; }
+    if (game && game.screen === 'minesweeper') { showMinesweeper();  return; }
+    if (game && game.screen === 'blackjack')   { showBlackjack();    return; }
+    if (game && game.screen === 'tetris')      { showTetris();       return; }
+    if (game && game.screen === 'bomberman')   { showBomberman();    return; }
+    if (game && game.screen === 'drawguess')   { showDrawGuess();    return; }
+    if (game && game.screen === 'pixelracer')  { showPixelRacer();   return; }
+    if (game && game.screen === 'reaction')    { showReaction();     return; }
+    if (game && game.screen === 'territory')   { showTerritory();    return; }
 
     // Other games use the launch overlay placeholder
     launchWithOverlay(gameName, accentColor);
@@ -1829,28 +2041,36 @@ console.log('[DuelZone] 2048 Duel v2 loaded — smooth tiles, fixed bot, win ove
 // ═══════════════════════════════════════════════════════════════
 
 // ── State ──────────────────────────────────────────────────────
-var cricMode        = 'normal';  // 'normal' | 'crazy'
-var cricDiff        = 'easy';    // 'easy' | 'medium' | 'hard'
-var cricWickets     = 3;
+var cricMode         = 'normal';   // 'normal' | 'crazy'
+var cricDiff         = 'easy';     // 'easy' | 'medium' | 'hard'
+var cricWickets      = 3;
+var cricIsPvP        = false;
+var cricP1Name       = 'Player 1';
+var cricP2Name       = 'Player 2';
 
 // Toss state
-var cricTossOE      = null;      // 'odd' | 'even'
+var cricTossOE       = null;       // 'odd' | 'even'
 
 // Match state
-var cricPlayerBats  = true;      // true = player currently batting
-var cricInnings     = 1;         // 1 or 2
-var cricTarget      = null;      // runs target for 2nd innings
+var cricPlayerBats   = true;       // true = P1/YOU batting
+var cricInnings      = 1;
+var cricTarget       = null;
 
-var cricP1Score     = 0;
-var cricBotScore    = 0;
-var cricP1Wickets   = 0;         // wickets FALLEN (out of cricWickets)
-var cricBotWickets  = 0;
-
-var cricRound       = 1;
+var cricP1Score      = 0;
+var cricP2Score      = 0;
+var cricBotScore     = 0;
+var cricP1Wickets    = 0;
+var cricP2Wickets    = 0;
+var cricBotWickets   = 0;
+var cricRound        = 1;
 var cricNumpadLocked = false;
 
+// PvP play state
+var cricPvpBatterPick = null;   // batter's locked-in number this ball
+var cricPvpPhase      = 1;      // 1=batter picking, 2=bowler picking
+
 // Bot intelligence
-var cricPlayerHistory = [];      // for medium/hard
+var cricPlayerHistory = [];
 
 // ── DOM refs ───────────────────────────────────────────────────
 var cricSetupEl    = document.getElementById('cricket-setup');
@@ -1862,7 +2082,6 @@ var cricModeLabel  = document.getElementById('cricket-mode-label');
 var cricModeDesc   = document.getElementById('cricket-mode-desc');
 var cricWktDisp    = document.getElementById('cric-wicket-display');
 
-// Toss DOM
 var cricOEBtns     = document.getElementById('cric-oe-btns');
 var cricTossNumpad = document.getElementById('cricket-toss-numpad');
 var cricTossResult = document.getElementById('cricket-toss-result');
@@ -1871,7 +2090,6 @@ var cricTossBNum   = document.getElementById('cric-toss-b-num');
 var cricTossWinner = document.getElementById('cric-toss-winner-msg');
 var cricBatBowlBtns= document.getElementById('cric-bat-bowl-btns');
 
-// Play DOM
 var cricLeftName   = document.getElementById('cric-left-name');
 var cricLeftRuns   = document.getElementById('cric-left-runs');
 var cricLeftWkt    = document.getElementById('cric-left-wkt');
@@ -1886,7 +2104,6 @@ var cricPlayResult = document.getElementById('cric-play-result');
 var cricPlayPrompt = document.getElementById('cric-play-prompt');
 var cricPlayNumpad = document.getElementById('cric-play-numpad');
 
-// Result DOM
 var cricResTrophy  = document.getElementById('cric-result-trophy');
 var cricResTitle   = document.getElementById('cric-result-title');
 var cricResSub     = document.getElementById('cric-result-sub');
@@ -1907,128 +2124,126 @@ function cricNumPop(el) {
   el.classList.add('pop');
 }
 
+// Name helpers
+function cricBatterName() {
+  if (cricIsPvP) return cricPlayerBats ? cricP1Name : cricP2Name;
+  return cricPlayerBats ? 'YOU' : 'BOT';
+}
+function cricBowlerName() {
+  if (cricIsPvP) return cricPlayerBats ? cricP2Name : cricP1Name;
+  return cricPlayerBats ? 'BOT' : 'YOU';
+}
+
+// Score/wicket accessors that work for both modes
+function cricGetBatterScore()  { return cricPlayerBats ? cricP1Score : (cricIsPvP ? cricP2Score : cricBotScore); }
+function cricGetBowlerScore()  { return cricPlayerBats ? (cricIsPvP ? cricP2Score : cricBotScore) : cricP1Score; }
+function cricGetBatterWkts()   { return cricPlayerBats ? cricP1Wickets : (cricIsPvP ? cricP2Wickets : cricBotWickets); }
+function cricAddBatterRuns(r)  {
+  if (cricPlayerBats) { cricP1Score += r; }
+  else { if (cricIsPvP) cricP2Score += r; else cricBotScore += r; }
+}
+function cricAddBatterWkt() {
+  if (cricPlayerBats) { cricP1Wickets++; }
+  else { if (cricIsPvP) cricP2Wickets++; else cricBotWickets++; }
+}
+
 function cricBotPick() {
-  if (cricDiff === 'easy') {
-    return Math.floor(Math.random() * 10) + 1;
-  }
+  if (cricDiff === 'easy') return Math.floor(Math.random() * 10) + 1;
   if (cricDiff === 'medium') {
-    // 50% random, 50% pick player's last number
     if (cricPlayerHistory.length > 0 && Math.random() < 0.5) {
-      // In crazy mode try adjacent (bowl) or same (bat-score)
       var last = cricPlayerHistory[cricPlayerHistory.length - 1];
       if (cricMode === 'crazy' && !cricPlayerBats) {
-        // Bot bowling in crazy: try adjacent ±1 to get wicket
         var adj = last + (Math.random() < 0.5 ? 1 : -1);
-        adj = Math.max(1, Math.min(10, adj));
-        return adj;
+        return Math.max(1, Math.min(10, adj));
       }
       return last;
     }
     return Math.floor(Math.random() * 10) + 1;
   }
-  // Hard: track most frequent, counter in crazy
   if (cricPlayerHistory.length >= 3) {
     var freq = {};
     for (var i = 1; i <= 10; i++) freq[i] = 0;
     cricPlayerHistory.forEach(function(n){ freq[n]++; });
     var predicted = 1, maxF = 0;
     for (var k in freq) { if (freq[k] > maxF) { maxF = freq[k]; predicted = parseInt(k); } }
-
     if (cricMode === 'crazy' && !cricPlayerBats) {
-      // Bowling: try adjacent ±1 to get wicket
       var tries = [predicted - 1, predicted + 1];
       var pick = tries[Math.floor(Math.random() * 2)];
-      pick = Math.max(1, Math.min(10, pick));
-      return pick;
+      return Math.max(1, Math.min(10, pick));
     }
-    if (cricMode === 'normal' && !cricPlayerBats) {
-      // Normal bowling: try to match player's most frequent to get wicket
-      return predicted;
-    }
-    return Math.floor(Math.random() * 10) + 1;
+    if (cricMode === 'normal' && !cricPlayerBats) return predicted;
   }
   return Math.floor(Math.random() * 10) + 1;
 }
 
-function cricIsOut(playerNum, botNum) {
-  if (cricMode === 'normal') {
-    return playerNum === botNum;
-  } else {
-    // Crazy mode: out if bot is ±1 of batsman
-    if (cricPlayerBats) {
-      return Math.abs(playerNum - botNum) === 1;
-    } else {
-      return Math.abs(botNum - playerNum) === 1;
-    }
-  }
+function cricIsOut(batterNum, bowlerNum) {
+  if (cricMode === 'normal') return batterNum === bowlerNum;
+  return Math.abs(batterNum - bowlerNum) === 1;
 }
 
-function cricRunsScored(playerNum, botNum) {
-  if (cricMode === 'normal') {
-    return cricPlayerBats ? playerNum : botNum;
-  } else {
-    // Crazy: if same number → square bonus
-    if (cricPlayerBats) {
-      if (playerNum === botNum) return playerNum * playerNum;
-      return playerNum;
-    } else {
-      if (playerNum === botNum) return botNum * botNum;
-      return botNum;
-    }
-  }
+function cricRunsScored(batterNum, bowlerNum) {
+  if (cricMode === 'crazy' && batterNum === bowlerNum) return batterNum * batterNum;
+  return batterNum;
 }
 
 function cricUpdateScoreboard() {
-  if (cricPlayerBats) {
-    cricLeftName.textContent = 'YOU';
-    cricRightName.textContent = 'BOT';
-    cricLeftRuns.textContent = cricP1Score;
-    cricRightRuns.textContent = cricTarget !== null ? cricBotScore : '—';
-    cricLeftWkt.textContent = 'Wkts: ' + cricP1Wickets + '/' + cricWickets;
-    cricRightWkt.textContent = cricTarget !== null ? ('Wkts: ' + cricBotWickets + '/' + cricWickets) : '';
+  var p1n = cricIsPvP ? cricP1Name : 'YOU';
+  var p2n = cricIsPvP ? cricP2Name : 'BOT';
+  var p2s = cricIsPvP ? cricP2Score : cricBotScore;
+  var p2w = cricIsPvP ? cricP2Wickets : cricBotWickets;
 
-    document.getElementById('cric-score-left').classList.add('batting');
-    document.getElementById('cric-score-left').classList.remove('bowling');
-    document.getElementById('cric-score-right').classList.remove('batting');
-    document.getElementById('cric-score-right').classList.add('bowling');
-  } else {
-    cricLeftName.textContent = 'YOU';
-    cricRightName.textContent = 'BOT';
-    cricLeftRuns.textContent = cricP1Score;
-    cricRightRuns.textContent = cricBotScore;
-    cricLeftWkt.textContent = 'Wkts: ' + cricP1Wickets + '/' + cricWickets;
-    cricRightWkt.textContent = 'Wkts: ' + cricBotWickets + '/' + cricWickets;
+  cricLeftName.textContent  = p1n;
+  cricRightName.textContent = p2n;
+  cricLeftRuns.textContent  = cricP1Score;
+  cricRightRuns.textContent = (cricTarget !== null || !cricPlayerBats) ? p2s : '—';
+  cricLeftWkt.textContent   = 'Wkts: ' + cricP1Wickets + '/' + cricWickets;
+  cricRightWkt.textContent  = (cricTarget !== null || !cricPlayerBats) ? ('Wkts: ' + p2w + '/' + cricWickets) : '';
 
-    document.getElementById('cric-score-right').classList.add('batting');
-    document.getElementById('cric-score-right').classList.remove('bowling');
-    document.getElementById('cric-score-left').classList.remove('batting');
-    document.getElementById('cric-score-left').classList.add('bowling');
+  // Batting panel highlight
+  document.getElementById('cric-score-left').classList.toggle('batting',  cricPlayerBats);
+  document.getElementById('cric-score-left').classList.toggle('bowling',  !cricPlayerBats);
+  document.getElementById('cric-score-right').classList.toggle('batting', !cricPlayerBats);
+  document.getElementById('cric-score-right').classList.toggle('bowling',  cricPlayerBats);
+
+  // Update reveal labels
+  var lbl_l = document.getElementById('cric-play-lbl-l');
+  var lbl_r = document.getElementById('cric-play-lbl-r');
+  if (lbl_l) lbl_l.textContent = p1n;
+  if (lbl_r) lbl_r.textContent = p2n;
+
+  // Innings bar
+  var needStr = '';
+  if (cricTarget !== null) {
+    var chasing = cricGetBatterScore();
+    needStr = ' — Need ' + Math.max(0, cricTarget + 1 - chasing);
   }
-
-  cricInningsLbl.textContent = (cricPlayerBats ? '🏏 You Batting' : '⚾ Bot Batting') +
-    (cricTarget !== null ? ' (Need ' + (cricTarget + 1 - (cricPlayerBats ? cricP1Score : cricBotScore)) + ')' : '');
-  cricRoundLbl.textContent = 'Round ' + cricRound;
+  cricInningsLbl.textContent = '🏏 ' + cricBatterName() + ' batting' + needStr;
+  cricRoundLbl.textContent   = 'Ball ' + cricRound;
 }
 
 function cricEndInnings() {
   if (cricInnings === 1) {
-    // Switch sides
     cricInnings = 2;
-    cricRound = 1;
-    if (cricPlayerBats) {
-      cricTarget = cricP1Score;
-      cricPlayerBats = false;
-    } else {
-      cricTarget = cricBotScore;
-      cricPlayerBats = true;
-    }
+    cricRound   = 1;
+    cricTarget  = cricPlayerBats ? cricP1Score : (cricIsPvP ? cricP2Score : cricBotScore);
+    cricPlayerBats = !cricPlayerBats;
     cricPlayerHistory = [];
     cricUpdateScoreboard();
     cricPlayPNum.textContent = '?';
     cricPlayBNum.textContent = '?';
-    cricPlayResult.textContent = cricPlayerBats ? '🏏 Your turn to bat!' : '⚾ Bot bats now!';
-    cricPlayPrompt.textContent = cricPlayerBats ? 'Your turn! Pick a number:' : 'You\'re bowling! Pick:';
-    cricSetNumpadDisabled(false);
+    cricPlayResult.textContent = '🔁 Innings over — ' + cricBatterName() + ' bats now!';
+    if (cricIsPvP) {
+      setTimeout(function() {
+        cricPlayResult.textContent = '—';
+        cricPvpResetBall();
+      }, 1200);
+    } else {
+      cricPlayPrompt.textContent = cricPlayerBats ? 'Your turn to bat:' : 'Your turn to bowl:';
+      setTimeout(function() {
+        cricPlayResult.textContent = '—';
+        cricSetNumpadDisabled(false);
+      }, 1200);
+    }
   } else {
     cricShowResult();
   }
@@ -2036,43 +2251,42 @@ function cricEndInnings() {
 
 function cricShowResult() {
   cricShowOnly(cricResultEl);
-  var youScore = cricP1Score;
-  var botScore = cricBotScore;
-  var tie = youScore === botScore;
+  var p1s  = cricP1Score;
+  var p2s  = cricIsPvP ? cricP2Score : cricBotScore;
+  var p1n  = cricIsPvP ? cricP1Name : 'You';
+  var p2n  = cricIsPvP ? cricP2Name : 'Bot';
+  var tie  = p1s === p2s;
 
   if (tie) {
     cricResTrophy.textContent = '🤝';
-    cricResTitle.textContent = 'IT\'S A TIE!';
-    cricResSub.textContent = 'Incredible match — dead heat!';
+    cricResTitle.textContent  = "IT'S A TIE!";
+    cricResSub.textContent    = 'Incredible — dead heat!';
     setTimeout(function() { SoundManager.draw(); }, 200);
-  } else if (youScore > botScore) {
+  } else if (p1s > p2s) {
     cricResTrophy.textContent = '🏆';
-    cricResTitle.textContent = 'YOU WIN!';
-    var margin = youScore - botScore;
-    var wktsLeft = cricWickets - cricP1Wickets;
-    cricResSub.textContent = 'Won by ' + margin + ' run' + (margin !== 1 ? 's' : '') + '!';
+    cricResTitle.textContent  = p1n.toUpperCase() + ' WIN' + (cricIsPvP ? 'S' : '') + '!';
+    cricResSub.textContent    = 'Won by ' + (p1s - p2s) + ' run' + ((p1s - p2s) !== 1 ? 's' : '') + '!';
     setTimeout(function() { SoundManager.win(); }, 200);
   } else {
-    cricResTrophy.textContent = '💀';
-    cricResTitle.textContent = 'BOT WINS!';
-    cricResSub.textContent = 'Bot won by ' + (botScore - youScore) + ' runs!';
-    setTimeout(function() { SoundManager.lose(); }, 200);
+    cricResTrophy.textContent = cricIsPvP ? '🏆' : '💀';
+    cricResTitle.textContent  = p2n.toUpperCase() + ' WIN' + (cricIsPvP ? 'S' : '') + '!';
+    cricResSub.textContent    = p2n + ' won by ' + (p2s - p1s) + ' run' + ((p2s - p1s) !== 1 ? 's' : '') + '!';
+    setTimeout(function() { cricIsPvP ? SoundManager.win() : SoundManager.lose(); }, 200);
   }
 
-  cricFinalYou.textContent = 'You: ' + youScore;
-  cricFinalBot.textContent = 'Bot: ' + botScore;
+  cricFinalYou.textContent = p1n + ': ' + p1s;
+  cricFinalBot.textContent = p2n + ': ' + p2s;
 }
 
 function cricSetNumpadDisabled(disabled) {
-  var btns = cricPlayNumpad.querySelectorAll('.cricket-num-btn');
-  btns.forEach(function(b) {
-    if (disabled) b.classList.add('disabled');
-    else b.classList.remove('disabled');
+  if (!cricPlayNumpad) return;
+  cricPlayNumpad.querySelectorAll('.cricket-num-btn').forEach(function(b) {
+    if (disabled) b.classList.add('disabled'); else b.classList.remove('disabled');
   });
   cricNumpadLocked = disabled;
 }
 
-// ── Main play handler ──────────────────────────────────────────
+// ── Bot play handler ───────────────────────────────────────────
 function cricHandlePlay(playerNum) {
   if (cricNumpadLocked) return;
   cricSetNumpadDisabled(true);
@@ -2087,138 +2301,340 @@ function cricHandlePlay(playerNum) {
     cricPlayBNum.textContent = botNum;
     cricNumPop(cricPlayBNum);
 
-    var isOut = cricIsOut(playerNum, botNum);
-    var runs  = isOut ? 0 : cricRunsScored(playerNum, botNum);
-
-    if (isOut) {
-      SoundManager.cricOut();
-      // Wicket!
-      if (cricPlayerBats) {
-        cricP1Wickets++;
-      } else {
-        cricBotWickets++;
-      }
-      cricPlayResult.textContent = '🚨 OUT!';
-      cricPlayResult.classList.add('out-flash');
-      setTimeout(function() { cricPlayResult.classList.remove('out-flash'); }, 1600);
-
-      cricUpdateScoreboard();
-
-      var wktsFallen = cricPlayerBats ? cricP1Wickets : cricBotWickets;
-      var allOut = wktsFallen >= cricWickets;
-
-      // Check if chasing side lost (2nd innings)
-      if (cricInnings === 2) {
-        var chasers = cricPlayerBats ? cricP1Score : cricBotScore;
-        if (chasers > cricTarget) { cricShowResult(); return; }
-      }
-
-      if (allOut) {
-        setTimeout(cricEndInnings, 900);
-      } else {
-        setTimeout(function() {
-          cricPlayResult.textContent = '—';
-          cricSetNumpadDisabled(false);
-        }, 900);
-      }
-    } else {
-      // Runs scored
-      if (cricPlayerBats) {
-        cricP1Score += runs;
-      } else {
-        cricBotScore += runs;
-      }
-
-      var crazyBonus = (cricMode === 'crazy' && playerNum === botNum);
-      SoundManager.cricRun();
-      cricPlayResult.textContent = '+' + runs + (crazyBonus ? ' 🔥' : '');
-      cricRound++;
-      cricUpdateScoreboard();
-
-      // Check win condition in 2nd innings
-      if (cricInnings === 2) {
-        var chasers = cricPlayerBats ? cricP1Score : cricBotScore;
-        if (chasers > cricTarget) {
-          setTimeout(cricShowResult, 600);
-          return;
-        }
-      }
-
-      setTimeout(function() {
-        cricPlayResult.textContent = '—';
-        cricSetNumpadDisabled(false);
-      }, 700);
-    }
+    var batterNum = cricPlayerBats ? playerNum : botNum;
+    var bowlerNum = cricPlayerBats ? botNum : playerNum;
+    var isOut     = cricIsOut(batterNum, bowlerNum);
+    var runs      = isOut ? 0 : cricRunsScored(batterNum, bowlerNum);
+    cricResolveRound(batterNum, bowlerNum, isOut, runs);
   }, 500);
 }
 
+// ── Shared round resolution (used by both bot and PvP) ─────────
+function cricResolveRound(batterNum, bowlerNum, isOut, runs) {
+  if (isOut) {
+    SoundManager.cricOut();
+    cricAddBatterWkt();
+    cricPlayResult.textContent = '🚨 ' + cricBatterName() + ' OUT!';
+    cricPlayResult.classList.add('out-flash');
+    setTimeout(function() { cricPlayResult.classList.remove('out-flash'); }, 1500);
+    cricUpdateScoreboard();
+
+    var wktsFallen = cricGetBatterWkts();
+    var allOut     = wktsFallen >= cricWickets;
+
+    if (cricInnings === 2 && cricGetBatterScore() > cricTarget) { cricShowResult(); return; }
+
+    if (allOut) {
+      setTimeout(cricEndInnings, 1000);
+    } else {
+      setTimeout(function() {
+        cricPlayResult.textContent = '—';
+        if (cricIsPvP) cricPvpResetBall();
+        else { cricPlayPNum.textContent = '?'; cricPlayBNum.textContent = '?'; cricSetNumpadDisabled(false); }
+      }, 1000);
+    }
+  } else {
+    cricAddBatterRuns(runs);
+    var crazyBonus = (cricMode === 'crazy' && batterNum === bowlerNum);
+    SoundManager.cricRun();
+    cricPlayResult.textContent = '+' + runs + (crazyBonus ? ' 🔥' : '');
+    cricRound++;
+    cricUpdateScoreboard();
+
+    if (cricInnings === 2 && cricGetBatterScore() > cricTarget) { setTimeout(cricShowResult, 600); return; }
+
+    setTimeout(function() {
+      cricPlayResult.textContent = '—';
+      if (cricIsPvP) cricPvpResetBall();
+      else { cricPlayPNum.textContent = '?'; cricPlayBNum.textContent = '?'; cricSetNumpadDisabled(false); }
+    }, 700);
+  }
+}
+
+// ── PvP play: hot-seat two-phase ───────────────────────────────
+function cricPvpResetBall() {
+  cricPvpBatterPick = null;
+  cricPvpPhase      = 1;
+
+  cricPlayPNum.textContent = '?';
+  cricPlayBNum.textContent = '?';
+
+  var pp1  = document.getElementById('cric-pvp-pp1');
+  var pass = document.getElementById('cric-pvp-pp-pass');
+  var pp2  = document.getElementById('cric-pvp-pp2');
+  if (pp1)  pp1.classList.remove('hidden');
+  if (pass) pass.classList.add('hidden');
+  if (pp2)  pp2.classList.add('hidden');
+
+  // Update batter label
+  var lbl = document.getElementById('cric-pvp-pp1-lbl');
+  if (lbl) lbl.textContent = cricBatterName();
+
+  // Re-enable batter buttons
+  document.querySelectorAll('.cric-pvp-p1-btn').forEach(function(b){ b.classList.remove('disabled'); });
+  document.querySelectorAll('.cric-pvp-p2-btn').forEach(function(b){ b.classList.remove('disabled'); });
+}
+
+// Called when batter presses a number
+document.querySelectorAll('.cric-pvp-p1-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    if (cricPvpPhase !== 1) return;
+    // Lock all batter buttons
+    document.querySelectorAll('.cric-pvp-p1-btn').forEach(function(b){ b.classList.add('disabled'); });
+    cricPvpBatterPick = parseInt(btn.getAttribute('data-v'));
+    cricPvpPhase = 2;
+
+    // Show pass screen
+    var pp1  = document.getElementById('cric-pvp-pp1');
+    var pass = document.getElementById('cric-pvp-pp-pass');
+    var passName = document.getElementById('cric-pvp-pp-pass-name');
+    var passMsg  = document.getElementById('cric-pvp-pp-pass-msg');
+    if (pp1)  pp1.classList.add('hidden');
+    if (pass) pass.classList.remove('hidden');
+    if (passName) passName.textContent = cricBowlerName();
+    if (passMsg)  passMsg.innerHTML = '<strong>' + cricBatterName() + '</strong> locked in! Pass to <strong>' + cricBowlerName() + '</strong>';
+  });
+});
+
+// "Ready" button on pass screen → show bowler numpad
+document.getElementById('cric-pvp-pp-ready').addEventListener('click', function() {
+  var pass = document.getElementById('cric-pvp-pp-pass');
+  var pp2  = document.getElementById('cric-pvp-pp2');
+  var lbl  = document.getElementById('cric-pvp-pp2-lbl');
+  if (pass) pass.classList.add('hidden');
+  if (pp2)  pp2.classList.remove('hidden');
+  if (lbl)  lbl.textContent = cricBowlerName();
+});
+
+// Called when bowler presses a number
+document.querySelectorAll('.cric-pvp-p2-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    if (cricPvpPhase !== 2) return;
+    document.querySelectorAll('.cric-pvp-p2-btn').forEach(function(b){ b.classList.add('disabled'); });
+    var bowlerPick = parseInt(btn.getAttribute('data-v'));
+    var batterPick = cricPvpBatterPick;
+    cricPvpPhase = 0;
+
+    // Update reveal boxes: left = P1, right = P2
+    var p1IsP1Batting = cricPlayerBats; // P1 batting = left=batter, right=bowler
+    if (p1IsP1Batting) {
+      cricPlayPNum.textContent = batterPick;  // P1 (left) = batter
+      cricPlayBNum.textContent = '...';
+    } else {
+      cricPlayPNum.textContent = bowlerPick;  // P1 (left) = bowler
+      cricPlayBNum.textContent = '...';
+    }
+    cricNumPop(cricPlayPNum);
+
+    var pp2 = document.getElementById('cric-pvp-pp2');
+    if (pp2) pp2.classList.add('hidden');
+
+    setTimeout(function() {
+      if (p1IsP1Batting) {
+        cricPlayBNum.textContent = bowlerPick;
+      } else {
+        cricPlayBNum.textContent = batterPick;
+      }
+      cricNumPop(cricPlayBNum);
+      var isOut = cricIsOut(batterPick, bowlerPick);
+      var runs  = isOut ? 0 : cricRunsScored(batterPick, bowlerPick);
+      cricResolveRound(batterPick, bowlerPick, isOut, runs);
+    }, 500);
+  });
+});
+
+// ── PvP Toss ───────────────────────────────────────────────────
+var cricPvpTossP1Num = null;
+
+document.querySelectorAll('.cric-pvp-toss-p1-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    cricPvpTossP1Num = parseInt(btn.getAttribute('data-v'));
+    document.querySelectorAll('.cric-pvp-toss-p1-btn').forEach(function(b){ b.classList.add('disabled'); });
+
+    var t1   = document.getElementById('cric-pvp-t1');
+    var pass = document.getElementById('cric-pvp-t-pass');
+    var pn   = document.getElementById('cric-pvp-t-pass-name');
+    if (t1)   t1.classList.add('hidden');
+    if (pass) pass.classList.remove('hidden');
+    if (pn)   pn.textContent = cricP2Name;
+  });
+});
+
+document.getElementById('cric-pvp-t-ready').addEventListener('click', function() {
+  var pass = document.getElementById('cric-pvp-t-pass');
+  var t2   = document.getElementById('cric-pvp-t2');
+  var lbl  = document.getElementById('cric-pvp-t2-lbl');
+  if (pass) pass.classList.add('hidden');
+  if (t2)   t2.classList.remove('hidden');
+  if (lbl)  lbl.textContent = cricP2Name;
+});
+
+document.querySelectorAll('.cric-pvp-toss-p2-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var p2n = parseInt(btn.getAttribute('data-v'));
+    var p1n = cricPvpTossP1Num;
+    document.querySelectorAll('.cric-pvp-toss-p2-btn').forEach(function(b){ b.classList.add('disabled'); });
+
+    var t2     = document.getElementById('cric-pvp-t2');
+    var reveal = document.getElementById('cric-pvp-t-reveal');
+    var lbl1   = document.getElementById('cric-pvp-tr-lbl1');
+    var lbl2   = document.getElementById('cric-pvp-tr-lbl2');
+    var num1   = document.getElementById('cric-pvp-tr-n1');
+    var num2   = document.getElementById('cric-pvp-tr-n2');
+    var msg    = document.getElementById('cric-pvp-tr-msg');
+    var bb     = document.getElementById('cric-pvp-tr-batbowl');
+    var bat    = document.getElementById('cric-pvp-bat-btn');
+    var bowl   = document.getElementById('cric-pvp-bowl-btn');
+
+    if (t2)     t2.classList.add('hidden');
+    if (reveal) reveal.classList.remove('hidden');
+    if (lbl1)   lbl1.textContent = cricP1Name;
+    if (lbl2)   lbl2.textContent = cricP2Name;
+    if (num1)   { num1.textContent = p1n; cricNumPop(num1); }
+    if (num2)   { num2.textContent = p2n; cricNumPop(num2); }
+
+    if (p1n === p2n) {
+      if (msg) msg.textContent = p1n + ' = ' + p2n + ' — TIE! Re-toss...';
+      cricPvpTossP1Num = null;
+      setTimeout(function() {
+        reveal.classList.add('hidden');
+        document.getElementById('cric-pvp-t-pass').classList.add('hidden');
+        var t1 = document.getElementById('cric-pvp-t1');
+        if (t1) t1.classList.remove('hidden');
+        document.querySelectorAll('.cric-pvp-toss-p1-btn').forEach(function(b){ b.classList.remove('disabled'); });
+        document.querySelectorAll('.cric-pvp-toss-p2-btn').forEach(function(b){ b.classList.remove('disabled'); });
+        var lbl1e = document.getElementById('cric-pvp-t1-lbl');
+        if (lbl1e) lbl1e.textContent = cricP1Name;
+      }, 1400);
+      return;
+    }
+
+    var p1wins = p1n > p2n;
+    var winner = p1wins ? cricP1Name : cricP2Name;
+    if (msg) msg.textContent = p1n + ' vs ' + p2n + ' — ' + winner + ' wins the toss!';
+    if (bat)  bat.textContent  = '🏏 ' + winner + ' bats';
+    if (bowl) bowl.textContent = '⚾ ' + winner + ' bowls';
+    if (bb)   bb.setAttribute('data-winner', p1wins ? '1' : '2');
+    if (bb)   bb.classList.remove('hidden');
+  });
+});
+
+document.getElementById('cric-pvp-bat-btn').addEventListener('click', function() {
+  var bb = document.getElementById('cric-pvp-tr-batbowl');
+  var w  = bb ? bb.getAttribute('data-winner') : '1';
+  // winner bats: if winner=1 (P1), P1 bats first
+  cricStartMatch(w === '1');
+});
+document.getElementById('cric-pvp-bowl-btn').addEventListener('click', function() {
+  var bb = document.getElementById('cric-pvp-tr-batbowl');
+  var w  = bb ? bb.getAttribute('data-winner') : '1';
+  // winner bowls: if winner=1, P1 bowls → P2 bats first
+  cricStartMatch(w !== '1');
+});
+
 // ── Setup ──────────────────────────────────────────────────────
 var CRIC_MODE_DESCS = {
-  normal: 'Match = OUT. Otherwise you score your own number.',
-  crazy:  'Adjacent number (±1) = OUT. Match = SQUARE bonus! (e.g. 8×8=64 runs!)'
+  normal: 'Match = OUT. Batter scores their own number otherwise.',
+  crazy:  'Adjacent (±1) = OUT. Match = SQUARE bonus! (e.g. 8×8=64 runs!)'
 };
 
 function cricResetToSetup() {
-  cricMode    = 'normal';
-  cricDiff    = 'easy';
-  cricWickets = 3;
-  cricTossOE  = null;
+  cricMode         = 'normal';
+  cricDiff         = 'easy';
+  cricWickets      = 3;
+  cricTossOE       = null;
+  cricIsPvP        = false;
+  cricPvpTossP1Num = null;
   cricPlayerHistory = [];
 
-  // Reset button states
   document.getElementById('cric-normal-btn').classList.add('active');
   document.getElementById('cric-crazy-btn').classList.remove('active');
   document.getElementById('cric-easy-btn').classList.add('active');
   document.getElementById('cric-medium-btn').classList.remove('active');
   document.getElementById('cric-hard-btn').classList.remove('active');
-  cricWktDisp.textContent = '3';
-  cricModeDesc.textContent = CRIC_MODE_DESCS.normal;
+  document.getElementById('cric-vs-bot-btn').classList.add('active');
+  document.getElementById('cric-vs-pvp-btn').classList.remove('active');
+  document.getElementById('cric-diff-row').classList.remove('hidden');
+  document.getElementById('cric-names-row').classList.add('hidden');
+  document.getElementById('cric-pvp-rule').classList.add('hidden');
 
-  cricOEBtns.classList.remove('hidden');
+  cricWktDisp.textContent = '3';
+  if (cricModeDesc) cricModeDesc.textContent = CRIC_MODE_DESCS.normal;
+
+  // Reset bot toss
+  if (cricOEBtns)    cricOEBtns.classList.remove('hidden');
   document.getElementById('cric-odd-btn').classList.remove('active');
   document.getElementById('cric-even-btn').classList.remove('active');
-  cricTossNumpad.classList.add('hidden');
-  cricTossResult.classList.add('hidden');
-  cricBatBowlBtns.classList.add('hidden');
+  if (cricTossNumpad) cricTossNumpad.classList.add('hidden');
+  if (cricTossResult) cricTossResult.classList.add('hidden');
+  if (cricBatBowlBtns) cricBatBowlBtns.classList.add('hidden');
 
   cricShowOnly(cricSetupEl);
 }
 
-function cricStartMatch(playerBatsFirst) {
-  cricPlayerBats  = playerBatsFirst;
+function cricStartMatch(p1BatsFirst) {
+  cricPlayerBats  = p1BatsFirst;
   cricInnings     = 1;
   cricTarget      = null;
-  cricP1Score     = 0;
-  cricBotScore    = 0;
-  cricP1Wickets   = 0;
-  cricBotWickets  = 0;
+  cricP1Score     = 0; cricP2Score = 0; cricBotScore  = 0;
+  cricP1Wickets   = 0; cricP2Wickets = 0; cricBotWickets = 0;
   cricRound       = 1;
   cricPlayerHistory = [];
 
   cricPlayPNum.textContent = '?';
   cricPlayBNum.textContent = '?';
   cricPlayResult.textContent = '—';
-  cricPlayPrompt.textContent = playerBatsFirst ? 'Pick a number to bat:' : 'Pick a number to bowl:';
+
+  var botPlay = document.getElementById('cric-bot-play');
+  var pvpPlay = document.getElementById('cric-pvp-play');
+
+  if (cricIsPvP) {
+    if (botPlay) botPlay.classList.add('hidden');
+    if (pvpPlay) pvpPlay.classList.remove('hidden');
+    cricPvpResetBall();
+  } else {
+    if (botPlay) botPlay.classList.remove('hidden');
+    if (pvpPlay) pvpPlay.classList.add('hidden');
+    if (cricPlayPrompt) cricPlayPrompt.textContent = p1BatsFirst ? 'Pick a number to bat:' : 'Pick a number to bowl:';
+    cricSetNumpadDisabled(false);
+  }
 
   cricUpdateScoreboard();
-  cricSetNumpadDisabled(false);
   cricShowOnly(cricPlayEl);
 }
 
 // ── Event wiring ───────────────────────────────────────────────
+
+// VS mode toggle
+document.getElementById('cric-vs-bot-btn').addEventListener('click', function() {
+  cricIsPvP = false;
+  document.getElementById('cric-vs-bot-btn').classList.add('active');
+  document.getElementById('cric-vs-pvp-btn').classList.remove('active');
+  document.getElementById('cric-diff-row').classList.remove('hidden');
+  document.getElementById('cric-names-row').classList.add('hidden');
+  document.getElementById('cric-pvp-rule').classList.add('hidden');
+});
+document.getElementById('cric-vs-pvp-btn').addEventListener('click', function() {
+  cricIsPvP = true;
+  document.getElementById('cric-vs-pvp-btn').classList.add('active');
+  document.getElementById('cric-vs-bot-btn').classList.remove('active');
+  document.getElementById('cric-diff-row').classList.add('hidden');
+  document.getElementById('cric-names-row').classList.remove('hidden');
+  document.getElementById('cric-pvp-rule').classList.remove('hidden');
+});
 
 // Mode buttons
 document.getElementById('cric-normal-btn').addEventListener('click', function() {
   cricMode = 'normal';
   document.getElementById('cric-normal-btn').classList.add('active');
   document.getElementById('cric-crazy-btn').classList.remove('active');
-  cricModeDesc.textContent = CRIC_MODE_DESCS.normal;
+  if (cricModeDesc) cricModeDesc.textContent = CRIC_MODE_DESCS.normal;
 });
 document.getElementById('cric-crazy-btn').addEventListener('click', function() {
   cricMode = 'crazy';
   document.getElementById('cric-crazy-btn').classList.add('active');
   document.getElementById('cric-normal-btn').classList.remove('active');
-  cricModeDesc.textContent = CRIC_MODE_DESCS.crazy;
+  if (cricModeDesc) cricModeDesc.textContent = CRIC_MODE_DESCS.crazy;
 });
 
 // Difficulty buttons
@@ -2248,11 +2664,46 @@ document.getElementById('cric-wk-plus').addEventListener('click', function() {
 
 // Start match → go to toss
 document.getElementById('cric-start-btn').addEventListener('click', function() {
+  // Read PvP player names
+  if (cricIsPvP) {
+    var n1 = document.getElementById('cric-p1-name-input');
+    var n2 = document.getElementById('cric-p2-name-input');
+    cricP1Name = (n1 && n1.value.trim()) ? n1.value.trim() : 'Player 1';
+    cricP2Name = (n2 && n2.value.trim()) ? n2.value.trim() : 'Player 2';
+  }
+  // Show correct toss area
+  var botToss = document.getElementById('cric-bot-toss');
+  var pvpToss = document.getElementById('cric-pvp-toss');
+  if (cricIsPvP) {
+    if (botToss) botToss.classList.add('hidden');
+    if (pvpToss) {
+      pvpToss.classList.remove('hidden');
+      // Reset PvP toss to step 1
+      document.getElementById('cric-pvp-t1').classList.remove('hidden');
+      document.getElementById('cric-pvp-t-pass').classList.add('hidden');
+      document.getElementById('cric-pvp-t2').classList.add('hidden');
+      document.getElementById('cric-pvp-t-reveal').classList.add('hidden');
+      var lbl1 = document.getElementById('cric-pvp-t1-lbl');
+      if (lbl1) lbl1.textContent = cricP1Name;
+      document.querySelectorAll('.cric-pvp-toss-p1-btn').forEach(function(b){ b.classList.remove('disabled'); });
+      document.querySelectorAll('.cric-pvp-toss-p2-btn').forEach(function(b){ b.classList.remove('disabled'); });
+      cricPvpTossP1Num = null;
+    }
+  } else {
+    if (pvpToss) pvpToss.classList.add('hidden');
+    if (botToss) botToss.classList.remove('hidden');
+    cricOEBtns.classList.remove('hidden');
+    document.getElementById('cric-odd-btn').classList.remove('active');
+    document.getElementById('cric-even-btn').classList.remove('active');
+    cricTossNumpad.classList.add('hidden');
+    cricTossResult.classList.add('hidden');
+    cricBatBowlBtns.classList.add('hidden');
+  }
+  if (cricModeLabel) cricModeLabel.textContent = cricMode === 'crazy' ? '🔥 CRAZY MODE' : '⚡ NORMAL MODE';
   cricShowOnly(cricTossEl);
-  cricModeLabel.textContent = cricMode === 'crazy' ? '🔥 CRAZY MODE' : '⚡ NORMAL MODE';
 });
 
-// Toss: Odd or Even choice
+// Bot toss: Odd/Even choice
 document.getElementById('cric-odd-btn').addEventListener('click', function() {
   cricTossOE = 'odd';
   document.getElementById('cric-odd-btn').classList.add('active');
@@ -2268,8 +2719,8 @@ document.getElementById('cric-even-btn').addEventListener('click', function() {
   cricTossNumpad.classList.remove('hidden');
 });
 
-// Toss numpad buttons
-document.querySelectorAll('#cricket-toss-numpad .cricket-num-btn').forEach(function(btn) {
+// Bot toss numpad
+document.querySelectorAll('.cric-bot-toss-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     var playerNum = parseInt(btn.getAttribute('data-v'));
     var botNum    = Math.floor(Math.random() * 10) + 1;
@@ -2288,10 +2739,8 @@ document.querySelectorAll('#cricket-toss-numpad .cricket-num-btn').forEach(funct
     cricTossWinner.textContent = playerNum + ' + ' + botNum + ' = ' + sum + ' (' + sumType.toUpperCase() + ') → ' + (playerWon ? 'YOU WIN TOSS!' : 'BOT WINS TOSS!');
 
     if (playerWon) {
-      // Player picks bat or bowl
       cricBatBowlBtns.classList.remove('hidden');
     } else {
-      // Bot decides: always bats first (it's a bot)
       setTimeout(function() {
         cricTossWinner.textContent += ' Bot chooses to BAT.';
         cricBatBowlBtns.classList.add('hidden');
@@ -2301,15 +2750,11 @@ document.querySelectorAll('#cricket-toss-numpad .cricket-num-btn').forEach(funct
   });
 });
 
-// Bat/Bowl choice after winning toss
-document.getElementById('cric-bat-btn').addEventListener('click', function() {
-  cricStartMatch(true);
-});
-document.getElementById('cric-bowl-btn').addEventListener('click', function() {
-  cricStartMatch(false);
-});
+// Bot bat/bowl choice after winning toss
+document.getElementById('cric-bat-btn').addEventListener('click', function() { cricStartMatch(true); });
+document.getElementById('cric-bowl-btn').addEventListener('click', function() { cricStartMatch(false); });
 
-// Play numpad buttons
+// Bot play numpad
 document.querySelectorAll('#cric-play-numpad .cricket-num-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     if (cricNumpadLocked) return;
@@ -2317,17 +2762,13 @@ document.querySelectorAll('#cric-play-numpad .cricket-num-btn').forEach(function
   });
 });
 
-// Play again button
-document.getElementById('cric-play-again').addEventListener('click', function() {
-  cricResetToSetup();
-});
+// Play again
+document.getElementById('cric-play-again').addEventListener('click', function() { cricResetToSetup(); });
 
 // Back button
-document.getElementById('cricket-back-btn').addEventListener('click', function() {
-  showHub();
-});
+document.getElementById('cricket-back-btn').addEventListener('click', function() { showHub(); });
 
-console.log('[DuelZone] Hand Cricket loaded — Normal & Crazy modes, toss system, 3 difficulty levels.');
+console.log('[DuelZone] Hand Cricket — PvP + Bot modes ready!');
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION G: Game Home Pages — lobby/setup screens
@@ -3069,23 +3510,26 @@ var ahAudio = (function() {
   };
 })();
 
-// ── Bot Config ───────────────────────────────────────────────
+// ── Bot Config ── ALL speeds in px/second, reaction_time in ms ─
 var AH_BOT = {
-  easy:   { reaction_time: 400, max_speed: 3.5, error_margin: 60, aggression: 0.3 },
-  medium: { reaction_time: 200, max_speed: 6,   error_margin: 25, aggression: 0.6 },
-  hard:   { reaction_time: 60,  max_speed: 9,   error_margin: 8,  aggression: 0.9 }
+  easy:   { reaction_time: 420, max_speed: 220,  error_margin: 70, aggression: 0.25 },
+  medium: { reaction_time: 190, max_speed: 390,  error_margin: 26, aggression: 0.62 },
+  hard:   { reaction_time: 50,  max_speed: 600,  error_margin: 6,  aggression: 0.92 }
 };
+AH_BOT.extreme = AH_BOT.hard; // alias for GlobalBotEngine
 
 // ── State ─────────────────────────────────────────────────────
 var ahCanvas, ahCtx;
 var ahW, ahH;
-var ahRAF = null;
+var ahRAF     = null;
 var ahRunning = false;
 var ahPaused  = false;
 var ahMode    = 'pvb';
 var ahDiff    = 'easy';
 var ahWinScore = 7;
 
+// BUG FIX: all velocities are now px/SECOND throughout the entire codebase.
+// Previously they were px/frame, making physics frame-rate dependent.
 var ahPuck = { x:0, y:0, vx:0, vy:0, r:0 };
 var ahPaddles = [
   { x:0, y:0, r:0, pvx:0, pvy:0, key:{up:false,dn:false,lt:false,rt:false} },
@@ -3093,23 +3537,23 @@ var ahPaddles = [
 ];
 
 var ahBotTimer  = 0;
+// BUG FIX: initialise bot target to table centre (was {x:0,y:0} → bot rushed to corner on start)
 var ahBotTarget = { x:0, y:0 };
-var ahGoalFreeze = 0;
+var ahGoalFreezeMs = 0;   // ms remaining in post-goal freeze
 var ahTrail      = [];
 var ahParticles  = [];
-var ahSpeedLines = [];   // speed lines behind puck
-var ahGoalFlash  = 0;    // frames of goal flash
-var ahGoalWho    = -1;   // who scored last
-
+var ahSpeedLines = [];
+var ahGoalWho    = -1;
 var ahP1Score = 0, ahP2Score = 0;
 var ahServeWho = 0;
-// Pulse rings on paddle hits
-var ahRings = [];
+var ahRings   = [];
+var ahStuckTimer = 0;     // ms since puck last moved
 
 // ── Helpers ───────────────────────────────────────────────────
 function ahStopLoop() {
   ahRunning = false;
   if (ahRAF) { cancelAnimationFrame(ahRAF); ahRAF = null; }
+  window.removeEventListener('resize', ahResize);
 }
 
 function ahResize() {
@@ -3134,188 +3578,288 @@ function ahInit() {
   ahPaddles[0].r = ahW * 0.09;
   ahPaddles[1].r = ahW * 0.09;
   ahTrail = []; ahParticles = []; ahSpeedLines = []; ahRings = [];
+  ahStuckTimer = 0;
+  ahGoalFreezeMs = 0;
+  // BUG FIX: initialise bot target to centre of bot's defending half
+  ahBotTarget.x = ahW / 2;
+  ahBotTarget.y = ahH * 0.2;
   ahResetPositions(0);
   ahUpdateScoreUI();
+  window.addEventListener('resize', ahResize);
 }
 
 function ahResetPositions(serveWho) {
-  ahPuck.x = ahW/2; ahPuck.y = ahH/2;
-  ahPuck.vx = 0; ahPuck.vy = 0;
-  ahPaddles[0].x = ahW/2; ahPaddles[0].y = ahH * 0.82;
+  ahPuck.x  = ahW / 2; ahPuck.y  = ahH / 2;
+  ahPuck.vx = 0;        ahPuck.vy = 0;
+  ahPaddles[0].x = ahW / 2; ahPaddles[0].y = ahH * 0.82;
   ahPaddles[0].pvx = ahPaddles[0].pvy = 0;
-  ahPaddles[1].x = ahW/2; ahPaddles[1].y = ahH * 0.18;
+  ahPaddles[1].x = ahW / 2; ahPaddles[1].y = ahH * 0.18;
   ahPaddles[1].pvx = ahPaddles[1].pvy = 0;
-  ahServeWho = serveWho;
-  ahGoalFreeze = 90;
-  var dir = (serveWho === 0) ? -1 : 1;
-  ahPuck.vServe = { vx: (Math.random()-0.5)*2, vy: dir*(ahW*0.018) };
+  ahServeWho    = serveWho;
+  ahGoalFreezeMs = 1300;  // 1.3 seconds, fully time-based
+  // BUG FIX: serve velocity in px/second; give it a real angle
+  // dir= -1 → puck launches upward (toward bot goal) when P1 serves
+  // dir= +1 → puck launches downward (toward P1 goal) when bot serves
+  var dir     = (serveWho === 0) ? -1 : 1;
+  var diffMult = ahDiff === 'hard' ? 1.45 : ahDiff === 'medium' ? 1.2 : 1.0;
+  var serveVy = dir * ahW * 1.65 * diffMult;  // px/s vertical component
+  var serveVx = (Math.random() - 0.5) * Math.abs(serveVy) * 1.2; // px/s horizontal
+  ahPuck.vServe = { vx: serveVx, vy: serveVy };
   ahTrail = []; ahSpeedLines = [];
 }
 
+// BUG FIX: clamp now also applied during freeze so paddles can't cross centre
 function ahClampPaddle(p, idx) {
-  var m = p.r, cx = ahW/2, cy = ahH/2;
-  p.x = Math.max(m, Math.min(ahW-m, p.x));
-  if (idx === 0) p.y = Math.max(cy+m*0.3, Math.min(ahH-m, p.y));
-  else           p.y = Math.max(m, Math.min(cy-m*0.3, p.y));
+  var m = p.r, cx = ahW / 2, cy = ahH / 2;
+  p.x = Math.max(m, Math.min(ahW - m, p.x));
+  if (idx === 0) p.y = Math.max(cy + m * 0.25, Math.min(ahH - m, p.y));
+  else           p.y = Math.max(m, Math.min(cy - m * 0.25, p.y));
 }
 
 // ── Bot AI ────────────────────────────────────────────────────
+// Predict the puck position N simulation steps into the future,
+// accounting for left/right wall bounces (top/bottom ignored — those are goals).
+// dt_sub: ms per prediction step (use a small fixed increment, e.g. 8ms)
+// BUG FIX: previous break condition `vy<0 && y<H*0.5` fired on step 1 every time,
+// making the prediction do nothing. Now it correctly continues until the puck
+// would cross back into the P1 (human) half, i.e. we stop when puck reverses direction.
+function ahPredictPuck(numSteps, dt_sub) {
+  var x  = ahPuck.x, y  = ahPuck.y;
+  var vx = ahPuck.vx, vy = ahPuck.vy;
+  var r  = ahPuck.r;
+  var sec = dt_sub / 1000;
+  var lastY = y;
+  for (var s = 0; s < numSteps; s++) {
+    x += vx * sec;
+    y += vy * sec;
+    if (x - r < 0)   { x = r;      vx =  Math.abs(vx); }
+    if (x + r > ahW) { x = ahW-r;  vx = -Math.abs(vx); }
+    // Stop predicting once puck has turned around and is heading back to P1's half
+    // (it passed through bot's area and is now coming back)
+    if (vy > 0 && y > ahH * 0.5) break;
+    lastY = y;
+  }
+  return { x: x, y: y };
+}
+
 function ahUpdateBot(dt) {
   if (ahMode !== 'pvb') return;
-  var cfg = AH_BOT[ahDiff];
+  var cfg = AH_BOT[ahDiff] || AH_BOT.easy;
   ahBotTimer += dt;
   if (ahBotTimer < cfg.reaction_time) return;
   ahBotTimer = 0;
-  var b = ahPaddles[1], pk = ahPuck;
-  var predT = cfg.reaction_time/1000;
-  var predX = pk.x + pk.vx*predT*30;
-  var predY = pk.y + pk.vy*predT*30;
-  var err = (Math.random()-0.5)*cfg.error_margin*2;
-  ahBotTarget.x = predX + err;
-  if (pk.vy < 0 && cfg.aggression < 0.5) ahBotTarget.y = predY;
-  else if (pk.vy > 0 || cfg.aggression > 0.6) ahBotTarget.y = ahH*0.15+err*0.3;
-  else ahBotTarget.y = ahH*0.18;
-  ahBotTarget.x = Math.max(b.r, Math.min(ahW-b.r, ahBotTarget.x));
-  ahBotTarget.y = Math.max(b.r, Math.min(ahH/2-b.r, ahBotTarget.y));
+
+  var b   = ahPaddles[1];
+  var pk  = ahPuck;
+  var err = (Math.random() - 0.5) * cfg.error_margin * 2;
+
+  var puckInBotHalf       = pk.y < ahH * 0.5;
+  var puckApproachingBot  = pk.vy < 0; // negative vy = moving upward = toward bot goal
+
+  if (puckApproachingBot || puckInBotHalf) {
+    // ── INTERCEPT MODE ─────────────────────────────────────
+    // Predict where the puck will be using wall-bounce simulation.
+    // Use enough steps so puck has time to travel across bot's half.
+    var lookSteps = Math.max(8, Math.round(18 * cfg.aggression));
+    var pred = ahPredictPuck(lookSteps, 14); // 14ms per step
+
+    var targetX, targetY;
+
+    if (cfg.aggression > 0.7) {
+      // Hard: position paddle slightly ABOVE predicted puck (smaller y)
+      // so contact sends puck downward into P1's goal.
+      var lateralBias = (pred.x < ahW * 0.5) ? ahW * 0.25 : ahW * 0.75;
+      targetX = pred.x * 0.55 + lateralBias * 0.45 + err * 0.3;
+      targetY = pred.y - b.r * 0.5 + err * 0.2;
+    } else {
+      // Easy / medium: just get in front of the puck
+      targetX = pred.x + err;
+      targetY = pred.y + err * 0.25;
+    }
+
+    ahBotTarget.x = Math.max(b.r, Math.min(ahW - b.r, targetX));
+    // BUG FIX: clamp Y strictly inside bot's half — was sometimes > H/2
+    ahBotTarget.y = Math.max(b.r, Math.min(ahH * 0.5 - b.r, targetY));
+
+  } else {
+    // ── RETURN TO DEFENSIVE POSITION ───────────────────────
+    var defX = ahW / 2 + err * 0.25;
+    var defY;
+    if (cfg.aggression > 0.7) {
+      defY = ahH * 0.23;           // hard: sit near centre line, ready to attack
+    } else if (cfg.aggression > 0.4) {
+      defY = ahH * 0.19;           // medium: comfortable defence depth
+    } else {
+      defY = ahH * 0.13 + err * 0.1; // easy: hug the goal
+    }
+    ahBotTarget.x = Math.max(b.r, Math.min(ahW - b.r, defX));
+    ahBotTarget.y = Math.max(b.r, Math.min(ahH * 0.5 - b.r, defY));
+  }
 }
-function ahMoveBot() {
+
+// BUG FIX: dt-based movement so bot speed is frame-rate independent (px/s not px/frame)
+function ahMoveBot(dt) {
   if (ahMode !== 'pvb') return;
-  var cfg = AH_BOT[ahDiff], b = ahPaddles[1];
-  var dx = ahBotTarget.x-b.x, dy = ahBotTarget.y-b.y;
-  var dist = Math.sqrt(dx*dx+dy*dy);
-  if (dist < 1) return;
-  var spd = Math.min(cfg.max_speed, dist);
-  b.pvx = (dx/dist)*spd; b.pvy = (dy/dist)*spd;
-  b.x += b.pvx; b.y += b.pvy;
+  var cfg = AH_BOT[ahDiff] || AH_BOT.easy;
+  var b   = ahPaddles[1];
+  var dx  = ahBotTarget.x - b.x;
+  var dy  = ahBotTarget.y - b.y;
+  var dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 0.5) { b.pvx = 0; b.pvy = 0; return; }
+  // cfg.max_speed is px/s; convert to px for this frame
+  var pxThisFrame = cfg.max_speed * (dt / 1000);
+  var spd = Math.min(pxThisFrame, dist);
+  b.pvx = (dx / dist) * spd;
+  b.pvy = (dy / dist) * spd;
+  b.x  += b.pvx;
+  b.y  += b.pvy;
   ahClampPaddle(b, 1);
 }
 
 // ── Physics ───────────────────────────────────────────────────
 function ahCircleCollide(a, b) {
-  var dx=b.x-a.x, dy=b.y-a.y;
-  return (dx*dx+dy*dy) < (a.r+b.r)*(a.r+b.r);
+  var dx = b.x - a.x, dy = b.y - a.y;
+  return (dx * dx + dy * dy) < (a.r + b.r) * (a.r + b.r);
 }
+
 function ahResolvePaddlePuck(paddle, puck) {
-  var dx=puck.x-paddle.x, dy=puck.y-paddle.y;
-  var d=Math.sqrt(dx*dx+dy*dy);
-  if(d===0){d=0.01;dx=1;dy=0;}
-  var nx=dx/d, ny=dy/d;
-  // Only resolve if puck is moving toward paddle (prevents sticking)
-  var relVx=puck.vx-paddle.pvx, relVy=puck.vy-paddle.pvy;
-  var dot=relVx*nx+relVy*ny;
-  if(dot>=0) return; // already separating
+  var dx = puck.x - paddle.x, dy = puck.y - paddle.y;
+  var d  = Math.sqrt(dx * dx + dy * dy);
+  if (d === 0) { d = 0.01; dx = 1; dy = 0; }
+  var nx = dx / d, ny = dy / d;
 
-  // Push puck out of overlap with 2px gap
-  var overlap=(paddle.r+puck.r+2)-d;
-  if(overlap>0){ puck.x+=nx*overlap; puck.y+=ny*overlap; }
+  // BUG FIX: always push puck out of overlap FIRST before velocity checks.
+  // Previous code returned early on dot>=0 without pushing out, causing puck
+  // to get stuck inside the paddle when paddle drives into a slow puck.
+  var overlap = (paddle.r + puck.r + 2) - d;
+  if (overlap > 0) { puck.x += nx * overlap; puck.y += ny * overlap; }
 
-  var restitution=0.85;
-  puck.vx=(puck.vx-(1+restitution)*dot*nx)+paddle.pvx*0.55;
-  puck.vy=(puck.vy-(1+restitution)*dot*ny)+paddle.pvy*0.55;
+  // Only apply velocity response if puck is still moving toward paddle
+  var relVx = puck.vx - paddle.pvx;
+  var relVy = puck.vy - paddle.pvy;
+  var dot   = relVx * nx + relVy * ny;
+  if (dot >= 0) return; // already separating — overlap was residual, skip impulse
 
-  // Clamp max speed
-  var maxSpd=ahW*0.048;
-  var spd=Math.sqrt(puck.vx*puck.vx+puck.vy*puck.vy);
-  if(spd>maxSpd){puck.vx*=maxSpd/spd;puck.vy*=maxSpd/spd; spd=maxSpd;}
+  var restitution = 0.88;
+  // Tangent for side-spin: off-centre hits impart a lateral component
+  var tx = -ny, ty = nx;
+  var tangDot   = relVx * tx + relVy * ty;
+  // spinFactor: how far off-centre the hit is, scaled to a small influence
+  var spinFactor = (dx / (paddle.r + puck.r)) * 0.16;
 
-  // Impact effects
+  puck.vx = (puck.vx - (1 + restitution) * dot * nx) + paddle.pvx * 0.65 + tangDot * tx * spinFactor;
+  puck.vy = (puck.vy - (1 + restitution) * dot * ny) + paddle.pvy * 0.65 + tangDot * ty * spinFactor;
+
+  // Clamp max speed (px/s)
+  var maxSpd = ahW * 2.85;
+  var spd    = Math.sqrt(puck.vx * puck.vx + puck.vy * puck.vy);
+  if (spd > maxSpd) { puck.vx *= maxSpd / spd; puck.vy *= maxSpd / spd; spd = maxSpd; }
+
   ahSpawnImpact(puck.x, puck.y);
-  ahRings.push({ x:puck.x, y:puck.y, r:paddle.r, life:1 });
-  SoundManager.ahPaddleHit(spd);
+  ahRings.push({ x: puck.x, y: puck.y, r: paddle.r, life: 1 });
+  SoundManager.ahPaddleHit(spd / 60); // pass approximate px/frame for audio volume scaling
 }
+
 function ahSpawnImpact(x, y) {
   var colors = ['#00e5ff','#ffffff','#7effff','#b2ebf2'];
-  for(var i=0;i<12;i++){
-    var a=Math.random()*Math.PI*2, spd=Math.random()*4+1;
-    ahParticles.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,
-      color:colors[Math.floor(Math.random()*colors.length)], size:2+Math.random()*3});
+  for (var i = 0; i < 12; i++) {
+    var a = Math.random() * Math.PI * 2, spd = (Math.random() * 4 + 1) * 60; // px/s
+    ahParticles.push({ x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+      life:1, color:colors[Math.floor(Math.random()*colors.length)], size:2+Math.random()*3 });
   }
 }
+
 function ahSpawnWallSparks(x, y) {
-  for(var i=0;i<6;i++){
-    var a=Math.random()*Math.PI*2, spd=Math.random()*2.5+0.5;
-    ahParticles.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:0.7,color:'#aae8ff',size:1.5});
+  for (var i = 0; i < 6; i++) {
+    var a = Math.random() * Math.PI * 2, spd = (Math.random() * 2.5 + 0.5) * 60; // px/s
+    ahParticles.push({ x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+      life:0.7, color:'#aae8ff', size:1.5 });
   }
 }
 
-// Sub-step physics: advances puck by one sub-step, returns true if goal scored
-function ahPhysicsStep(frac) {
-  var r=ahPuck.r, gw=ahGoalWidth()/2, cx=ahW/2;
+// BUG FIX: ahPhysicsStep now receives dt_sub (ms) and uses px/second velocities.
+// Wall-bounce sound/sparks gated by a per-frame flag to avoid audio spam from substeps.
+// Returns true if a goal was scored this sub-step.
+function ahPhysicsStep(dt_sub, wallFlags) {
+  var sec = dt_sub / 1000;
+  var r   = ahPuck.r, gw = ahGoalWidth() / 2, cx = ahW / 2;
 
-  // Friction per sub-step
-  ahPuck.vx *= Math.pow(0.9995, frac);
-  ahPuck.vy *= Math.pow(0.9995, frac);
+  // BUG FIX: friction applied per second, not per frame.
+  // pow(0.994, dt_sub/1000) ≈ pow(0.994, 1/60) ≈ 0.99990 per sub-frame at 60fps.
+  var friction = Math.pow(0.994, sec);
+  ahPuck.vx *= friction;
+  ahPuck.vy *= friction;
 
-  // Minimum speed — stop micro-drift
-  var spd2 = ahPuck.vx*ahPuck.vx + ahPuck.vy*ahPuck.vy;
-  if (spd2 < 0.01) { ahPuck.vx = 0; ahPuck.vy = 0; }
+  // Kill micro-drift (below 1 px/s)
+  var spd2 = ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy;
+  if (spd2 < 1) { ahPuck.vx = 0; ahPuck.vy = 0; }
 
-  // Move
-  ahPuck.x += ahPuck.vx * frac;
-  ahPuck.y += ahPuck.vy * frac;
+  // Move (px/s * seconds = px)
+  ahPuck.x += ahPuck.vx * sec;
+  ahPuck.y += ahPuck.vy * sec;
 
-  // Wall collisions — clamp + invert
-  if(ahPuck.x-r<0){
-    ahPuck.x=r; ahPuck.vx=Math.abs(ahPuck.vx)*0.95;
-    ahSpawnWallSparks(r,ahPuck.y); SoundManager.ahWallBounce();
+  // Wall collisions — only spawn effects once per frame with wallFlags guard
+  if (ahPuck.x - r < 0) {
+    ahPuck.x = r; ahPuck.vx = Math.abs(ahPuck.vx) * 0.95;
+    if (!wallFlags.left)  { wallFlags.left=true;  ahSpawnWallSparks(r, ahPuck.y);       SoundManager.ahWallBounce(); }
   }
-  if(ahPuck.x+r>ahW){
-    ahPuck.x=ahW-r; ahPuck.vx=-Math.abs(ahPuck.vx)*0.95;
-    ahSpawnWallSparks(ahW-r,ahPuck.y); SoundManager.ahWallBounce();
+  if (ahPuck.x + r > ahW) {
+    ahPuck.x = ahW - r; ahPuck.vx = -Math.abs(ahPuck.vx) * 0.95;
+    if (!wallFlags.right) { wallFlags.right=true; ahSpawnWallSparks(ahW-r, ahPuck.y);   SoundManager.ahWallBounce(); }
   }
-  if(ahPuck.y-r<0 && !(ahPuck.x>cx-gw && ahPuck.x<cx+gw)){
-    ahPuck.y=r; ahPuck.vy=Math.abs(ahPuck.vy)*0.95;
-    ahSpawnWallSparks(ahPuck.x,r); SoundManager.ahWallBounce();
+  if (ahPuck.y - r < 0 && !(ahPuck.x > cx-gw && ahPuck.x < cx+gw)) {
+    ahPuck.y = r; ahPuck.vy = Math.abs(ahPuck.vy) * 0.95;
+    if (!wallFlags.top)   { wallFlags.top=true;   ahSpawnWallSparks(ahPuck.x, r);       SoundManager.ahWallBounce(); }
   }
-  if(ahPuck.y+r>ahH && !(ahPuck.x>cx-gw && ahPuck.x<cx+gw)){
-    ahPuck.y=ahH-r; ahPuck.vy=-Math.abs(ahPuck.vy)*0.95;
-    ahSpawnWallSparks(ahPuck.x,ahH-r); SoundManager.ahWallBounce();
-  }
-
-  // Paddle collisions
-  for(var pi=0;pi<2;pi++){
-    if(ahCircleCollide(ahPaddles[pi],ahPuck)) ahResolvePaddlePuck(ahPaddles[pi],ahPuck);
+  if (ahPuck.y + r > ahH && !(ahPuck.x > cx-gw && ahPuck.x < cx+gw)) {
+    ahPuck.y = ahH - r; ahPuck.vy = -Math.abs(ahPuck.vy) * 0.95;
+    if (!wallFlags.bot)   { wallFlags.bot=true;   ahSpawnWallSparks(ahPuck.x, ahH-r);   SoundManager.ahWallBounce(); }
   }
 
-  // Goal check
-  if(ahPuck.y-r<0 && ahPuck.x>cx-gw && ahPuck.x<cx+gw) {
-    ahP1Score++; ahGoalWho=0;
+  // Paddle–puck collisions
+  for (var pi = 0; pi < 2; pi++) {
+    if (ahCircleCollide(ahPaddles[pi], ahPuck)) ahResolvePaddlePuck(ahPaddles[pi], ahPuck);
+  }
+
+  // Goal detection: puck fully past the goal line
+  if (ahPuck.y - r < 0 && ahPuck.x > cx-gw && ahPuck.x < cx+gw) {
+    ahP1Score++; ahGoalWho = 0;
     SoundManager.ahGoal(true);
     ahUpdateScoreUI(); ahShowGoalFlash(0);
-    if(ahP1Score>=ahWinScore){ahGameOver(0);return true;}
+    if (ahP1Score >= ahWinScore) { ahGameOver(0); return true; }
     ahResetPositions(1); return true;
   }
-  if(ahPuck.y+r>ahH && ahPuck.x>cx-gw && ahPuck.x<cx+gw) {
-    ahP2Score++; ahGoalWho=1;
+  if (ahPuck.y + r > ahH && ahPuck.x > cx-gw && ahPuck.x < cx+gw) {
+    ahP2Score++; ahGoalWho = 1;
     SoundManager.ahGoal(false);
     ahUpdateScoreUI(); ahShowGoalFlash(1);
-    if(ahP2Score>=ahWinScore){ahGameOver(1);return true;}
+    if (ahP2Score >= ahWinScore) { ahGameOver(1); return true; }
     ahResetPositions(0); return true;
   }
+
   return false;
 }
 
 function ahShowGoalFlash(who) {
-  ahGoalFlash = 60;
   var el = document.getElementById('ah-goal-flash');
   if (!el) return;
-  el.className = 'ah-goal-flash ah-goal-flash--' + (who===0 ? 'p1' : 'p2');
+  el.className = 'ah-goal-flash ah-goal-flash--' + (who === 0 ? 'p1' : 'p2');
   el.textContent = '⚡ GOAL!';
   el.style.display = 'flex';
-  setTimeout(function(){ el.style.display = 'none'; }, 1100);
+  setTimeout(function() { el.style.display = 'none'; }, 1100);
 }
 
 function ahGameOver(winner) {
   ahStopLoop();
-  var label = winner===0 ? 'PLAYER 1' : (ahMode==='pvb' ? 'BOT' : 'PLAYER 2');
-  var color  = winner===0 ? '#00e5ff' : (ahMode==='pvb' ? '#ff4081' : '#ff9100');
+  var label = winner === 0 ? 'PLAYER 1' : (ahMode === 'pvb' ? 'BOT' : 'PLAYER 2');
+  var color  = winner === 0 ? '#00e5ff' : (ahMode === 'pvb' ? '#ff4081' : '#ff9100');
   if (winner === 0) SoundManager.ahWin(); else SoundManager.ahLose();
   var el = document.getElementById('ah-overlay-msg');
   el.style.display = 'flex';
   el.className = 'ah-overlay-msg';
   el.innerHTML =
-    '<div class="ah-win-icon">' + (winner===0?'🏆':'😤') + '</div>' +
-    '<div class="ah-win-title" style="color:'+color+'">' + label + ' WINS!</div>' +
+    '<div class="ah-win-icon">' + (winner === 0 ? '🏆' : '😤') + '</div>' +
+    '<div class="ah-win-title" style="color:' + color + '">' + label + ' WINS!</div>' +
     '<div class="ah-win-score">' + ahP1Score + ' – ' + ahP2Score + '</div>' +
     '<button class="ah-win-btn" onclick="startAHGame()">↺ Play Again</button>' +
     '<button class="ah-win-btn ah-win-btn--sec" onclick="showAH()">← Menu</button>';
@@ -3324,10 +3868,10 @@ function ahGameOver(winner) {
 function ahUpdateScoreUI() {
   document.getElementById('ah-p1-val').textContent = ahP1Score;
   document.getElementById('ah-p2-val').textContent = ahP2Score;
-  // Update pips
   ahUpdatePips('ah-p1-pips', ahP1Score, ahWinScore, '#00e5ff');
   ahUpdatePips('ah-p2-pips', ahP2Score, ahWinScore, '#ff4081');
 }
+
 function ahUpdatePips(id, score, total, color) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -3341,96 +3885,141 @@ function ahUpdatePips(id, score, total, color) {
   }
 }
 
-// ── Main loop ─────────────────────────────────────────────────
+// ── Main Loop ─────────────────────────────────────────────────
 var ahLastTime = 0;
 function ahLoop(ts) {
   if (!ahRunning) return;
 
-  // Pause when tab is hidden to prevent physics explosion on resume
-  if (document.hidden) {
-    ahLastTime = ts;
-    ahRAF = requestAnimationFrame(ahLoop);
-    return;
-  }
+  // Reset timing when tab was hidden to prevent physics explosion on resume
+  if (document.hidden) { ahLastTime = ts; ahRAF = requestAnimationFrame(ahLoop); return; }
 
-  var dt = Math.min(ts - ahLastTime, 50);
+  // BUG FIX: on first frame (ahLastTime===0) use a safe default dt of 16ms
+  var dt = ahLastTime === 0 ? 16 : Math.min(ts - ahLastTime, 50);
   ahLastTime = ts;
+
   if (ahPaused) { ahDraw(); ahRAF = requestAnimationFrame(ahLoop); return; }
 
+  // Update bot target (reads puck position, does NOT move paddle yet)
   ahUpdateBot(dt);
 
-  if (ahGoalFreeze > 0) {
-    ahGoalFreeze--;
-    if (ahGoalFreeze === 0 && ahPuck.vServe) {
-      ahPuck.vx = ahPuck.vServe.vx;
-      ahPuck.vy = ahPuck.vServe.vy;
-      ahPuck.vServe = null;
-      SoundManager.ahPuckStart();
+  // ── Goal-freeze countdown (ms-based, frame-rate independent) ──
+  if (ahGoalFreezeMs > 0) {
+    ahGoalFreezeMs -= dt;
+    // BUG FIX: also clamp paddles during freeze so neither player crosses centre
+    ahClampPaddle(ahPaddles[0], 0);
+    if (ahMode === 'pvp') ahClampPaddle(ahPaddles[1], 1);
+    if (ahGoalFreezeMs <= 0) {
+      ahGoalFreezeMs = 0;
+      if (ahPuck.vServe) {
+        ahPuck.vx = ahPuck.vServe.vx;
+        ahPuck.vy = ahPuck.vServe.vy;
+        ahPuck.vServe = null;
+        SoundManager.ahPuckStart();
+      }
     }
     ahDraw(); ahRAF = requestAnimationFrame(ahLoop); return;
   }
 
-  ahMoveBot();
+  // Move bot paddle (dt-based, px/s)
+  ahMoveBot(dt);
 
-  // P1 keyboard
-  var p0=ahPaddles[0], spd0=ahW*0.022;
-  if(p0.key.up){p0.pvy=-spd0;p0.y+=p0.pvy;}else if(p0.key.dn){p0.pvy=spd0;p0.y+=p0.pvy;}else p0.pvy=0;
-  if(p0.key.lt){p0.pvx=-spd0;p0.x+=p0.pvx;}else if(p0.key.rt){p0.pvx=spd0;p0.x+=p0.pvx;}else p0.pvx=0;
+  // ── Keyboard: P1 ── BUG FIX: dt-based speed in px/s, not px/frame ──
+  var kSpd = ahW * 1.35 * (dt / 1000); // px for this frame
+  var p0   = ahPaddles[0];
+  if (p0.key.up) { p0.pvy = -kSpd; p0.y += p0.pvy; }
+  else if (p0.key.dn) { p0.pvy = kSpd; p0.y += p0.pvy; }
+  else { p0.pvy = 0; }
+  if (p0.key.lt) { p0.pvx = -kSpd; p0.x += p0.pvx; }
+  else if (p0.key.rt) { p0.pvx = kSpd; p0.x += p0.pvx; }
+  else { p0.pvx = 0; }
+  // Convert px/frame to px/s for collision response
+  p0.pvx = dt > 0 ? p0.pvx / (dt / 1000) : 0;
+  p0.pvy = dt > 0 ? p0.pvy / (dt / 1000) : 0;
   ahClampPaddle(p0, 0);
+  // Re-read actual pixel delta for pvx/pvy after clamp (re-scale to px/s)
+  // (already done above — pvx/pvy are now px/s)
 
-  // P2 keyboard (PvP)
-  if(ahMode==='pvp'){
-    var p1=ahPaddles[1], spd1=ahW*0.022;
-    if(p1.key.up){p1.pvy=-spd1;p1.y+=p1.pvy;}else if(p1.key.dn){p1.pvy=spd1;p1.y+=p1.pvy;}else p1.pvy=0;
-    if(p1.key.lt){p1.pvx=-spd1;p1.x+=p1.pvx;}else if(p1.key.rt){p1.pvx=spd1;p1.x+=p1.pvx;}else p1.pvx=0;
+  // ── Keyboard: P2 (PvP only) ───────────────────────────────
+  if (ahMode === 'pvp') {
+    var p1 = ahPaddles[1];
+    if (p1.key.up) { p1.pvy = -kSpd; p1.y += p1.pvy; }
+    else if (p1.key.dn) { p1.pvy = kSpd; p1.y += p1.pvy; }
+    else { p1.pvy = 0; }
+    if (p1.key.lt) { p1.pvx = -kSpd; p1.x += p1.pvx; }
+    else if (p1.key.rt) { p1.pvx = kSpd; p1.x += p1.pvx; }
+    else { p1.pvx = 0; }
+    p1.pvx = dt > 0 ? p1.pvx / (dt / 1000) : 0;
+    p1.pvy = dt > 0 ? p1.pvy / (dt / 1000) : 0;
     ahClampPaddle(p1, 1);
   }
 
-  // Sub-step physics to prevent tunneling at high speeds
-  // Determine sub-step count based on puck speed
-  var puckSpd = Math.sqrt(ahPuck.vx*ahPuck.vx + ahPuck.vy*ahPuck.vy);
-  var subSteps = Math.max(1, Math.min(4, Math.ceil(puckSpd / (ahPuck.r * 0.8))));
-  var stepFrac = 1.0 / subSteps;
+  // ── Sub-step physics (prevents tunneling at high velocity) ──
+  // Determine how many sub-steps: based on px the puck will travel this frame
+  var puckSpd    = Math.sqrt(ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy);
+  var pxPerFrame = puckSpd * (dt / 1000);
+  var subSteps   = Math.max(1, Math.min(6, Math.ceil(pxPerFrame / (ahPuck.r * 0.75))));
+  var dt_sub     = dt / subSteps;
+  // BUG FIX: wallFlags object reset per-frame so wall sounds fire once per frame max
+  var wallFlags  = { left:false, right:false, top:false, bot:false };
   var goalScored = false;
   for (var s = 0; s < subSteps && !goalScored; s++) {
-    goalScored = ahPhysicsStep(stepFrac);
+    goalScored = ahPhysicsStep(dt_sub, wallFlags);
   }
-  if (goalScored) {
-    ahDraw(); ahRAF = requestAnimationFrame(ahLoop); return;
+  if (goalScored) { ahDraw(); ahRAF = requestAnimationFrame(ahLoop); return; }
+
+  // ── Stuck-puck rescue (3s without meaningful movement) ──────
+  ahStuckTimer += dt;
+  var puckSpdNow = Math.sqrt(ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy);
+  if (puckSpdNow > ahW * 0.3) { ahStuckTimer = 0; } // > ~108 px/s = moving
+  if (ahStuckTimer > 3000) {
+    ahStuckTimer = 0;
+    var nudgeDir = (ahPuck.y < ahH / 2) ? 1 : -1;
+    ahPuck.vx = (Math.random() - 0.5) * ahW * 1.2;
+    ahPuck.vy = nudgeDir * ahW * 1.5;
+    SoundManager.ahPuckStart();
   }
 
-  // Trail
-  ahTrail.push({x:ahPuck.x,y:ahPuck.y,spd:Math.sqrt(ahPuck.vx*ahPuck.vx+ahPuck.vy*ahPuck.vy)});
-  if(ahTrail.length>22) ahTrail.shift();
+  // ── Trail (capped at ~0.35s of history regardless of frame-rate) ─
+  ahTrail.push({ x: ahPuck.x, y: ahPuck.y });
+  // Keep last ~22 frames worth — trim over time using dt to be length-independent
+  var maxTrail = Math.max(8, Math.round(350 / Math.max(dt, 8)));
+  if (ahTrail.length > maxTrail) ahTrail.shift();
 
-  // Speed lines
-  var speed=Math.sqrt(ahPuck.vx*ahPuck.vx+ahPuck.vy*ahPuck.vy);
-  if(speed>ahW*0.025 && Math.random()<0.4){
-    var angle=Math.atan2(ahPuck.vy,ahPuck.vx)+Math.PI;
-    var spread=0.5;
+  // ── Speed lines (BUG FIX: decay by dt, not per-frame constant) ──
+  var spdPxPerSec = Math.sqrt(ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy);
+  if (spdPxPerSec > ahW * 1.5 && Math.random() < 0.4) {
+    var angle = Math.atan2(ahPuck.vy, ahPuck.vx) + Math.PI;
     ahSpeedLines.push({
-      x:ahPuck.x, y:ahPuck.y,
-      angle:angle+(Math.random()-0.5)*spread,
-      len:8+Math.random()*20, life:1
+      x: ahPuck.x, y: ahPuck.y,
+      angle: angle + (Math.random() - 0.5) * 0.5,
+      len: 8 + Math.random() * 20, life: 1
     });
   }
-  for(var i=ahSpeedLines.length-1;i>=0;i--){
-    ahSpeedLines[i].life-=0.15;
-    if(ahSpeedLines[i].life<=0) ahSpeedLines.splice(i,1);
+  var slDecay = 9.0 * (dt / 1000); // ~0.11s lifespan at 60fps
+  for (var i = ahSpeedLines.length - 1; i >= 0; i--) {
+    ahSpeedLines[i].life -= slDecay;
+    if (ahSpeedLines[i].life <= 0) ahSpeedLines.splice(i, 1);
   }
 
-  // Particles
-  for(var i=ahParticles.length-1;i>=0;i--){
-    var p=ahParticles[i];
-    p.x+=p.vx; p.y+=p.vy; p.life-=0.055;
-    p.vx*=0.95; p.vy*=0.95;
-    if(p.life<=0) ahParticles.splice(i,1);
+  // ── Particles (BUG FIX: dt-based decay, not per-frame) ──────
+  var pDecay = 2.2 * (dt / 1000); // ~0.45s lifespan
+  for (var i = ahParticles.length - 1; i >= 0; i--) {
+    var p = ahParticles[i];
+    p.x += p.vx * (dt / 1000);
+    p.y += p.vy * (dt / 1000);
+    p.life -= pDecay;
+    p.vx *= Math.pow(0.88, dt / 1000 * 60); // drag
+    p.vy *= Math.pow(0.88, dt / 1000 * 60);
+    if (p.life <= 0) ahParticles.splice(i, 1);
   }
 
-  // Rings
-  for(var i=ahRings.length-1;i>=0;i--){
-    ahRings[i].r+=3; ahRings[i].life-=0.08;
-    if(ahRings[i].life<=0) ahRings.splice(i,1);
+  // ── Rings (BUG FIX: dt-based growth and decay) ──────────────
+  var rGrow  = 180 * (dt / 1000); // px/s growth
+  var rDecay = 5.0 * (dt / 1000);
+  for (var i = ahRings.length - 1; i >= 0; i--) {
+    ahRings[i].r    += rGrow;
+    ahRings[i].life -= rDecay;
+    if (ahRings[i].life <= 0) ahRings.splice(i, 1);
   }
 
   ahDraw();
@@ -3450,7 +4039,7 @@ function ahDraw() {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Ice shimmer overlay
+  // Ice shimmer
   var shimmer = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
   shimmer.addColorStop(0,   'rgba(0,229,255,0.04)');
   shimmer.addColorStop(0.6, 'rgba(0,100,180,0.02)');
@@ -3458,358 +4047,373 @@ function ahDraw() {
   ctx.fillStyle = shimmer;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ Table border with rounded corners
+  // ─ Table border
   ctx.save();
   var brd = 6;
-  ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur  = 24;
-  ctx.strokeStyle = '#00e5ff';
-  ctx.lineWidth   = 3;
+  ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 24;
+  ctx.strokeStyle = '#00e5ff'; ctx.lineWidth   = 3;
   ctx.beginPath();
   ctx.roundRect ? ctx.roundRect(brd, brd, W-brd*2, H-brd*2, 12) : ctx.rect(brd, brd, W-brd*2, H-brd*2);
   ctx.stroke();
-  // Inner subtle border
-  ctx.shadowBlur  = 8;
-  ctx.strokeStyle = 'rgba(0,229,255,0.2)';
-  ctx.lineWidth   = 1;
+  ctx.shadowBlur = 8; ctx.strokeStyle = 'rgba(0,229,255,0.2)'; ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.roundRect ? ctx.roundRect(brd+6, brd+6, W-brd*2-12, H-brd*2-12, 8) : ctx.rect(brd+6, brd+6, W-brd*2-12, H-brd*2-12);
   ctx.stroke();
   ctx.restore();
 
   // ─ Goals
-  var gw  = ahGoalWidth();
-  var gx  = (W - gw) / 2;
+  var gw     = ahGoalWidth();
+  var gx     = (W - gw) / 2;
   var gDepth = ahPuck.r * 2.2;
   ctx.save();
 
-  // Top goal (P1 scores here) — cyan glow
+  // Top goal — P1 scores here (cyan)
   var tgg = ctx.createLinearGradient(0, 0, 0, gDepth);
-  tgg.addColorStop(0, 'rgba(0,229,255,0.5)');
-  tgg.addColorStop(1, 'rgba(0,229,255,0.02)');
-  ctx.fillStyle = tgg;
-  ctx.fillRect(gx, 0, gw, gDepth);
-  ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 16;
-  ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(gx, gDepth); ctx.lineTo(gx, 3); ctx.lineTo(gx+gw, 3); ctx.lineTo(gx+gw, gDepth);
-  ctx.stroke();
-  // Goal post dots
-  ctx.fillStyle='#00e5ff';ctx.shadowBlur=10;
-  ctx.beginPath();ctx.arc(gx, gDepth, 5, 0, Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(gx+gw, gDepth, 5, 0, Math.PI*2);ctx.fill();
+  tgg.addColorStop(0, 'rgba(0,229,255,0.5)'); tgg.addColorStop(1, 'rgba(0,229,255,0.02)');
+  ctx.fillStyle = tgg; ctx.fillRect(gx, 0, gw, gDepth);
+  ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 16; ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(gx, gDepth); ctx.lineTo(gx, 3); ctx.lineTo(gx+gw, 3); ctx.lineTo(gx+gw, gDepth); ctx.stroke();
+  ctx.fillStyle = '#00e5ff'; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(gx, gDepth, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(gx+gw, gDepth, 5, 0, Math.PI*2); ctx.fill();
 
-  // Bottom goal (P2 scores here) — pink glow
+  // Bottom goal — P2/Bot scores here (pink)
   var bgg = ctx.createLinearGradient(0, H, 0, H-gDepth);
-  bgg.addColorStop(0, 'rgba(255,64,129,0.5)');
-  bgg.addColorStop(1, 'rgba(255,64,129,0.02)');
-  ctx.fillStyle = bgg;
-  ctx.fillRect(gx, H-gDepth, gw, gDepth);
+  bgg.addColorStop(0, 'rgba(255,64,129,0.5)'); bgg.addColorStop(1, 'rgba(255,64,129,0.02)');
+  ctx.fillStyle = bgg; ctx.fillRect(gx, H-gDepth, gw, gDepth);
   ctx.shadowColor = '#ff4081'; ctx.strokeStyle = '#ff4081';
-  ctx.beginPath();
-  ctx.moveTo(gx, H-gDepth); ctx.lineTo(gx, H-3); ctx.lineTo(gx+gw, H-3); ctx.lineTo(gx+gw, H-gDepth);
-  ctx.stroke();
-  ctx.fillStyle='#ff4081';ctx.shadowBlur=10;
-  ctx.beginPath();ctx.arc(gx, H-gDepth, 5, 0, Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(gx+gw, H-gDepth, 5, 0, Math.PI*2);ctx.fill();
+  ctx.beginPath(); ctx.moveTo(gx, H-gDepth); ctx.lineTo(gx, H-3); ctx.lineTo(gx+gw, H-3); ctx.lineTo(gx+gw, H-gDepth); ctx.stroke();
+  ctx.fillStyle = '#ff4081'; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(gx, H-gDepth, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(gx+gw, H-gDepth, 5, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 
-  // ─ Center markings
+  // ─ Centre markings
   ctx.save();
-  // Outer center circle
   ctx.shadowColor = 'rgba(0,229,255,0.3)'; ctx.shadowBlur = 10;
   ctx.strokeStyle = 'rgba(0,229,255,0.25)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(W/2, H/2, W*0.16, 0, Math.PI*2); ctx.stroke();
-  // Inner circle
   ctx.strokeStyle = 'rgba(0,229,255,0.12)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(W/2, H/2, W*0.06, 0, Math.PI*2); ctx.stroke();
-  // Center line
   ctx.strokeStyle = 'rgba(0,229,255,0.18)'; ctx.lineWidth = 1.5;
   ctx.setLineDash([10, 7]);
   ctx.beginPath(); ctx.moveTo(brd+8, H/2); ctx.lineTo(W-brd-8, H/2); ctx.stroke();
   ctx.setLineDash([]);
-  // Center dot glow
-  ctx.shadowColor='#00e5ff';ctx.shadowBlur=14;
-  var cdg = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,6);
-  cdg.addColorStop(0,'rgba(0,229,255,0.9)');cdg.addColorStop(1,'rgba(0,229,255,0)');
-  ctx.fillStyle=cdg;
-  ctx.beginPath();ctx.arc(W/2,H/2,6,0,Math.PI*2);ctx.fill();
-  // Subtle faceoff circles in each half
-  ctx.shadowBlur=0;ctx.strokeStyle='rgba(0,229,255,0.1)';ctx.lineWidth=1;
+  ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 14;
+  var cdg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 6);
+  cdg.addColorStop(0, 'rgba(0,229,255,0.9)'); cdg.addColorStop(1, 'rgba(0,229,255,0)');
+  ctx.fillStyle = cdg;
+  ctx.beginPath(); ctx.arc(W/2, H/2, 6, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(0,229,255,0.1)'; ctx.lineWidth = 1;
   [H*0.25, H*0.75].forEach(function(fy) {
     [W*0.25, W*0.75].forEach(function(fx) {
-      ctx.beginPath();ctx.arc(fx,fy,W*0.06,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath(); ctx.arc(fx, fy, W*0.06, 0, Math.PI*2); ctx.stroke();
     });
   });
   ctx.restore();
 
   // ─ Speed lines
   ctx.save();
-  for(var i=0;i<ahSpeedLines.length;i++){
-    var sl=ahSpeedLines[i];
-    var alpha=sl.life*0.6;
-    ctx.globalAlpha=alpha;
-    ctx.strokeStyle='rgba(120,220,255,0.8)';
-    ctx.lineWidth=1;
+  for (var i = 0; i < ahSpeedLines.length; i++) {
+    var sl = ahSpeedLines[i];
+    ctx.globalAlpha = sl.life * 0.6;
+    ctx.strokeStyle = 'rgba(120,220,255,0.8)'; ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(sl.x,sl.y);
-    ctx.lineTo(sl.x+Math.cos(sl.angle)*sl.len, sl.y+Math.sin(sl.angle)*sl.len);
+    ctx.moveTo(sl.x, sl.y);
+    ctx.lineTo(sl.x + Math.cos(sl.angle)*sl.len, sl.y + Math.sin(sl.angle)*sl.len);
     ctx.stroke();
   }
   ctx.restore();
 
   // ─ Puck trail
   ctx.save();
-  for(var i=0;i<ahTrail.length;i++){
-    var frac = i/ahTrail.length;
+  for (var i = 0; i < ahTrail.length; i++) {
+    var frac = i / ahTrail.length;
     var alpha = frac * 0.55;
     var r2 = ahPuck.r * frac * 0.7;
-    var trailGrad = ctx.createRadialGradient(ahTrail[i].x,ahTrail[i].y,0,ahTrail[i].x,ahTrail[i].y,r2);
-    trailGrad.addColorStop(0,'rgba(0,229,255,'+alpha+')');
-    trailGrad.addColorStop(1,'rgba(0,229,255,0)');
-    ctx.fillStyle=trailGrad;
-    ctx.beginPath();ctx.arc(ahTrail[i].x,ahTrail[i].y,r2,0,Math.PI*2);ctx.fill();
+    if (r2 < 0.5) continue;
+    var trailGrad = ctx.createRadialGradient(ahTrail[i].x, ahTrail[i].y, 0, ahTrail[i].x, ahTrail[i].y, r2);
+    trailGrad.addColorStop(0, 'rgba(0,229,255,' + alpha + ')');
+    trailGrad.addColorStop(1, 'rgba(0,229,255,0)');
+    ctx.fillStyle = trailGrad;
+    ctx.beginPath(); ctx.arc(ahTrail[i].x, ahTrail[i].y, r2, 0, Math.PI*2); ctx.fill();
   }
   ctx.restore();
 
-  // ─ Puck
+  // ─ Puck — colour shifts toward hot-orange at high speed (power-shot indicator)
   ctx.save();
-  ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur  = 28;
-  var puckSpeed = Math.sqrt(ahPuck.vx*ahPuck.vx+ahPuck.vy*ahPuck.vy);
-  var puckGlow  = Math.min(40, 18 + puckSpeed);
-  ctx.shadowBlur = puckGlow;
+  var puckSpd  = Math.sqrt(ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy);
+  var sFrac    = Math.min(1, puckSpd / (ahW * 2.4));  // 0→1 from slow to fast
+  var puckGlow = Math.min(48, 14 + puckSpd * 0.018);
+  ctx.shadowColor = sFrac > 0.5 ? 'rgba(255,120,0,0.9)' : '#00e5ff';
+  ctx.shadowBlur  = puckGlow;
+  var r1c = Math.round(232 + 23 * sFrac);
+  var g1c = Math.round(248 - 100 * sFrac);
+  var b1c = Math.round(255 - 80 * sFrac);
   var pg = ctx.createRadialGradient(
-    ahPuck.x-ahPuck.r*0.35, ahPuck.y-ahPuck.r*0.35, ahPuck.r*0.05,
+    ahPuck.x - ahPuck.r*0.35, ahPuck.y - ahPuck.r*0.35, ahPuck.r*0.05,
     ahPuck.x, ahPuck.y, ahPuck.r
   );
-  pg.addColorStop(0,'#e8f8ff');
-  pg.addColorStop(0.3,'#70d8ff');
-  pg.addColorStop(0.7,'#0099cc');
-  pg.addColorStop(1,'#003355');
-  ctx.beginPath();ctx.arc(ahPuck.x,ahPuck.y,ahPuck.r,0,Math.PI*2);
-  ctx.fillStyle=pg;ctx.fill();
-  // Puck rim
-  ctx.strokeStyle='rgba(150,220,255,0.7)';ctx.lineWidth=2;ctx.stroke();
-  // Puck center cross detail
-  ctx.shadowBlur=0;
-  ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1.2;
+  pg.addColorStop(0, 'rgb(' + r1c + ',' + g1c + ',' + b1c + ')');
+  pg.addColorStop(0.3, '#70d8ff');
+  pg.addColorStop(0.7, '#0099cc');
+  pg.addColorStop(1,   '#003355');
+  ctx.beginPath(); ctx.arc(ahPuck.x, ahPuck.y, ahPuck.r, 0, Math.PI*2);
+  ctx.fillStyle = pg; ctx.fill();
+  ctx.strokeStyle = sFrac > 0.6 ? 'rgba(255,' + Math.round(100*(1-sFrac)) + ',80,0.85)' : 'rgba(150,220,255,0.7)';
+  ctx.lineWidth = 2; ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(ahPuck.x-ahPuck.r*0.3,ahPuck.y);ctx.lineTo(ahPuck.x+ahPuck.r*0.3,ahPuck.y);
-  ctx.moveTo(ahPuck.x,ahPuck.y-ahPuck.r*0.3);ctx.lineTo(ahPuck.x,ahPuck.y+ahPuck.r*0.3);
+  ctx.moveTo(ahPuck.x - ahPuck.r*0.3, ahPuck.y); ctx.lineTo(ahPuck.x + ahPuck.r*0.3, ahPuck.y);
+  ctx.moveTo(ahPuck.x, ahPuck.y - ahPuck.r*0.3); ctx.lineTo(ahPuck.x, ahPuck.y + ahPuck.r*0.3);
   ctx.stroke();
   ctx.restore();
 
-  // ─ Rings (paddle hit pulse)
+  // ─ Rings
   ctx.save();
-  for(var i=0;i<ahRings.length;i++){
-    var ring=ahRings[i];
-    ctx.globalAlpha=ring.life*0.6;
-    ctx.strokeStyle='#00e5ff';
-    ctx.lineWidth=2*ring.life;
-    ctx.shadowColor='#00e5ff';ctx.shadowBlur=10;
-    ctx.beginPath();ctx.arc(ring.x,ring.y,ring.r,0,Math.PI*2);ctx.stroke();
+  for (var i = 0; i < ahRings.length; i++) {
+    var ring = ahRings[i];
+    ctx.globalAlpha = ring.life * 0.6;
+    ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 2 * ring.life;
+    ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI*2); ctx.stroke();
   }
   ctx.restore();
 
   // ─ Paddles
-  var pColors   = ['#00e5ff', ahMode==='pvb' ? '#ff4081' : '#ff9100'];
-  var pDark     = ['#003344', ahMode==='pvb' ? '#440022' : '#442200'];
-  var pGlow     = ['rgba(0,229,255,0.9)', ahMode==='pvb' ? 'rgba(255,64,129,0.9)' : 'rgba(255,145,0,0.9)'];
-  var pLabels   = ['1', ahMode==='pvb' ? '🤖' : '2'];
-  for(var pi=0;pi<2;pi++){
-    var pad=ahPaddles[pi];
+  var pColors = ['#00e5ff', ahMode === 'pvb' ? '#ff4081' : '#ff9100'];
+  var pDark   = ['#003344', ahMode === 'pvb' ? '#440022' : '#442200'];
+  var pGlow   = ['rgba(0,229,255,0.9)', ahMode === 'pvb' ? 'rgba(255,64,129,0.9)' : 'rgba(255,145,0,0.9)'];
+  var pLabels = ['1', ahMode === 'pvb' ? '🤖' : '2'];
+  for (var pi = 0; pi < 2; pi++) {
+    var pad = ahPaddles[pi];
     ctx.save();
-    ctx.shadowColor=pGlow[pi]; ctx.shadowBlur=26;
-    // Glow ring behind paddle
-    var glowR=ctx.createRadialGradient(pad.x,pad.y,pad.r*0.5,pad.x,pad.y,pad.r*1.8);
-    glowR.addColorStop(0,'rgba(255,255,255,0.06)');
-    glowR.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=glowR;
-    ctx.beginPath();ctx.arc(pad.x,pad.y,pad.r*1.8,0,Math.PI*2);ctx.fill();
-    // Main paddle body
-    var rg=ctx.createRadialGradient(pad.x-pad.r*0.3,pad.y-pad.r*0.35,pad.r*0.04,pad.x,pad.y,pad.r);
-    rg.addColorStop(0,'#ffffff');
-    rg.addColorStop(0.35,pColors[pi]);
-    rg.addColorStop(0.75,pColors[pi]+'99');
-    rg.addColorStop(1,pDark[pi]);
-    ctx.beginPath();ctx.arc(pad.x,pad.y,pad.r,0,Math.PI*2);
-    ctx.fillStyle=rg;ctx.fill();
-    // Outer ring
-    ctx.strokeStyle=pColors[pi];ctx.lineWidth=2.5;ctx.stroke();
-    // Middle ring
-    ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.arc(pad.x,pad.y,pad.r*0.62,0,Math.PI*2);ctx.stroke();
-    // Center handle
-    ctx.fillStyle=pDark[pi];ctx.shadowColor=pColors[pi];ctx.shadowBlur=4;
-    ctx.beginPath();ctx.arc(pad.x,pad.y,pad.r*0.22,0,Math.PI*2);ctx.fill();
-    // Player label inside
-    ctx.fillStyle='rgba(255,255,255,0.9)';
-    ctx.font='bold '+Math.round(pad.r*0.28)+'px Orbitron,sans-serif';
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowBlur=0;
+    ctx.shadowColor = pGlow[pi]; ctx.shadowBlur = 26;
+    var glowR = ctx.createRadialGradient(pad.x, pad.y, pad.r*0.5, pad.x, pad.y, pad.r*1.8);
+    glowR.addColorStop(0, 'rgba(255,255,255,0.06)'); glowR.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glowR;
+    ctx.beginPath(); ctx.arc(pad.x, pad.y, pad.r*1.8, 0, Math.PI*2); ctx.fill();
+    var rg = ctx.createRadialGradient(pad.x-pad.r*0.3, pad.y-pad.r*0.35, pad.r*0.04, pad.x, pad.y, pad.r);
+    rg.addColorStop(0, '#ffffff');
+    rg.addColorStop(0.35, pColors[pi]);
+    rg.addColorStop(0.75, pColors[pi] + '99');
+    rg.addColorStop(1, pDark[pi]);
+    ctx.beginPath(); ctx.arc(pad.x, pad.y, pad.r, 0, Math.PI*2);
+    ctx.fillStyle = rg; ctx.fill();
+    ctx.strokeStyle = pColors[pi]; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(pad.x, pad.y, pad.r*0.62, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = pDark[pi]; ctx.shadowColor = pColors[pi]; ctx.shadowBlur = 4;
+    ctx.beginPath(); ctx.arc(pad.x, pad.y, pad.r*0.22, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = 'bold ' + Math.round(pad.r * 0.28) + 'px Orbitron,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowBlur = 0;
     ctx.fillText(pLabels[pi], pad.x, pad.y);
     ctx.restore();
   }
 
   // ─ Particles
   ctx.save();
-  for(var i=0;i<ahParticles.length;i++){
-    var p=ahParticles[i];
-    ctx.globalAlpha=p.life;
-    ctx.shadowColor=p.color;ctx.shadowBlur=8;
-    ctx.fillStyle=p.color;
-    ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();
+  for (var i = 0; i < ahParticles.length; i++) {
+    var p = ahParticles[i];
+    ctx.globalAlpha = p.life;
+    ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2); ctx.fill();
   }
   ctx.restore();
 
-  // ─ Serve hint
-  if(ahGoalFreeze>20){
-    var hint=ahServeWho===0?'▼ YOUR SERVE':'▲ SERVE';
-    var hy=ahServeWho===0?H*0.73:H*0.27;
+  // ─ Serve hint — shown during freeze period
+  // BUG FIX: arrow direction now matches actual puck travel direction
+  if (ahGoalFreezeMs > 250) {
+    var servingP1 = (ahServeWho === 0); // P1 serves → puck travels up (▲)
+    var hint = servingP1 ? '▲ YOUR SERVE' : '▼ SERVE';
+    var hy   = servingP1 ? H * 0.73 : H * 0.27;
     ctx.save();
-    var alpha=Math.min(1,(ahGoalFreeze-20)/20);
-    ctx.globalAlpha=alpha;
-    ctx.font='bold '+Math.round(W*0.042)+'px Orbitron,sans-serif';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle='rgba(255,255,255,0.8)';
-    ctx.shadowColor='#00e5ff';ctx.shadowBlur=16;
-    ctx.fillText(hint,W/2,hy);
+    var alpha = Math.min(1, (ahGoalFreezeMs - 250) / 350);
+    ctx.globalAlpha = alpha;
+    ctx.font = 'bold ' + Math.round(W * 0.042) + 'px Orbitron,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 16;
+    ctx.fillText(hint, W/2, hy);
     ctx.restore();
   }
 
   // ─ Pause overlay
-  if(ahPaused){
+  if (ahPaused) {
     ctx.save();
-    ctx.fillStyle='rgba(0,0,0,0.65)';
-    ctx.fillRect(0,0,W,H);
-    ctx.font='bold '+Math.round(W*0.1)+'px Orbitron,sans-serif';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle='#00e5ff';ctx.shadowColor='#00e5ff';ctx.shadowBlur=30;
-    ctx.fillText('PAUSED',W/2,H/2);
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = 'bold ' + Math.round(W * 0.1) + 'px Orbitron,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#00e5ff'; ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 30;
+    ctx.fillText('PAUSED', W/2, H/2);
     ctx.restore();
   }
 }
 
-// ── Touch/mouse drag ──────────────────────────────────────────
-(function(){
-  var active={};
-  function setup(){
-    var canvas=document.getElementById('ah-canvas');
-    if(!canvas)return;
-    function getScaled(e){
-      var rect=canvas.getBoundingClientRect();
-      return{x:(e.clientX-rect.left)*(ahW/rect.width),y:(e.clientY-rect.top)*(ahH/rect.height)};
+// ── Touch / pointer drag ──────────────────────────────────────
+(function() {
+  var active = {};
+  var prevPos = {}; // track previous position per pointer for velocity calculation
+  var prevTime = {}; // track timing for velocity estimation
+  function setup() {
+    var canvas = document.getElementById('ah-canvas');
+    if (!canvas) return;
+    function getScaled(e) {
+      var rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (ahW / rect.width),
+        y: (e.clientY - rect.top)  * (ahH / rect.height)
+      };
     }
-    canvas.addEventListener('pointerdown',function(e){
+    canvas.addEventListener('pointerdown', function(e) {
       e.preventDefault();
-      var s=getScaled(e);
-      var pi=s.y>ahH/2?0:(ahMode==='pvp'?1:-1);
-      if(pi>=0)active[e.pointerId]=pi;
-    },{passive:false});
-    canvas.addEventListener('pointermove',function(e){
+      var s  = getScaled(e);
+      // In PvB: bottom half = P1. Top half = nobody (bot controlled by AI)
+      // In PvP: bottom half = P1, top half = P2
+      var pi = s.y > ahH / 2 ? 0 : (ahMode === 'pvp' ? 1 : -1);
+      if (pi >= 0) {
+        active[e.pointerId] = pi;
+        prevPos[e.pointerId]  = s;
+        prevTime[e.pointerId] = performance.now();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('pointermove', function(e) {
       e.preventDefault();
-      if(!(e.pointerId in active))return;
-      var s=getScaled(e);
-      var pi=active[e.pointerId];
-      var prev={x:ahPaddles[pi].x,y:ahPaddles[pi].y};
-      ahPaddles[pi].x=s.x;ahPaddles[pi].y=s.y;
-      ahClampPaddle(ahPaddles[pi],pi);
-      ahPaddles[pi].pvx=ahPaddles[pi].x-prev.x;
-      ahPaddles[pi].pvy=ahPaddles[pi].y-prev.y;
-    },{passive:false});
-    canvas.addEventListener('pointerup',function(e){delete active[e.pointerId];});
-    canvas.addEventListener('pointercancel',function(e){delete active[e.pointerId];});
+      if (!(e.pointerId in active)) return;
+      var s   = getScaled(e);
+      var pi  = active[e.pointerId];
+      var now = performance.now();
+      var prev = prevPos[e.pointerId]  || s;
+      var pt   = prevTime[e.pointerId] || now;
+      var dtT  = Math.max(1, now - pt); // ms elapsed since last move event
+
+      // BUG FIX: compute pvx/pvy in px/SECOND so collision response is correct.
+      // Clamp to avoid degenerate large values from slow-polling devices.
+      var rawVx = (s.x - prev.x) / (dtT / 1000);
+      var rawVy = (s.y - prev.y) / (dtT / 1000);
+      var maxTouchV = ahW * 4.5; // 4.5 table-widths per second max
+      var mag = Math.sqrt(rawVx*rawVx + rawVy*rawVy);
+      if (mag > maxTouchV) { rawVx = rawVx/mag*maxTouchV; rawVy = rawVy/mag*maxTouchV; }
+
+      ahPaddles[pi].x   = s.x;
+      ahPaddles[pi].y   = s.y;
+      ahClampPaddle(ahPaddles[pi], pi);
+      ahPaddles[pi].pvx = rawVx;
+      ahPaddles[pi].pvy = rawVy;
+
+      prevPos[e.pointerId]  = s;
+      prevTime[e.pointerId] = now;
+    }, { passive: false });
+
+    function onEnd(e) {
+      if (e.pointerId in active) {
+        // BUG FIX: zero out paddle velocity when touch is released so it doesn't
+        // keep imparting momentum to the puck after the player lifts their finger
+        var pi = active[e.pointerId];
+        ahPaddles[pi].pvx = 0;
+        ahPaddles[pi].pvy = 0;
+      }
+      delete active[e.pointerId];
+      delete prevPos[e.pointerId];
+      delete prevTime[e.pointerId];
+    }
+    canvas.addEventListener('pointerup',     onEnd);
+    canvas.addEventListener('pointercancel', onEnd);
   }
   setup();
 })();
 
 // ── Keyboard ──────────────────────────────────────────────────
-(function(){
-  var keyMap={
-    'KeyW':{p:0,dir:'up'},'ArrowUp':{p:0,dir:'up'},
-    'KeyS':{p:0,dir:'dn'},'ArrowDown':{p:0,dir:'dn'},
-    'KeyA':{p:0,dir:'lt'},'ArrowLeft':{p:0,dir:'lt'},
-    'KeyD':{p:0,dir:'rt'},'ArrowRight':{p:0,dir:'rt'},
-    'KeyI':{p:1,dir:'up'},'KeyK':{p:1,dir:'dn'},
-    'KeyJ':{p:1,dir:'lt'},'KeyL':{p:1,dir:'rt'}
+(function() {
+  var keyMap = {
+    'KeyW'    : {p:0, dir:'up'}, 'ArrowUp'   : {p:0, dir:'up'},
+    'KeyS'    : {p:0, dir:'dn'}, 'ArrowDown' : {p:0, dir:'dn'},
+    'KeyA'    : {p:0, dir:'lt'}, 'ArrowLeft' : {p:0, dir:'lt'},
+    'KeyD'    : {p:0, dir:'rt'}, 'ArrowRight': {p:0, dir:'rt'},
+    'KeyI':{p:1, dir:'up'}, 'KeyK':{p:1, dir:'dn'},
+    'KeyJ':{p:1, dir:'lt'}, 'KeyL':{p:1, dir:'rt'}
   };
-  function isActive(){return ahRunning&&!ahPaused&&!document.getElementById('ah-play-panel').classList.contains('hidden');}
-  document.addEventListener('keydown',function(e){
-    if(!isActive())return;
-    if(keyMap[e.code]){ahPaddles[keyMap[e.code].p].key[keyMap[e.code].dir]=true;e.preventDefault();}
+  function isActive() {
+    return ahRunning && !ahPaused &&
+           !document.getElementById('ah-play-panel').classList.contains('hidden');
+  }
+  document.addEventListener('keydown', function(e) {
+    if (!isActive()) return;
+    if (keyMap[e.code]) { ahPaddles[keyMap[e.code].p].key[keyMap[e.code].dir] = true; e.preventDefault(); }
   });
-  document.addEventListener('keyup',function(e){
-    if(keyMap[e.code])ahPaddles[keyMap[e.code].p].key[keyMap[e.code].dir]=false;
+  document.addEventListener('keyup', function(e) {
+    if (keyMap[e.code]) ahPaddles[keyMap[e.code].p].key[keyMap[e.code].dir] = false;
   });
 })();
 
 // ── Home page controls ────────────────────────────────────────
-var ahHPMode='pvb', ahHPDiff='easy', ahHPWinScore=7;
+var ahHPMode = 'pvb', ahHPDiff = 'easy', ahHPWinScore = 7;
 
-(function(){
-  // Mode
-  ['ah-mode-pvb','ah-mode-pvp'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(!el)return;
-    el.addEventListener('click',function(){
-      ahHPMode=el.getAttribute('data-mode');
-      document.querySelectorAll('#ah-home .ah-pill[data-mode]').forEach(function(b){b.classList.remove('active');});
+(function() {
+  ['ah-mode-pvb', 'ah-mode-pvp'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function() {
+      ahHPMode = el.getAttribute('data-mode');
+      document.querySelectorAll('#ah-home .ah-pill[data-mode]').forEach(function(b) { b.classList.remove('active'); });
       el.classList.add('active');
-      var dr=document.getElementById('ah-diff-row');
-      if(dr)dr.style.display=ahHPMode==='pvb'?'':'none';
+      var dr = document.getElementById('ah-diff-row');
+      if (dr) dr.style.display = ahHPMode === 'pvb' ? '' : 'none';
       SoundManager.click();
     });
   });
-  // Diff
-  ['ah-diff-easy','ah-diff-medium','ah-diff-hard'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(!el)return;
-    el.addEventListener('click',function(){
-      ahHPDiff=el.getAttribute('data-diff');
-      document.querySelectorAll('#ah-home .ah-pill[data-diff]').forEach(function(b){b.classList.remove('active');});
+  ['ah-diff-easy', 'ah-diff-medium', 'ah-diff-hard'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function() {
+      ahHPDiff = el.getAttribute('data-diff');
+      document.querySelectorAll('#ah-home .ah-pill[data-diff]').forEach(function(b) { b.classList.remove('active'); });
       el.classList.add('active');
       SoundManager.click();
     });
   });
-  // Win score
-  ['ah-score-5','ah-score-7','ah-score-10'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(!el)return;
-    el.addEventListener('click',function(){
-      ahHPWinScore=parseInt(el.getAttribute('data-val'));
-      document.querySelectorAll('#ah-home .ah-pill[data-val]').forEach(function(b){b.classList.remove('active');});
+  ['ah-score-5', 'ah-score-7', 'ah-score-10'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function() {
+      ahHPWinScore = parseInt(el.getAttribute('data-val'));
+      document.querySelectorAll('#ah-home .ah-pill[data-val]').forEach(function(b) { b.classList.remove('active'); });
       el.classList.add('active');
       SoundManager.click();
     });
   });
-  document.getElementById('ah-main-back').addEventListener('click',showHub);
-  document.getElementById('ah-back-to-home').addEventListener('click',showAH);
-  document.getElementById('ah-hp-start').addEventListener('click',startAHGame);
-  document.getElementById('ah-pause-btn').addEventListener('click',function(){
-    ahPaused=!ahPaused;
-    this.textContent=ahPaused?'▶':'⏸';
+  document.getElementById('ah-main-back').addEventListener('click', showHub);
+  document.getElementById('ah-back-to-home').addEventListener('click', showAH);
+  document.getElementById('ah-hp-start').addEventListener('click', startAHGame);
+  document.getElementById('ah-pause-btn').addEventListener('click', function() {
+    ahPaused = !ahPaused;
+    this.textContent = ahPaused ? '▶' : '⏸';
     SoundManager.click();
   });
 })();
 
-function startAHGame(){
-  ahMode=ahHPMode; ahDiff=ahHPDiff; ahWinScore=ahHPWinScore;
+function startAHGame() {
+  ahMode = ahHPMode; ahDiff = ahHPDiff; ahWinScore = ahHPWinScore;
   document.getElementById('ah-home').classList.add('hidden');
   document.getElementById('ah-play-panel').classList.remove('hidden');
-  document.getElementById('ah-p2-label').textContent=ahMode==='pvb'?'BOT':'P2';
-  var ol=document.getElementById('ah-overlay-msg');
-  ol.style.display='none'; ol.className='ah-overlay-msg hidden';
-  var gf=document.getElementById('ah-goal-flash');
-  if(gf)gf.style.display='none';
-  ahPaused=false;
-  document.getElementById('ah-pause-btn').textContent='⏸';
+  document.getElementById('ah-p2-label').textContent = ahMode === 'pvb' ? 'BOT' : 'P2';
+  var ol = document.getElementById('ah-overlay-msg');
+  ol.style.display = 'none'; ol.className = 'ah-overlay-msg hidden';
+  var gf = document.getElementById('ah-goal-flash');
+  if (gf) gf.style.display = 'none';
+  ahPaused = false;
+  document.getElementById('ah-pause-btn').textContent = '⏸';
   ahInit();
-  ahRunning=true;
-  ahLastTime=performance.now();
-  ahRAF=requestAnimationFrame(ahLoop);
-  // Update pips
-  ahUpdatePips('ah-p1-pips',0,ahWinScore,'#00e5ff');
-  ahUpdatePips('ah-p2-pips',0,ahWinScore,'#ff4081');
+  ahRunning = true;
+  ahLastTime = 0; // safe 16ms default on first frame
+  ahRAF = requestAnimationFrame(ahLoop);
+  ahUpdatePips('ah-p1-pips', 0, ahWinScore, '#00e5ff');
+  ahUpdatePips('ah-p2-pips', 0, ahWinScore, '#ff4081');
   SoundManager.ahPuckStart();
 }
 
@@ -5764,7 +6368,7 @@ var GlobalBotEngine = (function() {
       ahStopLoop();
       ahInit();
       ahRunning = true;
-      ahLastTime = performance.now();
+      ahLastTime = 0;  // FIX: safe default dt on first frame
       ahRAF = requestAnimationFrame(ahLoop);
     },
     destroy: function() { ahStopLoop(); }
@@ -6649,3 +7253,65 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
   console.log('[DuelZone] Connect Dots Duel loaded and registered.');
 
 })(); // end IIFE
+
+// ═══════════════════════════════════════════════════════════════
+// DuelZone · Global Stats Tracker
+// Tracks wins/plays per player via localStorage, shown on hub
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  var STATS_KEY = 'dz-stats-v2';
+
+  function getStats(){
+    try{ return JSON.parse(localStorage.getItem(STATS_KEY)||'{}'); }catch(e){ return {}; }
+  }
+  function saveStats(s){ try{ localStorage.setItem(STATS_KEY,JSON.stringify(s)); }catch(e){} }
+
+  // Public API
+  window.DZStats = {
+    recordWin: function(game, player){
+      var s = getStats();
+      if(!s[game]) s[game] = {p1:0, p2:0, plays:0};
+      s[game][player] = (s[game][player]||0) + 1;
+      s[game].plays = (s[game].plays||0) + 1;
+      saveStats(s);
+      DZStats.renderBadge(game);
+    },
+    recordPlay: function(game){
+      var s = getStats();
+      if(!s[game]) s[game] = {p1:0, p2:0, plays:0};
+      s[game].plays = (s[game].plays||0) + 1;
+      saveStats(s);
+    },
+    getGameStats: function(game){
+      var s = getStats();
+      return s[game] || {p1:0, p2:0, plays:0};
+    },
+    renderBadge: function(game){
+      // Update card badge on hub if visible
+      var card = document.querySelector('[data-game="'+game+'"]');
+      if(!card) return;
+      var st = DZStats.getGameStats(game);
+      var badge = card.querySelector('.dz-stat-badge');
+      if(!badge){
+        badge = document.createElement('div');
+        badge.className = 'dz-stat-badge';
+        badge.style.cssText = 'position:absolute;top:8px;right:8px;font-size:0.62rem;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:2px 7px;color:rgba(255,255,255,0.45);font-family:Rajdhani,sans-serif;pointer-events:none;z-index:5;';
+        card.style.position = 'relative';
+        card.appendChild(badge);
+      }
+      badge.textContent = st.plays + ' plays';
+    },
+    init: function(){
+      var s = getStats();
+      Object.keys(s).forEach(function(game){ DZStats.renderBadge(game); });
+    }
+  };
+
+  // Wire into SoundManager.win calls via monkey-patch approach
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(DZStats.init, 500);
+  });
+
+})();

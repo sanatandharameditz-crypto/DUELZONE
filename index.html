@@ -32,8 +32,15 @@
       </div>
       <div class="sword right">
         <button id="dz-mute-btn" title="Toggle sound" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:4px 8px;opacity:0.75;">🔊</button>
+        <button id="dz-theme-btn" title="Toggle light/dark mode" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 8px;opacity:0.75;">🌙</button>
       </div>
     </header>
+
+    <!-- Recently Played -->
+    <div id="recently-played" style="display:none;padding:0 16px 0;max-width:900px;margin:0 auto 8px;">
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);letter-spacing:0.12em;font-family:'Orbitron',sans-serif;margin-bottom:8px;">⏱ RECENTLY PLAYED</div>
+      <div id="recently-played-list" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+    </div>
 
     <!-- Arena grid -->
     <main id="arena-grid">
@@ -389,6 +396,400 @@
             <p class="card-desc">Match pairs, outwit your opponent</p>
           </div>
           <button class="card-btn" aria-label="Play Memory Flip Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Darts Duel -->
+      <article class="arena-card" data-game="Darts Duel" data-screen="darts" data-color="red" style="--accent:#ff1744">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2.5"/>
+              <circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="2"/>
+              <circle cx="24" cy="24" r="8"  stroke="currentColor" stroke-width="2"/>
+              <circle cx="24" cy="24" r="3"  fill="currentColor"/>
+              <line x1="40" y1="8" x2="26" y2="22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <polygon points="26,22 22,24 24,20" fill="currentColor"/>
+              <line x1="42" y1="6" x2="40" y2="8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Darts Duel</h2>
+            <p class="card-desc">Aim, throw &amp; hit zero to win</p>
+          </div>
+          <button class="card-btn" aria-label="Play Darts Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Tanks Arena -->
+      <article class="arena-card" data-game="Tanks Arena" data-screen="tanks" data-color="yellow" style="--accent:#ffab00">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <!-- Tank body -->
+              <rect x="6" y="20" width="28" height="16" rx="4" stroke="currentColor" stroke-width="2.5"/>
+              <!-- Turret -->
+              <rect x="12" y="15" width="14" height="10" rx="3" fill="currentColor" opacity="0.7"/>
+              <!-- Barrel -->
+              <line x1="26" y1="19" x2="42" y2="19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              <!-- Tracks top -->
+              <rect x="4" y="17" width="32" height="4" rx="2" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+              <!-- Tracks bottom -->
+              <rect x="4" y="35" width="32" height="4" rx="2" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+              <!-- Wheels -->
+              <circle cx="10" cy="37" r="3" fill="currentColor" opacity="0.6"/>
+              <circle cx="20" cy="37" r="3" fill="currentColor" opacity="0.6"/>
+              <circle cx="30" cy="37" r="3" fill="currentColor" opacity="0.6"/>
+              <!-- Shell/bullet -->
+              <circle cx="45" cy="19" r="2" fill="currentColor" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Tanks Arena</h2>
+            <p class="card-desc">Top-down tank duel — blast your rival</p>
+          </div>
+          <button class="card-btn" aria-label="Play Tanks Arena">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Star Catcher -->
+      <article class="arena-card" data-game="Star Catcher" data-screen="starcatcher" data-color="cyan" style="--accent:#00e5ff">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <!-- Star -->
+              <polygon points="24,4 29,18 44,18 32,27 37,42 24,33 11,42 16,27 4,18 19,18" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="currentColor" opacity="0.7"/>
+              <!-- Basket P1 -->
+              <path d="M2 44 L10 36 L18 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- Basket P2 -->
+              <path d="M30 44 L38 36 L46 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Star Catcher</h2>
+            <p class="card-desc">Catch falling stars — outscoring your rival</p>
+          </div>
+          <button class="card-btn" aria-label="Play Star Catcher">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Space Dodge -->
+      <article class="arena-card" data-game="Space Dodge" data-screen="spacedodge" data-color="purple" style="--accent:#b400ff">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <polygon points="24,4 28,22 44,24 28,26 24,44 20,26 4,24 20,22" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="currentColor" opacity="0.25"/>
+              <circle cx="24" cy="24" r="5" stroke="currentColor" stroke-width="2.5"/>
+              <circle cx="38" cy="10" r="3" fill="currentColor" opacity="0.7"/>
+              <circle cx="10" cy="34" r="4" stroke="currentColor" stroke-width="2" opacity="0.6"/>
+              <circle cx="42" cy="36" r="2" fill="currentColor" opacity="0.5"/>
+              <line x1="24" y1="4" x2="24" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Space Dodge</h2>
+            <p class="card-desc">Spaceship survival duel in shrinking arena</p>
+          </div>
+          <button class="card-btn" aria-label="Play Space Dodge">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Ping Pong -->
+      <article class="arena-card" data-game="Ping Pong" data-screen="pingpong" data-color="cyan" style="--accent:#00e5ff">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <!-- Table -->
+              <rect x="2" y="22" width="44" height="4" rx="1" fill="currentColor" opacity="0.25"/>
+              <!-- Net -->
+              <rect x="22" y="14" width="4" height="20" rx="1" fill="currentColor" opacity="0.5"/>
+              <!-- Left paddle -->
+              <rect x="3" y="17" width="5" height="14" rx="2.5" fill="currentColor" opacity="0.9"/>
+              <!-- Right paddle -->
+              <rect x="40" y="17" width="5" height="14" rx="2.5" fill="currentColor" opacity="0.9"/>
+              <!-- Ball -->
+              <circle cx="32" cy="16" r="4" fill="currentColor" opacity="0.95"/>
+              <!-- Motion lines -->
+              <line x1="12" y1="14" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+              <line x1="12" y1="18" x2="7" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Ping Pong</h2>
+            <p class="card-desc">Classic 2-player table tennis duel</p>
+          </div>
+          <button class="card-btn" aria-label="Play Ping Pong">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Snake Duel -->
+      <article class="arena-card" data-game="Snake Duel" data-screen="snake" data-color="green" style="--accent:#00e676">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <path d="M6 24 Q6 8 20 8 Q34 8 34 20 Q34 32 24 32 Q14 32 14 24 Q14 18 20 18" stroke="#00e676" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="6" cy="24" r="4" fill="#00e676"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Snake Duel</h2>
+            <p class="card-desc">Two snakes, one board — crash and lose</p>
+          </div>
+          <button class="card-btn" aria-label="Play Snake Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Typing Speed Race -->
+      <article class="arena-card" data-game="Typing Race" data-screen="typing" data-color="amber" style="--accent:#fbbf24">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <rect x="4" y="12" width="40" height="26" rx="4" stroke="#fbbf24" stroke-width="3"/>
+              <rect x="9" y="19" width="6" height="5" rx="1" fill="#fbbf24" opacity="0.7"/>
+              <rect x="19" y="19" width="6" height="5" rx="1" fill="#fbbf24" opacity="0.7"/>
+              <rect x="29" y="19" width="6" height="5" rx="1" fill="#fbbf24" opacity="0.7"/>
+              <rect x="13" y="28" width="20" height="5" rx="1" fill="#fbbf24"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Typing Race</h2>
+            <p class="card-desc">Type fastest to win — words race</p>
+          </div>
+          <button class="card-btn" aria-label="Play Typing Race">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Minesweeper Duel -->
+      <article class="arena-card" data-game="Minesweeper Duel" data-screen="minesweeper" data-color="red" style="--accent:#ef4444">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <circle cx="24" cy="24" r="10" stroke="#ef4444" stroke-width="3"/>
+              <line x1="24" y1="8" x2="24" y2="4" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="44" x2="24" y2="40" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+              <line x1="8" y1="24" x2="4" y2="24" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+              <line x1="44" y1="24" x2="40" y2="24" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="4" fill="#ef4444"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Minesweeper Duel</h2>
+            <p class="card-desc">Race to clear your board first</p>
+          </div>
+          <button class="card-btn" aria-label="Play Minesweeper Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Blackjack Duel -->
+      <article class="arena-card" data-game="Blackjack Duel" data-screen="blackjack" data-color="purple" style="--accent:#a855f7">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <rect x="6" y="8" width="22" height="32" rx="3" stroke="#a855f7" stroke-width="2.5"/>
+              <text x="13" y="28" font-size="14" fill="#a855f7" font-family="serif">A</text>
+              <rect x="20" y="14" width="22" height="32" rx="3" fill="#1a1a2e" stroke="#a855f7" stroke-width="2.5"/>
+              <text x="27" y="34" font-size="14" fill="#a855f7" font-family="serif">K</text>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Blackjack Duel</h2>
+            <p class="card-desc">Beat the dealer, outscore your rival</p>
+          </div>
+          <button class="card-btn" aria-label="Play Blackjack Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+
+      <!-- Tetris Battle -->
+      <article class="arena-card" data-game="Tetris Battle" data-screen="tetris" data-color="cyan" style="--accent:#00e5ff">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <rect x="6" y="6" width="10" height="10" rx="2" fill="currentColor"/>
+              <rect x="18" y="6" width="10" height="10" rx="2" fill="currentColor"/>
+              <rect x="30" y="6" width="10" height="10" rx="2" fill="currentColor"/>
+              <rect x="18" y="18" width="10" height="10" rx="2" fill="currentColor" opacity=".7"/>
+              <rect x="6" y="30" width="10" height="10" rx="2" fill="currentColor" opacity=".5"/>
+              <rect x="18" y="30" width="10" height="10" rx="2" fill="currentColor" opacity=".5"/>
+              <rect x="30" y="18" width="10" height="10" rx="2" fill="currentColor" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Tetris Battle</h2>
+            <p class="card-desc">Clear lines, send garbage, survive longest</p>
+          </div>
+          <button class="card-btn" aria-label="Play Tetris Battle">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Bomberman Duel -->
+      <article class="arena-card" data-game="Bomberman Duel" data-screen="bomberman" data-color="orange" style="--accent:#ff6d00">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <circle cx="22" cy="28" r="14" stroke="currentColor" stroke-width="3"/>
+              <path d="M30 16 Q36 8 42 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle cx="42" cy="10" r="3" fill="currentColor"/>
+              <circle cx="17" cy="24" r="3" fill="currentColor" opacity=".4"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Bomberman Duel</h2>
+            <p class="card-desc">Place bombs, blast walls, eliminate opponent</p>
+          </div>
+          <button class="card-btn" aria-label="Play Bomberman Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Draw & Guess -->
+      <article class="arena-card" data-game="Draw and Guess" data-screen="drawguess" data-color="pink" style="--accent:#f50057">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <path d="M8 36 L36 8" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="36" cy="8" r="5" fill="currentColor"/>
+              <path d="M8 36 L6 42 L12 40 Z" fill="currentColor"/>
+              <line x1="18" y1="42" x2="42" y2="42" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Draw &amp; Guess</h2>
+            <p class="card-desc">Draw a word, your opponent guesses it</p>
+          </div>
+          <button class="card-btn" aria-label="Play Draw and Guess">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Pixel Racer -->
+      <article class="arena-card" data-game="Pixel Racer" data-screen="pixelracer" data-color="green" style="--accent:#00e676">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <rect x="16" y="12" width="16" height="24" rx="5" fill="currentColor"/>
+              <rect x="10" y="18" width="6" height="12" rx="2" fill="currentColor" opacity=".5"/>
+              <rect x="32" y="18" width="6" height="12" rx="2" fill="currentColor" opacity=".5"/>
+              <rect x="18" y="14" width="12" height="8" rx="2" fill="rgba(0,0,0,0.4)"/>
+              <line x1="24" y1="4" x2="24" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 2"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Pixel Racer</h2>
+            <p class="card-desc">Race pixel cars on a circuit — 3 laps to win</p>
+          </div>
+          <button class="card-btn" aria-label="Play Pixel Racer">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Reaction Duel -->
+      <article class="arena-card" data-game="Reaction Duel" data-screen="reaction" data-color="purple" style="--accent:#aa00ff">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="3"/>
+              <path d="M24 12 L28 22 L38 22 L30 29 L33 39 L24 33 L15 39 L18 29 L10 22 L20 22 Z" fill="currentColor" opacity=".8"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Reaction Duel</h2>
+            <p class="card-desc">Tap the signal first — pure reflex battle</p>
+          </div>
+          <button class="card-btn" aria-label="Play Reaction Duel">
+            <span>PLAY</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+          </button>
+        </div>
+        <div class="card-glow"></div>
+      </article>
+
+      <!-- Territory Wars -->
+      <article class="arena-card" data-game="Territory Wars" data-screen="territory" data-color="amber" style="--accent:#ffd600">
+        <div class="card-top-bar"></div>
+        <div class="card-inner">
+          <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+              <rect x="4" y="4" width="18" height="18" rx="2" fill="currentColor" opacity=".9"/>
+              <rect x="26" y="26" width="18" height="18" rx="2" fill="currentColor" opacity=".4"/>
+              <rect x="26" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2.5" opacity=".5"/>
+              <rect x="4" y="26" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2.5" opacity=".3"/>
+              <line x1="24" y1="4" x2="24" y2="44" stroke="currentColor" stroke-width="1.5" opacity=".4"/>
+              <line x1="4" y1="24" x2="44" y2="24" stroke="currentColor" stroke-width="1.5" opacity=".4"/>
+            </svg>
+          </div>
+          <div class="card-text">
+            <h2 class="card-title">Territory Wars</h2>
+            <p class="card-desc">Claim cells, expand your territory, dominate</p>
+          </div>
+          <button class="card-btn" aria-label="Play Territory Wars">
             <span>PLAY</span>
             <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
           </button>
@@ -1038,7 +1439,7 @@
     <button class="ghp-back-hub" id="cricket-back-btn">← Hub</button>
 
     <div id="cricket-app">
-      <!-- CRICKET HOME/SETUP PAGE (redesigned as game home) -->
+      <!-- SETUP -->
       <div id="cricket-setup">
         <div class="ghp-wrap" style="max-width:560px;width:100%">
           <div class="ghp-hero">
@@ -1054,18 +1455,26 @@
               </svg>
             </div>
             <h2 class="ghp-title" style="--ghp-accent:#76ff03">Hand Cricket</h2>
-            <p class="ghp-tagline">Number-based cricket vs bot</p>
+            <p class="ghp-tagline">Number-based cricket — vs Bot or a Friend!</p>
           </div>
           <div class="ghp-rules">
             <h3 class="ghp-rules-title">📋 Rules</h3>
             <ul class="ghp-rules-list" id="cricket-rules-list">
-              <li>Both you and the bot secretly pick a number <strong>1–10</strong> simultaneously</li>
-              <li><strong>Normal:</strong> If numbers match → OUT! Otherwise score your number</li>
-              <li><strong>Crazy:</strong> Adjacent number (±1) = OUT. Matching = square bonus runs! (e.g. 8×8 = 64 🔥)</li>
-              <li>Win the toss to choose bat or bowl. Highest score after 2 innings wins!</li>
+              <li>Both players secretly pick a number <strong>1–10</strong> — revealed simultaneously</li>
+              <li><strong>Normal:</strong> Numbers match → <strong>OUT!</strong> Otherwise batter scores their number</li>
+              <li><strong>Crazy:</strong> Adjacent (±1) = OUT. Same number = <strong>square runs!</strong> (e.g. 8×8 = 64 🔥)</li>
+              <li>Win the toss to pick bat or bowl. Highest score after 2 innings wins!</li>
+              <li id="cric-pvp-rule" class="hidden">🔒 <strong>PvP:</strong> Batter picks first → pass device → Bowler picks → both revealed!</li>
             </ul>
           </div>
           <div class="ghp-settings">
+            <div class="ghp-setting-row">
+              <span class="diff-label-text">VERSUS</span>
+              <div class="diff-btn-group">
+                <button class="diff-btn active" id="cric-vs-bot-btn">🤖 vs Bot</button>
+                <button class="diff-btn" id="cric-vs-pvp-btn">👥 vs Player</button>
+              </div>
+            </div>
             <div class="ghp-setting-row">
               <span class="diff-label-text">GAME MODE</span>
               <div class="diff-btn-group">
@@ -1073,12 +1482,21 @@
                 <button class="diff-btn" id="cric-crazy-btn">🔥 Crazy</button>
               </div>
             </div>
-            <div class="ghp-setting-row">
+            <div class="ghp-setting-row" id="cric-diff-row">
               <span class="diff-label-text">DIFFICULTY</span>
               <div class="diff-btn-group">
                 <button class="diff-btn active" id="cric-easy-btn">Easy</button>
                 <button class="diff-btn" id="cric-medium-btn">Medium</button>
                 <button class="diff-btn" id="cric-hard-btn">Hard</button>
+              </div>
+            </div>
+            <div class="ghp-setting-row hidden" id="cric-names-row">
+              <span class="diff-label-text">PLAYER NAMES</span>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                <input id="cric-p1-name-input" type="text" maxlength="12" placeholder="Player 1" value="Player 1"
+                  style="background:#0d1117;border:1px solid #76ff0355;color:#76ff03;padding:6px 10px;border-radius:6px;font-family:inherit;font-size:14px;width:115px;text-align:center;outline:none;">
+                <input id="cric-p2-name-input" type="text" maxlength="12" placeholder="Player 2" value="Player 2"
+                  style="background:#0d1117;border:1px solid #76ff0355;color:#76ff03;padding:6px 10px;border-radius:6px;font-family:inherit;font-size:14px;width:115px;text-align:center;outline:none;">
               </div>
             </div>
             <div class="ghp-setting-row">
@@ -1099,46 +1517,109 @@
       <div id="cricket-toss" class="hidden">
         <div class="cricket-toss-inner">
           <p class="cricket-section-title">🪙 TOSS TIME</p>
-          <p class="cricket-toss-inst">Pick <strong>ODD</strong> or <strong>EVEN</strong>, then both reveal a number simultaneously.</p>
 
-          <div class="diff-btn-group" style="justify-content:center;margin:12px 0;" id="cric-oe-btns">
-            <button class="diff-btn" id="cric-odd-btn">ODD</button>
-            <button class="diff-btn" id="cric-even-btn">EVEN</button>
-          </div>
-
-          <div id="cricket-toss-numpad" class="hidden">
-            <p class="cricket-toss-inst" id="cric-toss-prompt">Pick your secret number (1–10):</p>
-            <div class="cricket-numpad">
-              <button class="cricket-num-btn" data-v="1">1</button>
-              <button class="cricket-num-btn" data-v="2">2</button>
-              <button class="cricket-num-btn" data-v="3">3</button>
-              <button class="cricket-num-btn" data-v="4">4</button>
-              <button class="cricket-num-btn" data-v="5">5</button>
-              <button class="cricket-num-btn" data-v="6">6</button>
-              <button class="cricket-num-btn" data-v="7">7</button>
-              <button class="cricket-num-btn" data-v="8">8</button>
-              <button class="cricket-num-btn" data-v="9">9</button>
-              <button class="cricket-num-btn" data-v="10">10</button>
+          <!-- ── BOT toss: classic Odd/Even ── -->
+          <div id="cric-bot-toss">
+            <p class="cricket-toss-inst">Pick <strong>ODD</strong> or <strong>EVEN</strong>, then reveal a number.</p>
+            <div class="diff-btn-group" style="justify-content:center;margin:12px 0;" id="cric-oe-btns">
+              <button class="diff-btn" id="cric-odd-btn">ODD</button>
+              <button class="diff-btn" id="cric-even-btn">EVEN</button>
             </div>
-          </div>
-
-          <div id="cricket-toss-result" class="hidden">
-            <div class="cricket-reveal-row">
-              <div class="cricket-reveal-box">
-                <span class="cricket-reveal-lbl">YOU</span>
-                <span class="cricket-reveal-num" id="cric-toss-p-num">—</span>
-              </div>
-              <div class="cricket-reveal-box">
-                <span class="cricket-reveal-lbl">BOT</span>
-                <span class="cricket-reveal-num" id="cric-toss-b-num">—</span>
+            <div id="cricket-toss-numpad" class="hidden">
+              <p class="cricket-toss-inst" id="cric-toss-prompt">Pick your secret number (1–10):</p>
+              <div class="cricket-numpad">
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="1">1</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="2">2</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="3">3</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="4">4</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="5">5</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="6">6</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="7">7</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="8">8</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="9">9</button>
+                <button class="cricket-num-btn cric-bot-toss-btn" data-v="10">10</button>
               </div>
             </div>
-            <p id="cric-toss-winner-msg" class="cricket-big-msg"></p>
-            <div id="cric-bat-bowl-btns" class="hidden diff-btn-group" style="justify-content:center;margin-top:12px;">
-              <button class="diff-btn" id="cric-bat-btn">🏏 Bat First</button>
-              <button class="diff-btn" id="cric-bowl-btn">⚾ Bowl First</button>
+            <div id="cricket-toss-result" class="hidden">
+              <div class="cricket-reveal-row">
+                <div class="cricket-reveal-box">
+                  <span class="cricket-reveal-lbl">YOU</span>
+                  <span class="cricket-reveal-num" id="cric-toss-p-num">—</span>
+                </div>
+                <div class="cricket-reveal-box">
+                  <span class="cricket-reveal-lbl">BOT</span>
+                  <span class="cricket-reveal-num" id="cric-toss-b-num">—</span>
+                </div>
+              </div>
+              <p id="cric-toss-winner-msg" class="cricket-big-msg"></p>
+              <div id="cric-bat-bowl-btns" class="hidden diff-btn-group" style="justify-content:center;margin-top:12px;">
+                <button class="diff-btn" id="cric-bat-btn">🏏 Bat First</button>
+                <button class="diff-btn" id="cric-bowl-btn">⚾ Bowl First</button>
+              </div>
             </div>
           </div>
+
+          <!-- ── PvP toss: hot-seat pick ── -->
+          <div id="cric-pvp-toss" class="hidden">
+            <!-- Step 1: P1 picks -->
+            <div id="cric-pvp-t1">
+              <p class="cricket-toss-inst"><span id="cric-pvp-t1-lbl">Player 1</span> — pick your secret toss number:</p>
+              <div class="cricket-numpad">
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="1">1</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="2">2</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="3">3</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="4">4</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="5">5</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="6">6</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="7">7</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="8">8</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="9">9</button>
+                <button class="cricket-num-btn cric-pvp-toss-p1-btn" data-v="10">10</button>
+              </div>
+            </div>
+            <!-- Step 2: pass screen -->
+            <div id="cric-pvp-t-pass" class="hidden" style="text-align:center;padding:24px 0 12px;">
+              <div style="font-size:2.4rem;margin-bottom:8px;">🔄</div>
+              <p class="cricket-big-msg" style="font-size:1.1rem;margin-bottom:6px;">Locked in! Pass device to</p>
+              <p class="cricket-big-msg" style="color:#76ff03;" id="cric-pvp-t-pass-name">Player 2</p>
+              <button class="diff-btn" id="cric-pvp-t-ready" style="margin-top:16px;padding:10px 30px;font-size:1rem;">Ready ▶</button>
+            </div>
+            <!-- Step 3: P2 picks -->
+            <div id="cric-pvp-t2" class="hidden">
+              <p class="cricket-toss-inst"><span id="cric-pvp-t2-lbl">Player 2</span> — pick your secret toss number:</p>
+              <div class="cricket-numpad">
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="1">1</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="2">2</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="3">3</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="4">4</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="5">5</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="6">6</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="7">7</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="8">8</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="9">9</button>
+                <button class="cricket-num-btn cric-pvp-toss-p2-btn" data-v="10">10</button>
+              </div>
+            </div>
+            <!-- Step 4: reveal + bat/bowl -->
+            <div id="cric-pvp-t-reveal" class="hidden">
+              <div class="cricket-reveal-row">
+                <div class="cricket-reveal-box">
+                  <span class="cricket-reveal-lbl" id="cric-pvp-tr-lbl1">P1</span>
+                  <span class="cricket-reveal-num" id="cric-pvp-tr-n1">—</span>
+                </div>
+                <div class="cricket-reveal-box">
+                  <span class="cricket-reveal-lbl" id="cric-pvp-tr-lbl2">P2</span>
+                  <span class="cricket-reveal-num" id="cric-pvp-tr-n2">—</span>
+                </div>
+              </div>
+              <p id="cric-pvp-tr-msg" class="cricket-big-msg"></p>
+              <div id="cric-pvp-tr-batbowl" class="hidden diff-btn-group" style="justify-content:center;margin-top:12px;">
+                <button class="diff-btn" id="cric-pvp-bat-btn">🏏 Bat First</button>
+                <button class="diff-btn" id="cric-pvp-bowl-btn">⚾ Bowl First</button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1165,28 +1646,73 @@
 
         <div class="cricket-reveal-row" id="cric-play-reveal">
           <div class="cricket-reveal-box">
-            <span class="cricket-reveal-lbl">YOU</span>
+            <span class="cricket-reveal-lbl" id="cric-play-lbl-l">YOU</span>
             <span class="cricket-reveal-num" id="cric-play-p-num">?</span>
           </div>
           <div class="cricket-reveal-result" id="cric-play-result">—</div>
           <div class="cricket-reveal-box">
-            <span class="cricket-reveal-lbl">BOT</span>
+            <span class="cricket-reveal-lbl" id="cric-play-lbl-r">BOT</span>
             <span class="cricket-reveal-num" id="cric-play-b-num">?</span>
           </div>
         </div>
 
-        <p class="cricket-toss-inst" id="cric-play-prompt">Pick your number:</p>
-        <div class="cricket-numpad" id="cric-play-numpad">
-          <button class="cricket-num-btn" data-v="1">1</button>
-          <button class="cricket-num-btn" data-v="2">2</button>
-          <button class="cricket-num-btn" data-v="3">3</button>
-          <button class="cricket-num-btn" data-v="4">4</button>
-          <button class="cricket-num-btn" data-v="5">5</button>
-          <button class="cricket-num-btn" data-v="6">6</button>
-          <button class="cricket-num-btn" data-v="7">7</button>
-          <button class="cricket-num-btn" data-v="8">8</button>
-          <button class="cricket-num-btn" data-v="9">9</button>
-          <button class="cricket-num-btn" data-v="10">10</button>
+        <!-- BOT play area -->
+        <div id="cric-bot-play">
+          <p class="cricket-toss-inst" id="cric-play-prompt">Pick your number:</p>
+          <div class="cricket-numpad" id="cric-play-numpad">
+            <button class="cricket-num-btn" data-v="1">1</button>
+            <button class="cricket-num-btn" data-v="2">2</button>
+            <button class="cricket-num-btn" data-v="3">3</button>
+            <button class="cricket-num-btn" data-v="4">4</button>
+            <button class="cricket-num-btn" data-v="5">5</button>
+            <button class="cricket-num-btn" data-v="6">6</button>
+            <button class="cricket-num-btn" data-v="7">7</button>
+            <button class="cricket-num-btn" data-v="8">8</button>
+            <button class="cricket-num-btn" data-v="9">9</button>
+            <button class="cricket-num-btn" data-v="10">10</button>
+          </div>
+        </div>
+
+        <!-- PvP play area: hot-seat two-phase -->
+        <div id="cric-pvp-play" class="hidden">
+          <!-- Phase 1: first player (batter) picks secretly -->
+          <div id="cric-pvp-pp1">
+            <p class="cricket-toss-inst"><span id="cric-pvp-pp1-lbl">Batter</span> — pick your number secretly:</p>
+            <div class="cricket-numpad">
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="1">1</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="2">2</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="3">3</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="4">4</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="5">5</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="6">6</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="7">7</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="8">8</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="9">9</button>
+              <button class="cricket-num-btn cric-pvp-p1-btn" data-v="10">10</button>
+            </div>
+          </div>
+          <!-- Pass device prompt -->
+          <div id="cric-pvp-pp-pass" class="hidden" style="text-align:center;padding:20px 0 8px;">
+            <div style="font-size:2rem;margin-bottom:6px;">🔄</div>
+            <p class="cricket-toss-inst" id="cric-pvp-pp-pass-msg">Pass to <strong id="cric-pvp-pp-pass-name">Bowler</strong></p>
+            <button class="diff-btn" id="cric-pvp-pp-ready" style="margin-top:14px;padding:9px 28px;font-size:0.95rem;">Ready ▶</button>
+          </div>
+          <!-- Phase 2: second player (bowler) picks -->
+          <div id="cric-pvp-pp2" class="hidden">
+            <p class="cricket-toss-inst"><span id="cric-pvp-pp2-lbl">Bowler</span> — pick your number:</p>
+            <div class="cricket-numpad">
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="1">1</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="2">2</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="3">3</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="4">4</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="5">5</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="6">6</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="7">7</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="8">8</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="9">9</button>
+              <button class="cricket-num-btn cric-pvp-p2-btn" data-v="10">10</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1766,18 +2292,20 @@
         <div class="ghp-settings">
           <div class="ghp-setting-row">
             <span class="diff-label-text">BOT DIFFICULTY</span>
-            <div class="diff-btn-group">
+            <div class="diff-btn-group chess-diff-group">
+              <button class="chess-diff-btn diff-btn" data-depth="1">Beginner</button>
               <button class="chess-diff-btn diff-btn" data-depth="2">Easy</button>
               <button class="chess-diff-btn diff-btn active" data-depth="3">Medium</button>
               <button class="chess-diff-btn diff-btn" data-depth="4">Hard</button>
               <button class="chess-diff-btn diff-btn" data-depth="5">Expert</button>
+              <button class="chess-diff-btn diff-btn" data-depth="6">Master</button>
             </div>
           </div>
           <div class="ghp-setting-row">
             <span class="diff-label-text">PLAY AS</span>
             <div class="diff-btn-group">
-              <button class="chess-color-btn diff-btn active" data-color="w">♔ White</button>
-              <button class="chess-color-btn diff-btn" data-color="b">♚ Black</button>
+              <button class="chess-color-btn diff-btn chess-color-white active" data-color="w">♔ White</button>
+              <button class="chess-color-btn diff-btn chess-color-black" data-color="b">♚ Black</button>
             </div>
           </div>
         </div>
@@ -1855,6 +2383,8 @@
         <!-- Controls -->
         <div id="chess-controls">
           <button id="chess-reset-btn">↺ Reset</button>
+          <button id="chess-undo-btn">↩ Undo</button>
+          <button id="chess-hint-btn">💡 Hint</button>
         </div>
 
       </div><!-- /#chess-app -->
@@ -1871,25 +2401,87 @@
 
     <div id="bs-app">
 
+      <!-- ─── Header ─────────────────────────────────────────── -->
       <div id="bs-header">
-        <h1 id="bs-title">⚓ Battleship</h1>
+        <h1 id="bs-title">⚓ Sea Battle</h1>
         <div id="bs-turn-indicator" class="bs-turn-indicator"></div>
       </div>
 
-      <div id="bs-placement-bar">
+      <!-- ─── OVERLAY: Mode Selection ────────────────────────── -->
+      <div id="bs-mode-panel" class="bs-overlay bs-hidden">
+        <div class="bs-card">
+          <div class="bs-card-icon">⚓</div>
+          <h2 class="bs-card-title">Choose Mode</h2>
+          <div class="bs-mode-btns">
+            <button id="bs-mode-pvp-btn" class="bs-btn bs-mode-btn bs-mode-pvp">
+              <span class="bs-mode-icon">👥</span>
+              <span class="bs-mode-label">Player vs Player</span>
+              <span class="bs-mode-sub">Same device · Pass &amp; play</span>
+            </button>
+            <button id="bs-mode-bot-btn" class="bs-btn bs-mode-btn bs-mode-bot">
+              <span class="bs-mode-icon">🤖</span>
+              <span class="bs-mode-label">vs AI</span>
+              <span class="bs-mode-sub">Solo · Challenge the bot</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── OVERLAY: Difficulty Selection ──────────────────── -->
+      <div id="bs-diff-panel" class="bs-overlay bs-hidden">
+        <div class="bs-card">
+          <div class="bs-card-icon">🎯</div>
+          <h2 class="bs-card-title">AI Difficulty</h2>
+          <div class="bs-diff-btns">
+            <button id="bs-diff-easy-btn"   class="bs-btn bs-diff-btn bs-diff-easy">
+              <span class="bs-diff-icon">🟢</span>
+              <span class="bs-diff-label">Easy</span>
+              <span class="bs-diff-sub">Random shots</span>
+            </button>
+            <button id="bs-diff-medium-btn" class="bs-btn bs-diff-btn bs-diff-medium">
+              <span class="bs-diff-icon">🟡</span>
+              <span class="bs-diff-label">Medium</span>
+              <span class="bs-diff-sub">Hunt &amp; target</span>
+            </button>
+            <button id="bs-diff-hard-btn"   class="bs-btn bs-diff-btn bs-diff-hard">
+              <span class="bs-diff-icon">🔴</span>
+              <span class="bs-diff-label">Hard</span>
+              <span class="bs-diff-sub">Lock-on AI</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── OVERLAY: Pass-Device Screen (PvP) ──────────────── -->
+      <div id="bs-passturn-panel" class="bs-overlay bs-hidden">
+        <div class="bs-card bs-passturn-card">
+          <div class="bs-passturn-icon">📱</div>
+          <div id="bs-passturn-msg" class="bs-passturn-msg">Pass the device</div>
+          <p class="bs-passturn-hint">Cover the screen while passing</p>
+          <button id="bs-passturn-btn" class="bs-btn bs-passturn-action">I'm Ready →</button>
+        </div>
+      </div>
+
+      <!-- ─── Placement Bar ───────────────────────────────────── -->
+      <div id="bs-placement-bar" class="bs-hidden">
         <div id="bs-placement-controls">
-          <button id="bs-orient-btn" class="bs-btn">↔ Horizontal</button>
-          <span id="bs-placement-label">Ships to place:</span>
+          <button id="bs-orient-btn"           class="bs-btn">↔ Horizontal</button>
+          <button id="bs-auto-deploy-btn"       class="bs-btn bs-btn-ghost">⚡ Auto</button>
+          <button id="bs-confirm-placement-btn" class="bs-btn bs-btn-confirm bs-hidden">✔ Confirm</button>
+          <button id="bs-reroll-btn"            class="bs-btn bs-btn-ghost bs-hidden">🔀 Re-roll</button>
+          <span   id="bs-placement-label"       class="bs-placement-label">Ships to place:</span>
         </div>
         <ul id="bs-ship-list"></ul>
       </div>
 
+      <!-- ─── Status Message ──────────────────────────────────── -->
       <div id="bs-message" class="bs-message"></div>
 
+      <!-- ─── Game Boards ─────────────────────────────────────── -->
       <div id="bs-boards">
 
         <div class="bs-board-wrap">
-          <h2 class="bs-board-title">Your Fleet</h2>
+          <h2 id="bs-board-title-left" class="bs-board-title">Your Fleet</h2>
           <div class="bs-grid-labels-row">
             <div class="bs-corner"></div>
             <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span>
@@ -1905,7 +2497,7 @@
         </div>
 
         <div class="bs-board-wrap">
-          <h2 class="bs-board-title">Enemy Waters</h2>
+          <h2 id="bs-board-title-right" class="bs-board-title">Enemy Waters</h2>
           <div class="bs-grid-labels-row">
             <div class="bs-corner"></div>
             <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span>
@@ -1922,17 +2514,19 @@
 
       </div><!-- /#bs-boards -->
 
+      <!-- ─── Bottom Controls ─────────────────────────────────── -->
       <div id="bs-controls">
         <button id="bs-reset-btn" class="bs-btn bs-btn-secondary">↺ New Game</button>
       </div>
 
-      <div id="bs-result-panel" class="bs-hidden">
-        <div id="bs-result-inner">
+      <!-- ─── Result Overlay ──────────────────────────────────── -->
+      <div id="bs-result-panel" class="bs-overlay bs-hidden">
+        <div id="bs-result-inner" class="bs-card">
           <div id="bs-result-title"></div>
           <div id="bs-result-detail"></div>
           <div id="bs-result-btns">
             <button id="bs-play-again-btn" class="bs-btn">↺ Play Again</button>
-            <button id="bs-hub-btn2" class="bs-btn bs-btn-secondary">← Hub</button>
+            <button id="bs-hub-btn2"       class="bs-btn bs-btn-secondary">← Hub</button>
           </div>
         </div>
       </div>
@@ -2023,6 +2617,12 @@
         <button id="ck-reset-btn" class="ck-btn ck-btn-secondary">↺ New Game</button>
       </div>
 
+      <!-- Move History -->
+      <div style="margin-top:8px;padding:0 8px;">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-bottom:4px;font-family:'Rajdhani',sans-serif;letter-spacing:0.08em;">MOVE HISTORY</div>
+        <div id="ck-move-history"></div>
+      </div>
+
     </div><!-- /#ck-app -->
   </div><!-- /#screen-checkers -->
 
@@ -2037,9 +2637,1624 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Darts Duel
+       ══════════════════════════════════════════════ -->
+  <div id="screen-darts" class="hidden">
+
+    <!-- DARTS HOME PAGE -->
+    <div id="darts-home" class="game-home-panel" style="--ghp-accent:#ff1744">
+      <button class="ghp-back-hub" id="darts-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero">
+          <div class="ghp-icon-wrap" style="--ghp-accent:#ff1744">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+              <circle cx="24" cy="24" r="20" stroke="#ff1744" stroke-width="2.5"/>
+              <circle cx="24" cy="24" r="14" stroke="#ff1744" stroke-width="2"/>
+              <circle cx="24" cy="24" r="8"  stroke="#ff1744" stroke-width="2"/>
+              <circle cx="24" cy="24" r="3"  fill="#ff1744"/>
+              <line x1="42" y1="6" x2="26" y2="22" stroke="#ff1744" stroke-width="3" stroke-linecap="round"/>
+              <polygon points="26,22 21,25 24,20" fill="#ff1744"/>
+            </svg>
+          </div>
+          <h2 class="ghp-title" style="--ghp-accent:#ff1744">Darts Duel</h2>
+          <p class="ghp-tagline">Click &amp; drag to aim — release to throw</p>
+        </div>
+
+        <div class="ghp-rules">
+          <h3 class="ghp-rules-title">📋 Rules</h3>
+          <ul class="ghp-rules-list">
+            <li>3 darts per turn, score subtracts from total</li>
+            <li>First player to reach exactly 0 wins (double-out optional)</li>
+            <li>Bust = score returns to start of turn</li>
+            <li>Bullseye = 50 pts, Outer Bull = 25 pts</li>
+            <li>Triple ring = 3× segment, Double ring = 2× segment</li>
+          </ul>
+        </div>
+
+        <div class="ghp-settings">
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">GAME MODE</span>
+            <div class="diff-btn-group">
+              <button class="darts-mode-btn diff-btn active" data-mode="301">301</button>
+              <button class="darts-mode-btn diff-btn" data-mode="501">501</button>
+              <button class="darts-mode-btn diff-btn" data-mode="bo5">Best of 5</button>
+              <button class="darts-mode-btn diff-btn" data-mode="timed">Timed</button>
+            </div>
+          </div>
+          <div id="darts-timed-row" class="ghp-setting-row" style="display:none">
+            <span class="diff-label-text">TIME LIMIT</span>
+            <div class="diff-btn-group">
+              <button class="darts-time-btn diff-btn active" data-sec="60">60s</button>
+              <button class="darts-time-btn diff-btn" data-sec="120">120s</button>
+            </div>
+          </div>
+          <div id="darts-doubleout-row" class="ghp-setting-row">
+            <span class="diff-label-text">DOUBLE OUT</span>
+            <div class="diff-btn-group">
+              <button class="darts-dout-btn diff-btn active" data-dout="0">Off</button>
+              <button class="darts-dout-btn diff-btn" data-dout="1">On</button>
+            </div>
+          </div>
+          <div id="darts-diff-row" class="ghp-setting-row" style="display:none">
+            <span class="diff-label-text">BOT DIFFICULTY</span>
+            <div class="diff-btn-group">
+              <button class="darts-diff-btn diff-btn" data-diff="easy">Easy</button>
+              <button class="darts-diff-btn diff-btn active" data-diff="medium">Medium</button>
+              <button class="darts-diff-btn diff-btn" data-diff="hard">Hard</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ghp-start-btns">
+          <button class="ghp-start-btn" id="darts-start-pvp" style="--ghp-accent:#ff1744">
+            👥 Player vs Player
+          </button>
+          <button class="ghp-start-btn" id="darts-start-bot" style="--ghp-accent:#ff1744">
+            🤖 Player vs Bot
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARTS PLAY PANEL -->
+    <div id="darts-play-panel" class="hidden">
+      <div id="darts-app">
+        <div id="darts-header">
+          <button class="ghp-back-game" id="darts-back-setup">← Setup</button>
+          <h2 id="darts-title">Darts Duel</h2>
+          <div id="darts-timer-display" class="hidden"></div>
+        </div>
+        <div id="darts-score-bar">
+          <div class="darts-player-score" id="darts-p1-panel">
+            <div class="darts-player-name" id="darts-p1-name">Player 1</div>
+            <div class="darts-score-num" id="darts-p1-score">301</div>
+            <div class="darts-throw-row" id="darts-p1-throws"></div>
+          </div>
+          <div id="darts-turn-badge">
+            <span id="darts-turn-text">P1's Turn</span>
+            <div id="darts-dart-pips"></div>
+          </div>
+          <div class="darts-player-score" id="darts-p2-panel">
+            <div class="darts-player-name" id="darts-p2-name">Player 2</div>
+            <div class="darts-score-num" id="darts-p2-score">301</div>
+            <div class="darts-throw-row" id="darts-p2-throws"></div>
+          </div>
+        </div>
+        <div id="darts-canvas-wrap">
+          <canvas id="darts-board" width="400" height="400"></canvas>
+          <div id="darts-aim-hint">🖱 Click &amp; drag to aim — release to throw</div>
+        </div>
+        <div id="darts-checkout-hint" class="hidden"></div>
+        <div id="darts-score-popup" class="hidden"></div>
+        <div id="darts-result" class="hidden">
+          <div id="darts-result-inner">
+            <div id="darts-result-icon">🎯</div>
+            <div id="darts-result-title"></div>
+            <div id="darts-result-detail"></div>
+            <div id="darts-result-btns">
+              <button id="darts-play-again">↺ Play Again</button>
+              <button id="darts-result-hub">← Hub</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#screen-darts -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Tanks Arena  (hidden by default)
+       ══════════════════════════════════════════════ -->
+  <div id="screen-tanks" class="hidden">
+
+    <!-- ── HOME / SETUP PANEL ── -->
+    <div id="tanks-home" class="game-home-panel" style="--ghp-accent:#ffab00">
+      <button class="ghp-back-hub" id="tanks-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+
+        <div class="ghp-hero">
+          <div class="ghp-icon-wrap" style="--ghp-accent:#ffab00">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+              <rect x="6" y="20" width="28" height="16" rx="4" stroke="#ffab00" stroke-width="2.5"/>
+              <rect x="12" y="15" width="14" height="10" rx="3" fill="#ffab00" opacity="0.8"/>
+              <line x1="26" y1="19" x2="44" y2="19" stroke="#ffab00" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="10" cy="37" r="3" fill="#ffab00" opacity="0.7"/>
+              <circle cx="20" cy="37" r="3" fill="#ffab00" opacity="0.7"/>
+              <circle cx="30" cy="37" r="3" fill="#ffab00" opacity="0.7"/>
+            </svg>
+          </div>
+          <h2 class="ghp-title" style="--ghp-accent:#ffab00">Tanks Arena</h2>
+          <p class="ghp-tagline">Drive, aim, and blast your rival into scrap</p>
+        </div>
+
+        <div class="ghp-rules">
+          <h3 class="ghp-rules-title">📋 Rules</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>First to 3 kills</strong> wins the match</li>
+            <li><strong>P1:</strong> W/A/S/D to move (8-dir) · Space to shoot</li>
+            <li><strong>P2:</strong> Arrow keys to move · Enter to shoot</li>
+            <li><strong>Mobile:</strong> Use the on-screen D-pad + 💥 buttons below the arena</li>
+            <li>Bullets bounce off walls — use ricochet shots!</li>
+            <li>Brief <strong>invincibility</strong> after respawn (flashing tank)</li>
+            <li>Grab <strong>power-ups</strong> 💊 for health, 🔥 for double-damage</li>
+          </ul>
+        </div>
+
+        <div class="ghp-settings">
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">BOT DIFFICULTY</span>
+            <div class="diff-btn-group">
+              <button class="tanks-diff-btn diff-btn" data-diff="easy">Easy</button>
+              <button class="tanks-diff-btn diff-btn active" data-diff="medium">Medium</button>
+              <button class="tanks-diff-btn diff-btn" data-diff="hard">Hard</button>
+            </div>
+          </div>
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">KILLS TO WIN</span>
+            <div class="diff-btn-group">
+              <button class="tanks-kills-btn diff-btn" data-kills="3">3 Kills</button>
+              <button class="tanks-kills-btn diff-btn active" data-kills="5">5 Kills</button>
+              <button class="tanks-kills-btn diff-btn" data-kills="10">10 Kills</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ghp-start-btns">
+          <button class="ghp-start-btn" id="tanks-start-pvp" style="--ghp-accent:#ffab00">👥 Player vs Player</button>
+          <button class="ghp-start-btn" id="tanks-start-bot" style="--ghp-accent:#ffab00">🤖 Player vs Bot</button>
+        </div>
+
+      </div>
+    </div><!-- /#tanks-home -->
+
+    <!-- ── PLAY PANEL ── -->
+    <div id="tanks-play-panel" class="hidden" style="display:none;flex-direction:column;align-items:center;background:#07080f;min-height:100vh;padding:8px 0;">
+      <div id="tanks-hud" style="width:100%;max-width:820px;display:flex;justify-content:space-between;align-items:center;padding:6px 12px;font-family:'Rajdhani',sans-serif;">
+        <div id="tanks-p1-hud" style="display:flex;align-items:center;gap:8px;">
+          <span style="color:#00e5ff;font-weight:700;font-size:15px;">🔵 P1</span>
+          <div style="width:100px;height:10px;background:#1a1a2e;border-radius:5px;overflow:hidden;">
+            <div id="tanks-p1-hp" style="height:100%;width:100%;background:linear-gradient(90deg,#00e5ff,#0077ff);transition:width 0.2s;"></div>
+          </div>
+          <span id="tanks-p1-hp-num" style="color:#e2e8ff;font-size:13px;">100</span>
+          <span style="color:#e2e8ff;font-size:13px;margin-left:8px;">Kills: <strong id="tanks-p1-kills" style="color:#00e5ff;">0</strong></span>
+        </div>
+        <div style="text-align:center;">
+          <button class="ghp-back-game" id="tanks-back-setup">← Setup</button>
+        </div>
+        <div id="tanks-p2-hud" style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
+          <span style="color:#f50057;font-weight:700;font-size:15px;">🔴 P2</span>
+          <div style="width:100px;height:10px;background:#1a1a2e;border-radius:5px;overflow:hidden;">
+            <div id="tanks-p2-hp" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#f50057);transition:width 0.2s;"></div>
+          </div>
+          <span id="tanks-p2-hp-num" style="color:#e2e8ff;font-size:13px;">100</span>
+          <span style="color:#e2e8ff;font-size:13px;margin-right:8px;">Kills: <strong id="tanks-p2-kills" style="color:#f50057;">0</strong></span>
+        </div>
+      </div>
+      <div id="tanks-map-label"></div>
+      <canvas id="tanks-canvas" style="display:block;border:2px solid rgba(255,171,0,0.3);border-radius:8px;max-width:100%;touch-action:none;"></canvas>
+      <!-- Mobile virtual D-pad + FIRE buttons — populated by tanks.js -->
+      <div id="tanks-mobile-controls" style="width:100%;max-width:820px;"></div>
+      <div id="tanks-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.82);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #ffab00;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div id="tanks-result-icon" style="font-size:56px;margin-bottom:12px;">🏆</div>
+          <div id="tanks-result-title" style="font-size:28px;font-weight:700;color:#ffab00;margin-bottom:8px;"></div>
+          <div id="tanks-result-sub" style="color:#a0a8cc;font-size:16px;margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="tanks-play-again" class="ghp-start-btn" style="--ghp-accent:#ffab00;padding:12px 24px;font-size:16px;">↺ Play Again</button>
+            <button id="tanks-to-setup" class="ghp-start-btn" style="--ghp-accent:#ffab00;padding:12px 24px;font-size:16px;">← Setup</button>
+          </div>
+        </div>
+      </div>
+      <div style="color:#4a5080;font-size:12px;margin-top:6px;font-family:'Rajdhani',sans-serif;">
+        ⌨️ P1: WASD + Space &nbsp;|&nbsp; P2: Arrows + Enter &nbsp;|&nbsp; 📱 Use D-pad below
+      </div>
+    </div><!-- /#tanks-play-panel -->
+
+  </div><!-- /#screen-tanks -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Star Catcher  (hidden by default)
+       ══════════════════════════════════════════════ -->
+  <div id="screen-starcatcher" class="hidden">
+
+    <!-- ── HOME / SETUP PANEL ── -->
+    <div id="sc-home" class="game-home-panel" style="--ghp-accent:#ffd600">
+      <button class="ghp-back-hub" id="sc-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+
+        <div class="ghp-hero">
+          <div class="ghp-icon-wrap" style="--ghp-accent:#ffd600">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+              <polygon points="24,4 29,18 44,18 32,27 37,42 24,33 11,42 16,27 4,18 19,18" stroke="#ffd600" stroke-width="2" stroke-linejoin="round" fill="#ffd600" opacity="0.8"/>
+              <path d="M8 46 L16 38 L24 46" stroke="#ffd600" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M24 46 L32 38 L40 46" stroke="#ffd600" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <h2 class="ghp-title" style="--ghp-accent:#ffd600">Star Catcher</h2>
+          <p class="ghp-tagline">Catch more stars than your rival to win!</p>
+        </div>
+
+        <div class="ghp-rules">
+          <h3 class="ghp-rules-title">📋 Rules</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>Race to catch stars</strong> before time runs out</li>
+            <li>⭐ Normal = <strong>+1</strong> &nbsp;|&nbsp; 🌟 Golden = <strong>+3</strong> &nbsp;|&nbsp; 💣 Bomb = <strong>-2</strong></li>
+            <li><strong>P1:</strong> A / D keys &nbsp;|&nbsp; <strong>P2:</strong> J / L keys</li>
+            <li><strong>Mobile:</strong> Touch &amp; drag on your half of the screen to move</li>
+            <li>Catch stars in <strong>combos</strong> for a score multiplier!</li>
+            <li>Grab 🧲 magnet, 🛡️ shield, or 🌀 slow-time powerups</li>
+            <li>Highest score when time runs out wins!</li>
+          </ul>
+        </div>
+
+        <div class="ghp-settings">
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">BOT DIFFICULTY</span>
+            <div class="diff-btn-group">
+              <button class="sc-diff-btn diff-btn" data-diff="easy">Easy</button>
+              <button class="sc-diff-btn diff-btn active" data-diff="medium">Medium</button>
+              <button class="sc-diff-btn diff-btn" data-diff="hard">Hard</button>
+            </div>
+          </div>
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">MATCH TIME</span>
+            <div class="diff-btn-group">
+              <button class="sc-time-btn diff-btn" data-sec="30">30s</button>
+              <button class="sc-time-btn diff-btn active" data-sec="60">60s</button>
+              <button class="sc-time-btn diff-btn" data-sec="90">90s</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ghp-start-btns">
+          <button class="ghp-start-btn" id="sc-start-pvp" style="--ghp-accent:#ffd600">👥 Player vs Player</button>
+          <button class="ghp-start-btn" id="sc-start-bot" style="--ghp-accent:#ffd600">🤖 Player vs Bot</button>
+        </div>
+
+      </div>
+    </div><!-- /#sc-home -->
+
+    <!-- ── PLAY PANEL ── -->
+    <div id="sc-play-panel" class="hidden" style="flex-direction:column;align-items:center;background:#07080f;min-height:100vh;padding:8px 0;">
+      <div id="sc-hud" style="width:100%;max-width:820px;display:flex;justify-content:space-between;align-items:center;padding:6px 12px;font-family:'Rajdhani',sans-serif;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:#00e5ff;font-weight:700;font-size:15px;">🔵 P1</span>
+          <span id="sc-p1-score" style="color:#ffd600;font-weight:700;font-size:22px;">0</span>
+          <span id="sc-p1-combo" style="color:#00e5ff;font-size:12px;"></span>
+        </div>
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <span id="sc-timer" style="color:#ffd600;font-size:24px;font-weight:700;font-family:'Orbitron',sans-serif;">60</span>
+          <button class="ghp-back-game" id="sc-back-setup">← Setup</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
+          <span style="color:#f50057;font-weight:700;font-size:15px;">🔴 P2</span>
+          <span id="sc-p2-score" style="color:#ffd600;font-weight:700;font-size:22px;">0</span>
+          <span id="sc-p2-combo" style="color:#f50057;font-size:12px;"></span>
+        </div>
+      </div>
+      <canvas id="sc-canvas" style="display:block;border:2px solid rgba(255,214,0,0.3);border-radius:8px;max-width:100%;touch-action:none;cursor:pointer;"></canvas>
+      <div id="sc-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.82);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #ffd600;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div id="sc-result-icon" style="font-size:56px;margin-bottom:12px;">🌟</div>
+          <div id="sc-result-title" style="font-size:28px;font-weight:700;color:#ffd600;margin-bottom:8px;"></div>
+          <div id="sc-result-sub" style="color:#a0a8cc;font-size:16px;margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="sc-play-again" class="ghp-start-btn" style="--ghp-accent:#ffd600;padding:12px 24px;font-size:16px;">↺ Play Again</button>
+            <button id="sc-to-setup" class="ghp-start-btn" style="--ghp-accent:#ffd600;padding:12px 24px;font-size:16px;">← Setup</button>
+          </div>
+        </div>
+      </div>
+      <div style="color:#4a5080;font-size:12px;margin-top:6px;font-family:'Rajdhani',sans-serif;">
+        ⌨️ P1: A / D &nbsp;|&nbsp; P2: J / L &nbsp;|&nbsp; 📱 Touch &amp; drag your half of the screen
+      </div>
+    </div><!-- /#sc-play-panel -->
+
+  </div><!-- /#screen-starcatcher -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Space Dodge  (hidden by default)
+       ══════════════════════════════════════════════ -->
+  <div id="screen-spacedodge" class="hidden">
+
+    <!-- ── HOME / SETUP PANEL ── -->
+    <div id="sd-home" class="game-home-panel" style="--ghp-accent:#b400ff">
+      <button class="ghp-back-hub" id="sd-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+
+        <div class="ghp-hero">
+          <div class="ghp-icon-wrap" style="--ghp-accent:#b400ff">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+              <polygon points="24,4 28,22 44,24 28,26 24,44 20,26 4,24 20,22" stroke="#b400ff" stroke-width="2.5" stroke-linejoin="round" fill="#b400ff" opacity="0.3"/>
+              <circle cx="24" cy="24" r="5" stroke="#b400ff" stroke-width="2.5"/>
+              <circle cx="38" cy="10" r="3" fill="#b400ff" opacity="0.8"/>
+              <circle cx="10" cy="34" r="4" stroke="#b400ff" stroke-width="2" opacity="0.7"/>
+            </svg>
+          </div>
+          <h2 class="ghp-title" style="--ghp-accent:#b400ff">SPACE DODGE</h2>
+          <p class="ghp-tagline">Survival Duel — last ship standing wins!</p>
+        </div>
+
+        <div class="ghp-rules">
+          <h3 class="ghp-rules-title">📋 Rules</h3>
+          <ul class="ghp-rules-list">
+            <li>Pilot your ship in a <strong>shrinking arena</strong> — touching the boundary deals damage</li>
+            <li>🪨 <strong>Meteors</strong> rain down — dodge them or lose HP</li>
+            <li>💥 <strong>Ram your enemy</strong> to deal collision damage</li>
+            <li>⚡ Grab <strong>powerups</strong>: Shield, Repair, Speed Boost, EMP</li>
+            <li><strong>P1:</strong> W/A/S/D + Space (boost) &nbsp;|&nbsp; <strong>P2:</strong> ↑/←/↓/→ + R-Shift (boost)</li>
+            <li>Last ship alive wins the round!</li>
+          </ul>
+        </div>
+
+        <div class="ghp-settings">
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">BOT DIFFICULTY</span>
+            <div class="diff-btn-group">
+              <button class="sd-diff-btn diff-btn" data-diff="easy">Easy</button>
+              <button class="sd-diff-btn diff-btn active" data-diff="medium">Medium</button>
+              <button class="sd-diff-btn diff-btn" data-diff="hard">Hard</button>
+            </div>
+          </div>
+          <div class="ghp-setting-row">
+            <span class="diff-label-text">ARENA SIZE</span>
+            <div class="diff-btn-group">
+              <button class="sd-arena-btn diff-btn" data-size="small">Small</button>
+              <button class="sd-arena-btn diff-btn active" data-size="medium">Medium</button>
+              <button class="sd-arena-btn diff-btn" data-size="large">Large</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ghp-start-btns">
+          <button class="ghp-start-btn" id="sd-start-pvp" style="--ghp-accent:#b400ff">👥 Player vs Player</button>
+          <button class="ghp-start-btn" id="sd-start-bot" style="--ghp-accent:#b400ff">🤖 Player vs Bot</button>
+        </div>
+
+      </div>
+    </div><!-- /#sd-home -->
+
+    <!-- ── PLAY PANEL ── -->
+    <div id="sd-play-panel" class="hidden" style="display:flex;flex-direction:column;align-items:center;background:#030508;min-height:100vh;padding:8px 0;">
+      <div id="sd-hud" style="width:100%;max-width:820px;display:flex;justify-content:space-between;align-items:center;padding:6px 12px;font-family:'Rajdhani',sans-serif;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:#00e5ff;font-weight:700;font-size:15px;">🚀 P1</span>
+          <div id="sd-p1-hp-bar" style="width:90px;height:12px;background:#1a1a2e;border-radius:6px;border:1px solid #00e5ff33;overflow:hidden;">
+            <div id="sd-p1-hp-fill" style="height:100%;width:100%;background:linear-gradient(90deg,#00e5ff,#0090cc);transition:width 0.2s;"></div>
+          </div>
+          <span id="sd-p1-hp" style="color:#00e5ff;font-size:13px;font-weight:600;">100</span>
+          <div id="sd-p1-powerup" style="font-size:16px;min-width:20px;"></div>
+        </div>
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;">
+          <span id="sd-timer" style="color:#b400ff;font-size:22px;font-weight:700;font-family:'Orbitron',sans-serif;">0:00</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="ghp-back-game" id="sd-back-setup">← Setup</button>
+            <button id="sd-pause-btn" style="background:rgba(180,0,255,0.12);border:1px solid #b400ff55;color:#b400ff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;padding:3px 10px;border-radius:4px;cursor:pointer;">PAUSE</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
+          <span style="color:#ff3d71;font-weight:700;font-size:15px;">🚀 P2</span>
+          <div id="sd-p2-hp-bar" style="width:90px;height:12px;background:#1a1a2e;border-radius:6px;border:1px solid #ff3d7133;overflow:hidden;">
+            <div id="sd-p2-hp-fill" style="height:100%;width:100%;background:linear-gradient(270deg,#ff3d71,#aa0040);transition:width 0.2s;"></div>
+          </div>
+          <span id="sd-p2-hp" style="color:#ff3d71;font-size:13px;font-weight:600;">100</span>
+          <div id="sd-p2-powerup" style="font-size:16px;min-width:20px;"></div>
+        </div>
+      </div>
+      <canvas id="sd-canvas" style="display:block;border:2px solid rgba(180,0,255,0.25);border-radius:8px;max-width:100%;touch-action:none;"></canvas>
+
+      <!-- Pause overlay -->
+      <div id="sd-pause-overlay" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);z-index:90;">
+        <div style="background:#0a0b14;border:2px solid #b400ff;border-radius:16px;padding:36px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div style="font-size:32px;font-weight:700;color:#b400ff;margin-bottom:16px;">⏸ PAUSED</div>
+          <button id="sd-resume-btn" class="ghp-start-btn" style="--ghp-accent:#b400ff;">▶ RESUME</button>
+        </div>
+      </div>
+
+      <!-- Result overlay -->
+      <div id="sd-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:99;">
+        <div style="background:#0a0b14;border:2px solid #b400ff;border-radius:16px;padding:40px 56px;text-align:center;font-family:'Rajdhani',sans-serif;max-width:90vw;">
+          <div id="sd-result-icon" style="font-size:64px;margin-bottom:12px;">🏆</div>
+          <div id="sd-result-title" style="font-size:32px;font-weight:700;color:#b400ff;margin-bottom:8px;"></div>
+          <div id="sd-result-sub" style="color:#8090b0;font-size:16px;margin-bottom:24px;line-height:1.6;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <button id="sd-play-again" class="ghp-start-btn" style="--ghp-accent:#b400ff;padding:12px 24px;font-size:16px;">↺ Play Again</button>
+            <button id="sd-to-setup" class="ghp-start-btn" style="--ghp-accent:#b400ff;padding:12px 24px;font-size:16px;">← Setup</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="color:#3a4060;font-size:11px;margin-top:6px;font-family:'Rajdhani',sans-serif;text-align:center;line-height:1.7;">
+        ⌨️ P1: WASD + Space &nbsp;|&nbsp; P2: Arrows + R-Shift &nbsp;|&nbsp; Esc: Pause<br>
+        📱 Mobile: Drag joystick to steer &amp; thrust &nbsp;|&nbsp; Tap BOOST button
+      </div>
+    </div><!-- /#sd-play-panel -->
+
+  </div><!-- /#screen-spacedodge -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Ping Pong  (hidden by default)
+       ══════════════════════════════════════════════ -->
+  <div id="screen-pingpong" class="hidden">
+  <style>
+  /* ═══ Ping Pong — scoped styles ══════════════════════════════ */
+  #pp-wrap {
+    background:#07080f; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    overflow-x:hidden; position:relative;
+    -webkit-user-select:none; user-select:none;
+  }
+  #pp-wrap::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 25%, rgba(0,229,255,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 75%, rgba(0,229,255,.05) 0%, transparent 70%);
+  }
+
+  /* ── Header ── */
+  #pp-header {
+    position:relative; z-index:2; width:100%; max-width:740px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px 4px; box-sizing:border-box;
+  }
+  #pp-back-btn, #pp-pause-btn {
+    background:none; border:1.5px solid rgba(0,229,255,.3); color:#00e5ff;
+    font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700;
+    padding:7px 14px; border-radius:8px; cursor:pointer; letter-spacing:.06em;
+    transition:background .2s, border-color .2s; min-width:64px;
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  #pp-back-btn:hover,#pp-pause-btn:hover { background:rgba(0,229,255,.1); border-color:rgba(0,229,255,.6); }
+  #pp-title-bar {
+    font-family:'Orbitron',sans-serif; font-size:clamp(15px,4vw,21px); font-weight:900;
+    background:linear-gradient(90deg,#00e5ff,#80f0ff,#00e5ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    letter-spacing:.06em;
+  }
+
+  /* ── Score row ── */
+  #pp-score-row {
+    position:relative; z-index:2; display:flex; align-items:center; gap:16px;
+    padding:2px 16px 6px; font-family:'Orbitron',sans-serif; width:100%; max-width:740px;
+    box-sizing:border-box; justify-content:center;
+  }
+  .pp-score-block { text-align:center; min-width:80px; }
+  .pp-slabel { font-size:10px; letter-spacing:.12em; margin-bottom:2px; }
+  .pp-slabel.p1c { color:#00cfff; }
+  .pp-slabel.p2c { color:#ff6060; }
+  .pp-sval { font-size:clamp(28px,9vw,48px); font-weight:900; line-height:1; }
+  .pp-sval.p1c { color:#00cfff; text-shadow:0 0 18px rgba(0,207,255,.5); }
+  .pp-sval.p2c { color:#ff6060; text-shadow:0 0 18px rgba(255,96,96,.5); }
+  #pp-score-sep { font-size:22px; color:#2a3050; font-weight:900; }
+
+  /* ── Canvas wrap — fills remaining viewport ── */
+  #pp-canvas-wrap {
+    position:relative; z-index:2;
+    border:2px solid rgba(0,229,255,.18); border-radius:12px; overflow:hidden;
+    box-shadow:0 0 40px rgba(0,229,255,.1), 0 0 0 1px rgba(255,255,255,.04) inset;
+    width:calc(100vw - 24px); max-width:740px;
+    touch-action:none; cursor:ns-resize;
+  }
+  #pp-canvas { display:block; width:100%; height:auto; background:#060810; touch-action:none; }
+
+  /* ── Hint bar below canvas ── */
+  #pp-hint-bar {
+    position:relative; z-index:2;
+    font-family:'Rajdhani',sans-serif; font-size:11px; color:#3a4560;
+    letter-spacing:.08em; text-align:center;
+    padding:6px 16px 14px; width:100%; max-width:740px; box-sizing:border-box;
+  }
+  #pp-hint-bar span { color:#4a5a70; }
+
+  /* ── Overlay ── */
+  #pp-overlay {
+    position:absolute; inset:0; z-index:20;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(5,7,15,.93); border-radius:10px;
+  }
+  #pp-overlay.pp-hidden { display:none; }
+  .pp-panel { display:flex; flex-direction:column; align-items:center; width:100%; padding:20px 16px; box-sizing:border-box; }
+  .pp-panel.pp-hidden { display:none; }
+
+  .pp-ov-logo {
+    font-family:'Orbitron',sans-serif; font-size:clamp(22px,6vw,34px); font-weight:900;
+    color:#00e5ff; letter-spacing:.08em; margin-bottom:4px;
+    text-shadow:0 0 28px rgba(0,229,255,.7);
+  }
+  .pp-ov-tag {
+    font-family:'Rajdhani',sans-serif; font-size:clamp(12px,3vw,14px); color:#5a6888;
+    letter-spacing:.1em; margin-bottom:20px;
+  }
+
+  /* Control hint inside overlay */
+  .pp-ctrl-hint {
+    font-family:'Rajdhani',sans-serif; font-size:12px; color:#4a5570;
+    letter-spacing:.09em; margin-bottom:20px; text-align:center; line-height:1.7;
+  }
+  .pp-ctrl-hint b { color:#6a7a90; }
+
+  /* Mode buttons */
+  .pp-mode-row { display:flex; gap:10px; margin-bottom:14px; }
+  .pp-mdbtn {
+    font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700; letter-spacing:.06em;
+    padding:9px 18px; border-radius:9px; cursor:pointer; border:1.5px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.04); color:#8090b0;
+    transition:all .2s; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  .pp-mdbtn.active { border-color:rgba(0,229,255,.5); background:rgba(0,229,255,.12); color:#00e5ff; }
+
+  /* Difficulty */
+  #pp-diff-row { display:flex; gap:8px; margin-bottom:20px; }
+  #pp-diff-row.pp-hidden { display:none; }
+  .pp-diffbtn {
+    font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; letter-spacing:.07em;
+    padding:7px 14px; border-radius:7px; cursor:pointer;
+    border:1.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:#5a6888;
+    transition:all .2s; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  .pp-diffbtn.active          { border-color:rgba(0,229,255,.45); background:rgba(0,229,255,.10); color:#00e5ff; }
+  .pp-diffbtn[data-d="easy"].active { border-color:rgba(100,230,100,.45); background:rgba(100,230,100,.10); color:#64e664; }
+  .pp-diffbtn[data-d="hard"].active { border-color:rgba(255,80,80,.45);   background:rgba(255,80,80,.10);   color:#ff5050; }
+
+  /* Action buttons */
+  .pp-ov-playbtn {
+    font-family:'Orbitron',sans-serif; font-size:clamp(12px,3.5vw,15px); font-weight:700;
+    letter-spacing:.1em; padding:12px 38px; border-radius:10px; cursor:pointer;
+    border:2px solid rgba(0,229,255,.5); background:rgba(0,229,255,.13); color:#00e5ff;
+    transition:all .2s; -webkit-tap-highlight-color:transparent; margin:4px;
+    box-shadow:0 0 20px rgba(0,229,255,.15); touch-action:manipulation;
+  }
+  .pp-ov-playbtn:hover,.pp-ov-playbtn:active { background:rgba(0,229,255,.26); box-shadow:0 0 28px rgba(0,229,255,.35); }
+  .pp-ov-menubtn {
+    font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; letter-spacing:.06em;
+    padding:9px 22px; border-radius:8px; cursor:pointer; margin:4px;
+    border:1.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:#5a6888;
+    transition:all .2s; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  .pp-ov-menubtn:hover { background:rgba(255,255,255,.08); color:#8090b0; }
+
+  #pp-result-title {
+    font-family:'Orbitron',sans-serif; font-size:clamp(20px,6vw,30px); font-weight:900;
+    color:#00e5ff; letter-spacing:.06em; margin-bottom:6px;
+    text-shadow:0 0 28px rgba(0,229,255,.7);
+  }
+  #pp-result-sub { font-family:'Rajdhani',sans-serif; font-size:14px; color:#5a6888; letter-spacing:.1em; margin-bottom:22px; }
+  #pp-pause-title {
+    font-family:'Orbitron',sans-serif; font-size:clamp(22px,6vw,34px); font-weight:900;
+    color:#00e5ff; letter-spacing:.08em; margin-bottom:22px;
+    text-shadow:0 0 28px rgba(0,229,255,.6);
+  }
+  </style>
+
+  <div id="pp-wrap">
+
+    <div id="pp-header">
+      <button id="pp-back-btn">← HUB</button>
+      <div id="pp-title-bar">PING PONG</div>
+      <button id="pp-pause-btn">⏸ PAUSE</button>
+    </div>
+
+    <div id="pp-score-row">
+      <div class="pp-score-block">
+        <div class="pp-slabel p1c" id="pp-label-p1">PLAYER 1</div>
+        <div class="pp-sval p1c"   id="pp-score-p1">0</div>
+      </div>
+      <div id="pp-score-sep">:</div>
+      <div class="pp-score-block">
+        <div class="pp-slabel p2c" id="pp-label-p2">BOT</div>
+        <div class="pp-sval p2c"   id="pp-score-p2">0</div>
+      </div>
+    </div>
+
+    <div id="pp-canvas-wrap" style="position:relative;">
+      <canvas id="pp-canvas"></canvas>
+      <!-- Serve indicator -->
+      <div id="pp-serve-indicator" class="pp-serve-ind" style="display:none;"></div>
+
+      <div id="pp-overlay">
+
+        <!-- Setup -->
+        <div class="pp-panel" id="pp-setup-panel">
+          <div class="pp-ov-logo">🏓 PING PONG</div>
+          <div class="pp-ov-tag">FIRST TO 7 WINS</div>
+          <div class="pp-mode-row">
+            <button class="pp-mdbtn active" id="pp-mode-bot">🤖 vs BOT</button>
+            <button class="pp-mdbtn"        id="pp-mode-2p" >👥 2 PLAYERS</button>
+          </div>
+          <div id="pp-diff-row">
+            <button class="pp-diffbtn"        data-d="easy" id="pp-diff-easy">EASY</button>
+            <button class="pp-diffbtn active" data-d="med"  id="pp-diff-med" >MEDIUM</button>
+            <button class="pp-diffbtn"        data-d="hard" id="pp-diff-hard">HARD</button>
+          </div>
+          <div class="pp-ctrl-hint" id="pp-ctrl-hint">
+            <b>MOVE MOUSE</b> or <b>DRAG FINGER</b> on the court to control your paddle
+          </div>
+          <button class="pp-ov-playbtn" id="pp-start-btn">▶ START</button>
+        </div>
+
+        <!-- Pause -->
+        <div class="pp-panel pp-hidden" id="pp-pause-panel">
+          <div id="pp-pause-title">PAUSED</div>
+          <button class="pp-ov-playbtn" id="pp-resume-btn">▶ RESUME</button>
+          <button class="pp-ov-menubtn" id="pp-pause-menu-btn">☰ MENU</button>
+        </div>
+
+        <!-- Result -->
+        <div class="pp-panel pp-hidden" id="pp-result-panel">
+          <div id="pp-result-title"></div>
+          <div id="pp-result-sub"></div>
+          <button class="pp-ov-playbtn" id="pp-again-btn">↺ PLAY AGAIN</button>
+          <button class="pp-ov-menubtn" id="pp-result-menu-btn">☰ MENU</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="pp-hint-bar">
+      <span id="pp-hint-text">MOVE MOUSE / DRAG TO PLAY &nbsp;·&nbsp; ESC TO PAUSE</span>
+    </div>
+
+  </div>
+
+  </div><!-- /#screen-pingpong -->
+
+
+  <!-- ═══════════════════════════════ SNAKE DUEL ═══════════════════════════════ -->
+  <div id="screen-snake" class="hidden">
+    <div id="snake-home" class="game-home-panel ghp-v2" style="--ghp-accent:#00e676">
+      <button class="ghp-back-hub ghp-back-v2" id="snake-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#00e676">🐍</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#00e676">Snake Duel</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Grow longer, outlast your rival</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>P1:</strong> WASD keys &nbsp;|&nbsp; <strong>P2:</strong> Arrow Keys</li>
+            <li>Eat 🍎 apples (+1 pt) · Grab ⭐ stars for +3 pts &amp; extra length</li>
+            <li>Crash into wall, yourself, or enemy = instant loss</li>
+            <li>Power-up stars spawn every 40 ticks — don't miss them!</li>
+          </ul>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="snake-mode-pvp" data-game="snake">
+            <span class="mode-icon">👥</span>
+            <span class="mode-label">Player vs Player</span>
+            <span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="snake-mode-bot" data-game="snake">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-label">vs Bot</span>
+            <span class="mode-sub">Play alone</span>
+          </button>
+        </div>
+
+        <!-- Bot difficulty — hidden until bot mode chosen -->
+        <div class="ghp-bot-settings hidden" id="snake-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Difficulty</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill sn-diff" data-diff="easy">🐢 Easy</button>
+            <button class="ghp-pill sn-diff active" data-diff="medium">🐍 Medium</button>
+            <button class="ghp-pill sn-diff" data-diff="hard">⚡ Hard</button>
+          </div>
+        </div>
+
+        <button class="ghp-start-btn" id="snake-start-btn" style="--ghp-accent:#00e676">
+          <span>▶ START GAME</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="snake-play" class="hidden" style="display:flex;flex-direction:column;align-items:center;background:#07080f;min-height:100vh;padding:8px 0;">
+      <button id="snake-back-play" style="align-self:flex-start;margin:8px 16px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:0.9rem;">← Back</button>
+      <!-- HUD -->
+      <div style="display:flex;gap:24px;align-items:center;margin-bottom:8px;font-family:'Orbitron',sans-serif;font-size:0.8rem;">
+        <div style="text-align:center;color:#00e5ff;">
+          <div style="font-size:0.65rem;opacity:0.6;letter-spacing:0.1em;">P1 🔵</div>
+          <div><span id="snake-s1" style="font-size:1.3rem;font-weight:900;">0</span> <span style="opacity:0.5;font-size:0.65rem;">pts</span></div>
+          <div style="opacity:0.5;font-size:0.65rem;">len <span id="snake-len1">3</span></div>
+        </div>
+        <div style="opacity:0.3;font-size:1.2rem;">VS</div>
+        <div style="text-align:center;color:#f50057;">
+          <div style="font-size:0.65rem;opacity:0.6;letter-spacing:0.1em;">P2 🔴</div>
+          <div><span id="snake-s2" style="font-size:1.3rem;font-weight:900;">0</span> <span style="opacity:0.5;font-size:0.65rem;">pts</span></div>
+          <div style="opacity:0.5;font-size:0.65rem;">len <span id="snake-len2">3</span></div>
+        </div>
+      </div>
+      <canvas id="snake-canvas" style="border:2px solid rgba(0,230,118,0.25);border-radius:8px;display:block;max-width:100%;touch-action:none;"></canvas>
+      <div style="margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.25);font-family:'Rajdhani',sans-serif;">🍎 +1 pt &nbsp;|&nbsp; ⭐ +3 pts &nbsp;|&nbsp; P1: WASD &nbsp;|&nbsp; P2: Arrows</div>
+
+      <!-- Result overlay -->
+      <div id="snake-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #00e676;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div id="snake-result-title" style="font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:8px;font-family:'Orbitron',sans-serif;"></div>
+          <div id="snake-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="snake-again" class="ghp-result-btn-primary" style="--rb-color:#00e676;">▶ Play Again</button>
+            <button id="snake-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-snake -->
+
+
+  <!-- ═══════════════════════════════ TYPING RACE ═══════════════════════════════ -->
+  <div id="screen-typing" class="hidden">
+    <div id="typing-home" class="game-home-panel ghp-v2" style="--ghp-accent:#fbbf24">
+      <button class="ghp-back-hub ghp-back-v2" id="typing-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#fbbf24">⌨️</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#fbbf24">Typing Race</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Type fast. Finish first. Win.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Both players type the same list of words simultaneously</li>
+            <li>Type a word then press <strong>Space</strong> to advance to the next</li>
+            <li>First player to finish all words wins the race!</li>
+            <li>Live WPM tracking — see who's faster in real time</li>
+          </ul>
+        </div>
+
+        <!-- Word count selector (always visible) -->
+        <div class="ghp-wc-row">
+          <span class="ghp-wc-label">📝 Word Count</span>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill typ-wc active" data-wc="15">15 words</button>
+            <button class="ghp-pill typ-wc" data-wc="25">25 words</button>
+            <button class="ghp-pill typ-wc" data-wc="40">40 words</button>
+          </div>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="typing-mode-pvp" data-game="typing">
+            <span class="mode-icon">👥</span>
+            <span class="mode-label">Player vs Player</span>
+            <span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="typing-mode-bot" data-game="typing">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-label">vs Bot</span>
+            <span class="mode-sub">Race the AI</span>
+          </button>
+        </div>
+
+        <!-- Bot speed — hidden until bot chosen -->
+        <div class="ghp-bot-settings hidden" id="typing-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Typing Speed</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill typ-diff" data-diff="easy">🐌 28 WPM</button>
+            <button class="ghp-pill typ-diff active" data-diff="medium">⌨️ 55 WPM</button>
+            <button class="ghp-pill typ-diff" data-diff="hard">⚡ 90 WPM</button>
+          </div>
+        </div>
+
+        <button class="ghp-start-btn" id="typing-start-btn" style="--ghp-accent:#fbbf24">
+          <span>▶ START RACE</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="typing-play" class="hidden" style="background:#07080f;min-height:100vh;padding:12px 16px;font-family:'Rajdhani',sans-serif;">
+      <button id="typing-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;">← Back</button>
+
+      <!-- Timer + Progress -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:12px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:#fbbf24;" id="typing-timer">0.0s</div>
+      </div>
+
+      <!-- P1 area -->
+      <div style="background:rgba(0,229,255,0.06);border:1.5px solid rgba(0,229,255,0.2);border-radius:12px;padding:12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="color:#00e5ff;font-weight:700;letter-spacing:0.08em;">🔵 PLAYER 1</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="typing-wpm-p1" class="typ-wpm-badge">-- WPM</span>
+            <span id="typing-pct-p1" style="color:#00e5ff;font-size:0.8rem;">0%</span>
+          </div>
+        </div>
+        <div style="background:rgba(0,0,0,0.3);border-radius:4px;height:4px;margin-bottom:10px;">
+          <div id="typing-prog-p1" style="height:4px;background:#00e5ff;border-radius:4px;width:0%;transition:width 0.3s;"></div>
+        </div>
+        <div id="typing-words-p1" style="font-size:1.1rem;line-height:1.9;letter-spacing:0.04em;min-height:64px;word-spacing:8px;color:rgba(255,255,255,0.5);"></div>
+        <input id="typing-input-p1" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          style="width:100%;margin-top:8px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(0,229,255,0.3);border-radius:8px;padding:8px 12px;color:#fff;font-size:1rem;font-family:'Rajdhani',sans-serif;outline:none;box-sizing:border-box;"
+          placeholder="Start typing here…">
+      </div>
+
+      <!-- P2 area -->
+      <div style="background:rgba(245,0,87,0.06);border:1.5px solid rgba(245,0,87,0.2);border-radius:12px;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span id="typing-p2-name" style="color:#f50057;font-weight:700;letter-spacing:0.08em;">🔴 PLAYER 2</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="typing-wpm-p2" class="typ-wpm-badge">-- WPM</span>
+            <span id="typing-pct-p2" style="color:#f50057;font-size:0.8rem;">0%</span>
+          </div>
+        </div>
+        <div style="background:rgba(0,0,0,0.3);border-radius:4px;height:4px;margin-bottom:10px;">
+          <div id="typing-prog-p2" style="height:4px;background:#f50057;border-radius:4px;width:0%;transition:width 0.3s;"></div>
+        </div>
+        <div id="typing-words-p2" style="font-size:1.1rem;line-height:1.9;letter-spacing:0.04em;min-height:64px;word-spacing:8px;color:rgba(255,255,255,0.5);"></div>
+        <div id="typing-p2-input-wrap">
+          <input id="typing-input-p2" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            style="width:100%;margin-top:8px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(245,0,87,0.3);border-radius:8px;padding:8px 12px;color:#fff;font-size:1rem;font-family:'Rajdhani',sans-serif;outline:none;box-sizing:border-box;"
+            placeholder="Start typing here…">
+        </div>
+      </div>
+
+      <!-- Result overlay -->
+      <div id="typing-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #fbbf24;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;max-width:380px;">
+          <div id="typing-result-title" style="font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:8px;font-family:'Orbitron',sans-serif;"></div>
+          <div id="typing-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.6;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="typing-again" class="ghp-result-btn-primary" style="--rb-color:#fbbf24;">▶ Play Again</button>
+            <button id="typing-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-typing -->
+
+
+  <!-- ═══════════════════════════════ MINESWEEPER DUEL ═══════════════════════════════ -->
+  <div id="screen-minesweeper" class="hidden">
+    <div id="mine-home" class="game-home-panel ghp-v2" style="--ghp-accent:#ef4444">
+      <button class="ghp-back-hub ghp-back-v2" id="mine-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#ef4444">💣</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#ef4444">Minesweeper Duel</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Race to clear your minefield first</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Each player gets the same minefield — clear all safe cells to win</li>
+            <li>Numbers show adjacent mine count — use logic to stay safe</li>
+            <li>Hit a mine = instant loss · Right-click or flag button to mark mines</li>
+            <li>First click is always guaranteed safe</li>
+          </ul>
+        </div>
+
+        <!-- Grid size always visible -->
+        <div class="ghp-wc-row">
+          <span class="ghp-wc-label">🗺 Grid Size</span>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill mine-diff active" data-diff="easy">🟢 9×9 Easy</button>
+            <button class="ghp-pill mine-diff" data-diff="medium">🟡 12×10 Med</button>
+            <button class="ghp-pill mine-diff" data-diff="hard">🔴 16×12 Hard</button>
+          </div>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="mine-mode-pvp" data-game="mine">
+            <span class="mode-icon">👥</span>
+            <span class="mode-label">Player vs Player</span>
+            <span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="mine-mode-bot" data-game="mine">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-label">vs Bot</span>
+            <span class="mode-sub">Race the AI</span>
+          </button>
+        </div>
+
+        <!-- Bot speed — hidden until bot mode -->
+        <div class="ghp-bot-settings hidden" id="mine-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Speed</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill mine-bot-diff" data-bdiff="easy">🐢 Slow Bot</button>
+            <button class="ghp-pill mine-bot-diff active" data-bdiff="medium">⚡ Normal Bot</button>
+            <button class="ghp-pill mine-bot-diff" data-bdiff="hard">🔥 Fast Bot</button>
+          </div>
+        </div>
+
+        <button class="ghp-start-btn" id="mine-start-btn" style="--ghp-accent:#ef4444">
+          <span>▶ START GAME</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="mine-play" class="hidden" style="background:#07080f;min-height:100vh;padding:8px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="mine-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+
+      <!-- Two grids side by side -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+        <!-- P1 Grid -->
+        <div style="flex:1;min-width:200px;max-width:420px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="color:#00e5ff;font-weight:700;font-size:0.85rem;">🔵 Player 1</span>
+            <span id="mine-mines-p1" style="color:#ef4444;font-size:0.8rem;">💣 0</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);height:4px;border-radius:2px;margin-bottom:6px;">
+            <div id="mine-prog-p1" style="height:4px;background:#00e5ff;border-radius:2px;width:0%;transition:width 0.3s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <button id="mine-flag-p1" class="mine-flag-btn">🚩 Flag: OFF</button>
+            <span id="mine-pct-p1" style="font-size:0.75rem;color:rgba(255,255,255,0.4);">0%</span>
+          </div>
+          <div id="mine-grid-p1" class="mine-grid"></div>
+        </div>
+        <!-- P2 Grid -->
+        <div id="mine-p2-section" style="flex:1;min-width:200px;max-width:420px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span id="mine-p2-name" style="color:#f50057;font-weight:700;font-size:0.85rem;">🔴 Player 2</span>
+            <span id="mine-mines-p2" style="color:#ef4444;font-size:0.8rem;">💣 0</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);height:4px;border-radius:2px;margin-bottom:6px;">
+            <div id="mine-prog-p2" style="height:4px;background:#f50057;border-radius:2px;width:0%;transition:width 0.3s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <button id="mine-flag-p2" class="mine-flag-btn">🚩 Flag: OFF</button>
+            <span id="mine-pct-p2" style="font-size:0.75rem;color:rgba(255,255,255,0.4);">0%</span>
+          </div>
+          <div id="mine-grid-p2" class="mine-grid"></div>
+        </div>
+      </div>
+
+      <!-- Result overlay -->
+      <div id="mine-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #ef4444;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div id="mine-result-title" style="font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:8px;font-family:'Orbitron',sans-serif;"></div>
+          <div id="mine-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="mine-again" class="ghp-result-btn-primary" style="--rb-color:#ef4444;">▶ Play Again</button>
+            <button id="mine-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-minesweeper -->
+
+
+  <!-- ═══════════════════════════════ BLACKJACK DUEL ═══════════════════════════════ -->
+  <div id="screen-blackjack" class="hidden">
+    <div id="bj-home" class="game-home-panel ghp-v2" style="--ghp-accent:#a855f7">
+      <button class="ghp-back-hub ghp-back-v2" id="bj-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#a855f7">🃏</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#a855f7">Blackjack Duel</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Beat the dealer more times than your rival</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Both players play against the same dealer simultaneously</li>
+            <li>Get closer to 21 than the dealer without busting</li>
+            <li>Win a round = +1 point · First to <strong>5 wins</strong> takes the match!</li>
+            <li>Blackjack (Ace + 10-card) is an instant win over dealer</li>
+          </ul>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="bj-mode-pvp" data-game="bj">
+            <span class="mode-icon">👥</span>
+            <span class="mode-label">Player vs Player</span>
+            <span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="bj-mode-bot" data-game="bj">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-label">vs Bot</span>
+            <span class="mode-sub">Play alone</span>
+          </button>
+        </div>
+
+        <!-- Bot skill — hidden until bot chosen -->
+        <div class="ghp-bot-settings hidden" id="bj-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Skill Level</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill bj-diff" data-diff="easy">🟢 Novice</button>
+            <button class="ghp-pill bj-diff active" data-diff="medium">🟡 Basic</button>
+            <button class="ghp-pill bj-diff" data-diff="hard">🔴 Expert</button>
+          </div>
+        </div>
+
+        <button class="ghp-start-btn" id="bj-start-btn" style="--ghp-accent:#a855f7">
+          <span>▶ DEAL CARDS</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="bj-play" class="hidden" style="background:#0a0010;min-height:100vh;padding:12px;font-family:'Rajdhani',sans-serif;">
+      <button id="bj-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+
+      <!-- Score bar -->
+      <div style="display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:12px;font-family:'Orbitron',sans-serif;">
+        <div style="text-align:center;">
+          <div style="font-size:0.65rem;color:#a78bfa;opacity:0.7;letter-spacing:0.1em;">PLAYER 1</div>
+          <div id="bj-wins-p1" style="font-size:1.8rem;font-weight:900;color:#a855f7;">★ 0</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.2);font-size:0.75rem;text-align:center;">
+          <div id="bj-target" style="font-size:0.65rem;opacity:0.5;"></div>
+          <div id="bj-phase" style="color:#fbbf24;font-size:0.7rem;margin-top:4px;"></div>
+        </div>
+        <div style="text-align:center;">
+          <div id="bj-p2-name" style="font-size:0.65rem;color:#f472b6;opacity:0.7;letter-spacing:0.1em;">PLAYER 2</div>
+          <div id="bj-wins-p2" style="font-size:1.8rem;font-weight:900;color:#f472b6;">★ 0</div>
+        </div>
+      </div>
+
+      <!-- Dealer -->
+      <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:10px;margin-bottom:10px;text-align:center;">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);letter-spacing:0.12em;margin-bottom:6px;">🤵 DEALER &nbsp; <span id="bj-val-dealer" style="color:#fbbf24;font-weight:700;"></span></div>
+        <div id="bj-hand-dealer" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Players -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <!-- P1 -->
+        <div style="flex:1;min-width:220px;background:rgba(0,229,255,0.06);border:1.5px solid rgba(0,229,255,0.2);border-radius:12px;padding:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="color:#00e5ff;font-weight:700;font-size:0.8rem;">🔵 Player 1</span>
+            <span id="bj-val-p1" style="color:#fbbf24;font-weight:700;font-size:0.9rem;"></span>
+          </div>
+          <div id="bj-hand-p1" style="display:flex;gap:5px;flex-wrap:wrap;min-height:80px;margin-bottom:8px;"></div>
+          <div id="bj-status-p1" style="font-size:0.85rem;min-height:20px;color:rgba(255,255,255,0.7);margin-bottom:8px;"></div>
+          <div style="display:flex;gap:8px;">
+            <button id="bj-hit-p1" class="bj-action-btn" style="background:rgba(0,229,255,0.15);border:1px solid rgba(0,229,255,0.4);color:#00e5ff;">Hit</button>
+            <button id="bj-stand-p1" class="bj-action-btn" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:#fff;">Stand</button>
+          </div>
+        </div>
+        <!-- P2 -->
+        <div style="flex:1;min-width:220px;background:rgba(245,0,87,0.06);border:1.5px solid rgba(245,0,87,0.2);border-radius:12px;padding:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span id="bj-p2-label" style="color:#f50057;font-weight:700;font-size:0.8rem;">🔴 <span id="bj-p2-name2">Player 2</span></span>
+            <span id="bj-val-p2" style="color:#fbbf24;font-weight:700;font-size:0.9rem;"></span>
+          </div>
+          <div id="bj-hand-p2" style="display:flex;gap:5px;flex-wrap:wrap;min-height:80px;margin-bottom:8px;"></div>
+          <div id="bj-status-p2" style="font-size:0.85rem;min-height:20px;color:rgba(255,255,255,0.7);margin-bottom:8px;"></div>
+          <div id="bj-p2-controls" style="display:flex;gap:8px;">
+            <button id="bj-hit-p2" class="bj-action-btn" style="background:rgba(245,0,87,0.15);border:1px solid rgba(245,0,87,0.4);color:#f50057;">Hit</button>
+            <button id="bj-stand-p2" class="bj-action-btn" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:#fff;">Stand</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result overlay -->
+      <div id="bj-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #a855f7;border-radius:16px;padding:40px 48px;text-align:center;font-family:'Rajdhani',sans-serif;">
+          <div id="bj-result-title" style="font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:8px;font-family:'Orbitron',sans-serif;"></div>
+          <div id="bj-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="bj-again" class="ghp-result-btn-primary" style="--rb-color:#a855f7;">▶ Play Again</button>
+            <button id="bj-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-blackjack -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Tetris Battle
+       ══════════════════════════════════════════════ -->
+  <div id="screen-tetris" class="hidden">
+    <div id="tetris-home" class="game-home-panel ghp-v2" style="--ghp-accent:#00e5ff">
+      <button class="ghp-back-hub ghp-back-v2" id="tetris-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#00e5ff">🧱</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#00e5ff">Tetris Battle</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Clear lines. Send garbage. Survive.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>P1:</strong> Arrow keys to move/rotate · Space to hard drop</li>
+            <li><strong>P2:</strong> WASD to move/rotate · Q to hard drop</li>
+            <li>Clearing 2+ lines sends garbage rows to your opponent</li>
+            <li>First player to top out loses the match!</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="tetris-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="tetris-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">AI opponent</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="tetris-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Difficulty</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill tetris-diff" data-diff="easy">🐢 Easy</button>
+            <button class="ghp-pill tetris-diff active" data-diff="medium">⚡ Medium</button>
+            <button class="ghp-pill tetris-diff" data-diff="hard">💀 Hard</button>
+          </div>
+        </div>
+        <button class="ghp-start-btn" id="tetris-start-btn" style="--ghp-accent:#00e5ff"><span>▶ START BATTLE</span></button>
+      </div>
+    </div>
+
+    <div id="tetris-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="tetris-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+      <div style="display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
+        <!-- P1 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="color:#00e5ff;font-weight:700;letter-spacing:0.1em;">🔵 PLAYER 1</div>
+          <div style="display:flex;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.5);">
+            <span>Score: <b id="tetris-score-p1" style="color:#fff;">0</b></span>
+            <span>Lines: <b id="tetris-lines-p1" style="color:#fff;">0</b></span>
+            <span>Lv: <b id="tetris-level-p1" style="color:#fff;">1</b></span>
+          </div>
+          <canvas id="tetris-canvas-p1" style="border:1.5px solid rgba(0,229,255,0.3);border-radius:4px;display:block;"></canvas>
+          <div style="color:rgba(255,255,255,0.4);font-size:0.7rem;">Next:</div>
+          <canvas id="tetris-next-p1" style="border:1px solid rgba(255,255,255,0.1);border-radius:4px;"></canvas>
+        </div>
+        <!-- P2 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div id="tetris-p2-label" style="color:#f50057;font-weight:700;letter-spacing:0.1em;">🔴 PLAYER 2</div>
+          <div style="display:flex;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.5);">
+            <span>Score: <b id="tetris-score-p2" style="color:#fff;">0</b></span>
+            <span>Lines: <b id="tetris-lines-p2" style="color:#fff;">0</b></span>
+            <span>Lv: <b id="tetris-level-p2" style="color:#fff;">1</b></span>
+          </div>
+          <canvas id="tetris-canvas-p2" style="border:1.5px solid rgba(245,0,87,0.3);border-radius:4px;display:block;"></canvas>
+          <div style="color:rgba(255,255,255,0.4);font-size:0.7rem;">Next:</div>
+          <canvas id="tetris-next-p2" style="border:1px solid rgba(255,255,255,0.1);border-radius:4px;"></canvas>
+          <div id="tetris-p2-keys" style="font-size:0.65rem;color:rgba(255,255,255,0.25);text-align:center;line-height:1.6;">W=Rotate · A/D=Move<br>S=Down · Q=Drop</div>
+        </div>
+      </div>
+      <div id="tetris-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #00e5ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="tetris-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="tetris-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="tetris-again" class="ghp-result-btn-primary" style="--rb-color:#00e5ff;">▶ Play Again</button>
+            <button id="tetris-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-tetris -->
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Bomberman Duel
+       ══════════════════════════════════════════════ -->
+  <div id="screen-bomberman" class="hidden">
+    <div id="bm-home" class="game-home-panel ghp-v2" style="--ghp-accent:#ff6d00">
+      <button class="ghp-back-hub ghp-back-v2" id="bm-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#ff6d00">💣</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#ff6d00">Bomberman Duel</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Place bombs. Blast walls. Eliminate your rival.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>P1:</strong> WASD to move · Space to place bomb</li>
+            <li><strong>P2:</strong> Arrow keys to move · Enter to place bomb</li>
+            <li>Bombs explode after 2 seconds, blasting in 4 directions</li>
+            <li>Destroy soft walls to open paths — don't get caught in your own blast!</li>
+            <li>First to win 3 rounds wins the match</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="bm-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="bm-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">AI opponent</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="bm-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Difficulty</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill bm-diff" data-diff="easy">🐢 Easy</button>
+            <button class="ghp-pill bm-diff active" data-diff="medium">⚡ Medium</button>
+            <button class="ghp-pill bm-diff" data-diff="hard">💀 Hard</button>
+          </div>
+        </div>
+        <button class="ghp-start-btn" id="bm-start-btn" style="--ghp-accent:#ff6d00"><span>▶ START DUEL</span></button>
+      </div>
+    </div>
+
+    <div id="bm-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="bm-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div style="display:flex;justify-content:center;gap:40px;margin-bottom:8px;font-size:0.9rem;">
+        <span style="color:#00e5ff;font-weight:700;">🔵 Player 1 <span id="bm-score-p1">⭐ 0</span></span>
+        <span style="color:#f50057;font-weight:700;" id="bm-p2-name">🔴 Player 2</span>
+        <span style="color:#f50057;font-weight:700;"><span id="bm-score-p2">⭐ 0</span></span>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <canvas id="bm-canvas" style="border:1.5px solid rgba(255,109,0,0.3);border-radius:6px;max-width:100%;"></canvas>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.3);">P1: WASD + Space · P2: Arrows + Enter</div>
+      <div id="bm-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #ff6d00;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="bm-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="bm-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="bm-again" class="ghp-result-btn-primary" style="--rb-color:#ff6d00;">▶ Play Again</button>
+            <button id="bm-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-bomberman -->
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Draw & Guess
+       ══════════════════════════════════════════════ -->
+  <div id="screen-drawguess" class="hidden">
+    <div id="dg-home" class="game-home-panel ghp-v2" style="--ghp-accent:#f50057">
+      <button class="ghp-back-hub ghp-back-v2" id="dg-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#f50057">🎨</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#f50057">Draw &amp; Guess</h2>
+          <p class="ghp-tagline ghp-tagline-v2">One draws. One guesses. Both score.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Pick a secret word, then draw it on the canvas</li>
+            <li>Your opponent types guesses — score points for correct guesses</li>
+            <li>Faster guesses = more points. Hints reveal over time</li>
+            <li>Players alternate drawing. Most points after 4 rounds wins!</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="dg-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="dg-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">Bot guesses for you</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="dg-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Speed</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill dg-botdiff" data-diff="easy">🐢 Slow</button>
+            <button class="ghp-pill dg-botdiff active" data-diff="medium">⚡ Medium</button>
+            <button class="ghp-pill dg-botdiff" data-diff="hard">💀 Fast</button>
+          </div>
+        </div>
+        <div class="ghp-diff-label" style="margin-top:12px;">📝 Word Difficulty</div>
+        <div class="ghp-diff-pills">
+          <button class="ghp-pill dg-worddiff" data-diff="easy">Simple</button>
+          <button class="ghp-pill dg-worddiff active" data-diff="medium">Medium</button>
+          <button class="ghp-pill dg-worddiff" data-diff="hard">Hard</button>
+        </div>
+        <button class="ghp-start-btn" id="dg-start-btn" style="--ghp-accent:#f50057"><span>▶ START GAME</span></button>
+      </div>
+    </div>
+
+    <div id="dg-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="dg-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+
+      <!-- Word picker overlay -->
+      <div id="dg-word-picker" style="text-align:center;padding:20px;">
+        <div id="dg-picker-title" style="font-size:1.1rem;color:#fff;margin-bottom:16px;font-family:'Orbitron',sans-serif;"></div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button id="dg-word-1" class="ghp-start-btn" style="--ghp-accent:#f50057;min-width:100px;padding:12px 20px;font-size:1rem;" data-word=""></button>
+          <button id="dg-word-2" class="ghp-start-btn" style="--ghp-accent:#f50057;min-width:100px;padding:12px 20px;font-size:1rem;" data-word=""></button>
+          <button id="dg-word-3" class="ghp-start-btn" style="--ghp-accent:#f50057;min-width:100px;padding:12px 20px;font-size:1rem;" data-word=""></button>
+        </div>
+      </div>
+
+      <!-- Draw area -->
+      <div id="dg-draw-area" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div id="dg-current-drawer" style="font-weight:700;color:#00e5ff;font-size:0.85rem;"></div>
+            <div id="dg-current-guesser" style="font-size:0.75rem;color:rgba(255,255,255,0.5);"></div>
+          </div>
+          <div style="font-family:'Orbitron',sans-serif;color:#f50057;font-size:1.1rem;" id="dg-timer">60s</div>
+        </div>
+        <div id="dg-word-display" style="font-size:1rem;font-weight:700;color:#fff;text-align:center;margin-bottom:4px;"></div>
+        <div id="dg-hint-display" style="font-size:0.9rem;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:8px;letter-spacing:0.15em;"></div>
+
+        <!-- Drawing canvas + tools -->
+        <div id="dg-draw-controls" style="margin-bottom:6px;">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+            <button class="dg-color active" data-color="#000000" style="width:24px;height:24px;background:#000;border:2px solid #fff;border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#ffffff" style="width:24px;height:24px;background:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#f50057" style="width:24px;height:24px;background:#f50057;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#00e5ff" style="width:24px;height:24px;background:#00e5ff;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#00e676" style="width:24px;height:24px;background:#00e676;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#ffd600" style="width:24px;height:24px;background:#ffd600;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <button class="dg-color" data-color="#aa00ff" style="width:24px;height:24px;background:#aa00ff;border:2px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;"></button>
+            <span style="color:rgba(255,255,255,0.3);font-size:0.75rem;">Size:</span>
+            <button class="dg-brush active" data-size="3" style="width:22px;height:22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;font-size:0.65rem;color:#fff;">S</button>
+            <button class="dg-brush" data-size="7" style="width:22px;height:22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;font-size:0.65rem;color:#fff;">M</button>
+            <button class="dg-brush" data-size="14" style="width:22px;height:22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:3px;cursor:pointer;font-size:0.65rem;color:#fff;">L</button>
+            <button id="dg-clear" style="padding:4px 10px;background:rgba(255,0,0,0.2);border:1px solid rgba(255,0,0,0.4);border-radius:4px;color:#ff6b6b;cursor:pointer;font-size:0.75rem;">🗑 Clear</button>
+            <button id="dg-pass" style="padding:4px 10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.75rem;">Skip</button>
+          </div>
+        </div>
+
+        <canvas id="dg-canvas" width="560" height="320" style="background:#fff;border-radius:8px;max-width:100%;touch-action:none;cursor:crosshair;display:block;margin:0 auto;"></canvas>
+
+        <!-- Guess input -->
+        <div id="dg-guess-controls" style="margin-top:10px;">
+          <input id="dg-guess-input" type="text" autocomplete="off" placeholder="Type your guess here and press Enter…"
+            style="width:100%;background:rgba(0,0,0,0.4);border:1.5px solid rgba(245,0,87,0.4);border-radius:8px;padding:10px 14px;color:#fff;font-size:1rem;font-family:'Rajdhani',sans-serif;outline:none;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <div id="dg-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #f50057;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="dg-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="dg-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="dg-again" class="ghp-result-btn-primary" style="--rb-color:#f50057;">▶ Play Again</button>
+            <button id="dg-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-drawguess -->
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Pixel Racer
+       ══════════════════════════════════════════════ -->
+  <div id="screen-pixelracer" class="hidden">
+    <div id="pr-home" class="game-home-panel ghp-v2" style="--ghp-accent:#00e676">
+      <button class="ghp-back-hub ghp-back-v2" id="pr-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#00e676">🏎️</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#00e676">Pixel Racer</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Race pixel cars on a circuit. 3 laps to win.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li><strong>P1:</strong> Arrow keys to steer and accelerate</li>
+            <li><strong>P2:</strong> WASD to steer and accelerate</li>
+            <li>Complete 3 laps on the circuit first to win</li>
+            <li>Stay on the track — going off course slows you down!</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="pr-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="pr-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">AI racer</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="pr-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Speed</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill pr-diff" data-diff="easy">🐢 Slow</button>
+            <button class="ghp-pill pr-diff active" data-diff="medium">🏎 Medium</button>
+            <button class="ghp-pill pr-diff" data-diff="hard">⚡ Fast</button>
+          </div>
+        </div>
+        <button class="ghp-start-btn" id="pr-start-btn" style="--ghp-accent:#00e676"><span>▶ START RACE</span></button>
+      </div>
+    </div>
+
+    <div id="pr-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="pr-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div style="display:flex;justify-content:center;gap:40px;margin-bottom:8px;font-size:0.9rem;">
+        <div style="color:#00e5ff;font-weight:700;">🔵 P1: <span id="pr-laps-p1">Lap 0/3</span></div>
+        <div id="pr-p2-label" style="color:#f50057;font-weight:700;">🔴 P2: <span id="pr-laps-p2">Lap 0/3</span></div>
+      </div>
+      <div style="display:flex;justify-content:center;overflow:auto;">
+        <canvas id="pr-canvas" style="border:1.5px solid rgba(0,230,118,0.3);border-radius:6px;max-width:100%;"></canvas>
+      </div>
+      <div style="text-align:center;margin-top:6px;font-size:0.7rem;color:rgba(255,255,255,0.3);">P1: Arrow keys · P2: WASD</div>
+      <div id="pr-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #00e676;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="pr-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="pr-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="pr-again" class="ghp-result-btn-primary" style="--rb-color:#00e676;">▶ Race Again</button>
+            <button id="pr-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-pixelracer -->
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Reaction Duel
+       ══════════════════════════════════════════════ -->
+  <div id="screen-reaction" class="hidden">
+    <div id="rd-home" class="game-home-panel ghp-v2" style="--ghp-accent:#aa00ff">
+      <button class="ghp-back-hub ghp-back-v2" id="rd-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#aa00ff">⚡</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#aa00ff">Reaction Duel</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Wait for the signal. Tap first. Win.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Wait for the green signal — then tap your button FIRST</li>
+            <li><strong>P1:</strong> Spacebar or tap your button · <strong>P2:</strong> Enter or button</li>
+            <li>Tapping before the signal = false start = lose 2 rounds!</li>
+            <li>First player to win 7 rounds wins the match</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="rd-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="rd-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">AI reflexes</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="rd-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Reaction Time</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill rd-diff" data-diff="easy">🐢 Slow</button>
+            <button class="ghp-pill rd-diff active" data-diff="medium">⚡ Medium</button>
+            <button class="ghp-pill rd-diff" data-diff="hard">💀 Lightning</button>
+          </div>
+        </div>
+        <button class="ghp-start-btn" id="rd-start-btn" style="--ghp-accent:#aa00ff"><span>▶ START DUEL</span></button>
+      </div>
+    </div>
+
+    <div id="rd-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 16px;font-family:'Rajdhani',sans-serif;display:flex;flex-direction:column;align-items:center;">
+      <button id="rd-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;align-self:flex-start;">← Back</button>
+
+      <!-- Scores -->
+      <div style="display:flex;gap:40px;margin-bottom:16px;font-size:1rem;">
+        <div style="color:#00e5ff;font-weight:700;text-align:center;">🔵 P1<br><span id="rd-wins-p1" style="font-size:1.4rem;">★ 0</span></div>
+        <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;text-align:center;align-self:center;" id="rd-round-info">First to 7 wins!</div>
+        <div id="rd-p2-name" style="color:#f50057;font-weight:700;text-align:center;">🔴 P2<br><span id="rd-wins-p2" style="font-size:1.4rem;">★ 0</span></div>
+      </div>
+
+      <!-- Signal display -->
+      <div id="rd-signal-bg" style="width:260px;height:260px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background 0.15s;border:4px solid rgba(255,255,255,0.1);margin-bottom:20px;">
+        <div id="rd-signal-emoji" style="font-size:4rem;line-height:1;">⌛</div>
+        <div id="rd-signal-text" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;color:#fff;margin-top:8px;font-weight:900;"></div>
+      </div>
+
+      <div id="rd-status" style="font-size:1rem;color:rgba(255,255,255,0.7);margin-bottom:20px;text-align:center;min-height:24px;"></div>
+
+      <!-- Tap buttons -->
+      <div style="display:flex;gap:24px;">
+        <button id="rd-tap-p1" style="width:120px;height:64px;background:rgba(0,229,255,0.15);border:2px solid #00e5ff;border-radius:12px;color:#00e5ff;font-size:1rem;font-family:'Orbitron',sans-serif;cursor:pointer;font-weight:700;">TAP! (P1)</button>
+        <button id="rd-tap-p2" style="width:120px;height:64px;background:rgba(245,0,87,0.15);border:2px solid #f50057;border-radius:12px;color:#f50057;font-size:1rem;font-family:'Orbitron',sans-serif;cursor:pointer;font-weight:700;">TAP! (P2)</button>
+      </div>
+      <div style="margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.25);">P1: Spacebar · P2: Enter</div>
+
+      <div id="rd-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #aa00ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="rd-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="rd-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="rd-again" class="ghp-result-btn-primary" style="--rb-color:#aa00ff;">▶ Play Again</button>
+            <button id="rd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-reaction -->
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN: Territory Wars
+       ══════════════════════════════════════════════ -->
+  <div id="screen-territory" class="hidden">
+    <div id="tw-home" class="game-home-panel ghp-v2" style="--ghp-accent:#ffd600">
+      <button class="ghp-back-hub ghp-back-v2" id="tw-back-hub">← Hub</button>
+      <div class="ghp-wrap">
+        <div class="ghp-hero ghp-hero-v2">
+          <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#ffd600">🗺️</div>
+          <h2 class="ghp-title ghp-title-v2" style="--ghp-accent:#ffd600">Territory Wars</h2>
+          <p class="ghp-tagline ghp-tagline-v2">Claim cells. Expand. Dominate the map.</p>
+        </div>
+        <div class="ghp-rules ghp-rules-v2">
+          <h3 class="ghp-rules-title">📋 How to Play</h3>
+          <ul class="ghp-rules-list">
+            <li>Click any empty cell adjacent to your territory to claim it</li>
+            <li>Players alternate turns — each turn you claim 1 cell</li>
+            <li>Surrounding opponent cells can flip them to your color!</li>
+            <li>When no more moves are available, most cells wins</li>
+          </ul>
+        </div>
+        <div class="ghp-mode-selector">
+          <button class="ghp-mode-btn ghp-mode-pvp active" id="tw-mode-pvp">
+            <span class="mode-icon">👥</span><span class="mode-label">Player vs Player</span><span class="mode-sub">Local multiplayer</span>
+          </button>
+          <button class="ghp-mode-btn ghp-mode-bot" id="tw-mode-bot">
+            <span class="mode-icon">🤖</span><span class="mode-label">vs Bot</span><span class="mode-sub">AI strategist</span>
+          </button>
+        </div>
+        <div class="ghp-bot-settings hidden" id="tw-bot-settings">
+          <div class="ghp-diff-label">🤖 Bot Difficulty</div>
+          <div class="ghp-diff-pills">
+            <button class="ghp-pill tw-diff" data-diff="easy">🐢 Easy</button>
+            <button class="ghp-pill tw-diff active" data-diff="medium">⚡ Medium</button>
+            <button class="ghp-pill tw-diff" data-diff="hard">💀 Hard</button>
+          </div>
+        </div>
+        <button class="ghp-start-btn" id="tw-start-btn" style="--ghp-accent:#ffd600"><span>▶ CLAIM TERRITORY</span></button>
+      </div>
+    </div>
+
+    <div id="tw-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
+      <button id="tw-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+        <div style="color:#00e5ff;font-weight:700;">🔵 P1: <span id="tw-score-p1">0</span></div>
+        <div id="tw-turn-indicator" style="font-family:'Orbitron',sans-serif;font-size:0.8rem;color:#fff;text-align:center;"></div>
+        <div id="tw-p2-name" style="color:#f50057;font-weight:700;">🔴 P2: <span id="tw-score-p2">0</span></div>
+      </div>
+      <div id="tw-total" style="text-align:center;font-size:0.7rem;color:rgba(255,255,255,0.35);margin-bottom:8px;"></div>
+      <div style="overflow:auto;-webkit-overflow-scrolling:touch;">
+        <div id="tw-grid" style="display:grid;gap:2px;width:fit-content;margin:0 auto;"></div>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button id="tw-end-turn" style="padding:8px 24px;background:rgba(255,214,0,0.15);border:1.5px solid #ffd600;border-radius:8px;color:#ffd600;font-family:'Orbitron',sans-serif;font-size:0.8rem;cursor:pointer;">END TURN →</button>
+      </div>
+
+      <div id="tw-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
+        <div style="background:#0d0f1c;border:2px solid #ffd600;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
+          <div id="tw-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
+          <div id="tw-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="tw-again" class="ghp-result-btn-primary" style="--rb-color:#ffd600;">▶ Play Again</button>
+            <button id="tw-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#screen-territory -->
+
   <script src="script.js"></script>
   <script src="chess.js"></script>
   <script src="battleship.js"></script>
   <script src="checkers.js"></script>
+  <script src="darts.js"></script>
+  <script src="tanks.js"></script>
+  <script src="starcatcher.js"></script>
+  <script src="spacedodge.js"></script>
+  <script src="pingpong.js"></script>
+  <script src="snake.js"></script>
+  <script src="typing.js"></script>
+  <script src="minesweeper.js"></script>
+  <script src="blackjack.js"></script>
+  <script src="tetris.js"></script>
+  <script src="bomberman.js"></script>
+  <script src="drawguess.js"></script>
+  <script src="pixelracer.js"></script>
+  <script src="reaction.js"></script>
+  <script src="territory.js"></script>
 </body>
 </html>
+<!-- ══════════════════════════════════════════════
+     SCREEN: Space Dodge (hidden by default)
+     ══════════════════════════════════════════════ -->
