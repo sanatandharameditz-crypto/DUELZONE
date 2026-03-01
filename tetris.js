@@ -282,17 +282,46 @@
     });
 
     if (TB.mode === 'bot') tbBotLoop();
+
+    // Mobile swipe support
+    tbAddSwipeControls();
+  }
+
+  function tbAddSwipeControls() {
+    [0, 1].forEach(function(i) {
+      var canvas = el('tetris-canvas-p' + (i+1));
+      if (!canvas) return;
+      var tx0 = 0, ty0 = 0, tDown = false;
+      canvas.style.touchAction = 'none';
+      canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; tDown = true;
+      }, {passive: false});
+      canvas.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        if (!tDown) return; tDown = false;
+        var dx = e.changedTouches[0].clientX - tx0;
+        var dy = e.changedTouches[0].clientY - ty0;
+        var adx = Math.abs(dx), ady = Math.abs(dy);
+        if (adx < 10 && ady < 10) { tbRotate(i); return; } // tap = rotate
+        if (adx > ady) {
+          tbMove(i, dx > 0 ? 1 : -1, 0); // swipe left/right
+        } else {
+          if (dy > 0) tbHardDrop(i); else tbRotate(i); // swipe down = drop, up = rotate
+        }
+      }, {passive: false});
+    });
   }
 
   // ── Bot ───────────────────────────────────────────────────────
   function tbBotLoop() {
     if (TB.over || TB.players[1].lost) return;
-    var delay = { easy: 600, medium: 300, hard: 0 }[TB.diff] || 300;
+    var delay = { easy: 700, medium: 320, hard: 0 }[TB.diff] || 320;
     TB.botTimer = setTimeout(function () {
       if (TB.over || TB.players[1].lost) return;
       tbBotMove();
       tbBotLoop();
-    }, delay + Math.random() * 200);
+    }, delay + (TB.diff === 'hard' ? 0 : Math.random() * 220));
   }
 
   function tbBotMove() {
@@ -346,8 +375,8 @@
       if (b[rr2].every(function(v){ return v; })) cleared++;
     }
     if (TB.diff === 'hard') {
-      // Near-perfect weights derived from academic research
-      return -0.510066 * maxH - 0.760666 * holes - 0.184483 * bumpiness + 0.260000 * cleared * cleared;
+      // Dellacherie weights + well weight for cleaner lines
+      return -0.510066 * maxH - 0.760666 * holes - 0.184483 * bumpiness + 0.660000 * cleared * cleared * cleared;
     }
     return -0.51 * maxH - 0.36 * holes - 0.18 * bumpiness + 0.76 * cleared;
   }

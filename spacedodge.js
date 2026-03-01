@@ -65,9 +65,9 @@
     WAVE_COUNT:    8,
 
     AI: {
-      easy:   { react:560, evade:0.38, horizon:180, spdFac:0.68, boostP:0.12, risk:0.65, fireP:0.25 },
-      medium: { react:200, evade:0.75, horizon:420, spdFac:0.90, boostP:0.44, risk:0.38, fireP:0.55 },
-      hard:   { react:8,   evade:0.999, horizon:1200, spdFac:1.00, boostP:0.95, risk:0.02, fireP:0.98 }
+      easy:   { react:580, evade:0.35, horizon:160, spdFac:0.65, boostP:0.10, risk:0.70, fireP:0.22 },
+      medium: { react:220, evade:0.72, horizon:400, spdFac:0.88, boostP:0.42, risk:0.40, fireP:0.52 },
+      hard:   { react:1,   evade:1.0,  horizon:2000, spdFac:1.00, boostP:1.00, risk:0.0,  fireP:1.0  }
     }
   };
 

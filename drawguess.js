@@ -382,7 +382,7 @@
 
     var strokes = dgGenerateBotStrokes(DG.word, canvas.width, canvas.height);
     var si = 0, pi = 0;
-    var tickMs = { easy: 260, medium: 140, hard: 55 }[DG.botDiff] || 140;
+    var tickMs = { easy: 280, medium: 150, hard: 18 }[DG.botDiff] || 150;
 
     DG.botDrawInterval = setInterval(function () {
       if (DG.phase !== 'draw' || DG.over) {
@@ -538,7 +538,7 @@
   function dgBotScheduleGuess() {
     if (DG.botGuessTimer) { clearTimeout(DG.botGuessTimer); DG.botGuessTimer = null; }
     // Seconds after turn starts before bot guesses (easy=late, hard=early)
-    var guessAfterSec = { easy: 45, medium: 25, hard: 3 }[DG.botDiff] || 25;
+    var guessAfterSec = { easy: 48, medium: 28, hard: 0.5 }[DG.botDiff] || 28;
     guessAfterSec = Math.min(TURN_TIME - 3, guessAfterSec);
 
     DG.botGuessTimer = setTimeout(function () {

@@ -597,16 +597,31 @@ var bs = (function () {
       }
     });
 
-    // Find max density cell (not yet shot); apply checkerboard when no active hits
+    // Find max density cell (not yet shot); strict checkerboard parity + hit adjacency bonus
     var best = [], bestScore = -1;
+    // Compute minimum remaining ship size (for parity optimization)
+    var minShip = remaining.length ? Math.min.apply(null, remaining) : 2;
     for (var r3 = 0; r3 < GRID_SIZE; r3++) {
       for (var c3 = 0; c3 < GRID_SIZE; c3++) {
         if (wasShot(state.player2Shots, r3, c3)) continue;
         var score = density[r3][c3];
-        // Checkerboard: skip odd-sum cells in pure random phase to cut search space
-        if (state.aiHitStack.length === 0 && (r3 + c3) % 2 !== 0) score *= 0.5;
+        // Hard: strict parity — completely skip cells that can't improve hit density
+        if (state.aiHitStack.length === 0 && (r3 + c3) % minShip !== 0) continue;
+        // Bonus: adjacency to existing hits (pursuit mode)
+        var adjBonus = 0;
+        [[0,1],[0,-1],[1,0],[-1,0]].forEach(function(d){
+          var nr=r3+d[0], nc=c3+d[1];
+          if (nr>=0&&nr<GRID_SIZE&&nc>=0&&nc<GRID_SIZE && state.player1Grid[nr][nc]===HIT) adjBonus+=50;
+        });
+        score += adjBonus;
         if (score > bestScore) { bestScore = score; best = [[r3, c3]]; }
         else if (score === bestScore) best.push([r3, c3]);
+      }
+    }
+    // Fallback if parity filter left nothing
+    if (!best.length) {
+      for (var r4=0;r4<GRID_SIZE;r4++) for(var c4=0;c4<GRID_SIZE;c4++) {
+        if (!wasShot(state.player2Shots,r4,c4) && density[r4][c4]>0) best.push([r4,c4]);
       }
     }
     return best.length ? best[Math.floor(Math.random() * best.length)] : bsPickRandom();

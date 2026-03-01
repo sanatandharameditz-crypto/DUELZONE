@@ -240,7 +240,7 @@
 
     // Bot's turn
     if (TW.mode === 'bot' && TW.turn === P2) {
-      var delay = { easy: 900, medium: 500, hard: 200 }[TW.diff] || 500;
+      var delay = { easy: 950, medium: 520, hard: 60 }[TW.diff] || 520;
       TW.botTimer = setTimeout(twBotMove, delay);
     }
   }
@@ -308,8 +308,8 @@
     var best = null, bestScore = -Infinity;
 
     if (TW.diff === 'hard') {
-      // Minimax with depth 5 for hard - nearly unbeatable
-      var result = twMinimax(TW.grid, 5, -Infinity, Infinity, true);
+      // Minimax with depth 8 for hard - essentially unbeatable
+      var result = twMinimax(TW.grid, 8, -Infinity, Infinity, true);
       best = result.move;
     } else {
       for (var r = 0; r < GRID_H; r++) {

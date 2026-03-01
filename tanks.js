@@ -28,9 +28,9 @@
     RESPAWN:180, INVULN:150,
     PHYS_STEP:1000/60,
     BOT:{
-      easy:  {react:55,err:0.38,agg:0.35},
-      medium:{react:22,err:0.18,agg:0.70},
-      hard:  {react:1, err:0.005,agg:1.00}
+      easy:  {react:65,err:0.42,agg:0.30},
+      medium:{react:25,err:0.20,agg:0.68},
+      hard:  {react:1, err:0.0,  agg:1.00}
     }
   };
 
@@ -137,7 +137,7 @@
       var diff=ta-tk.angle;
       while(diff>Math.PI)diff-=Math.PI*2;
       while(diff<-Math.PI)diff+=Math.PI*2;
-      tk.angle+=diff*0.22;
+      tk.angle+=diff*(botDiff==='hard'?0.45:0.22);
 
       // Slide collision: try X and Y axes separately
       var nx=Math.max(CFG.TANK_R,Math.min(CFG.W-CFG.TANK_R,tk.x+dx));
@@ -209,7 +209,7 @@
     var faceDiff=toAng-bk.angle;
     while(faceDiff>Math.PI)faceDiff-=Math.PI*2;
     while(faceDiff<-Math.PI)faceDiff+=Math.PI*2;
-    inp['bot_fire']=Math.abs(faceDiff)<(botDiff==='hard'?0.08:0.38);
+    inp['bot_fire']=Math.abs(faceDiff)<(botDiff==='hard'?0.02:0.40);
 
     // Wall avoidance override
     var mg=80;

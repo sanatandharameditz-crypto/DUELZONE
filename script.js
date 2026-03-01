@@ -7315,3 +7315,60 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
   });
 
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// DuelZone · Fullscreen Manager
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  function requestFS(el) {
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  }
+
+  function exitFS() {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+
+  function isFS() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+              document.mozFullScreenElement || document.msFullscreenElement);
+  }
+
+  function updateFSBtn(btn) {
+    if (!btn) return;
+    btn.textContent = isFS() ? '⛶ Exit FS' : '⛶ Fullscreen';
+    btn.title = isFS() ? 'Exit Fullscreen' : 'Go Fullscreen';
+  }
+
+  // Update all FS buttons on change
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, function(){
+      document.querySelectorAll('.dz-fs-btn').forEach(updateFSBtn);
+      // Adjust canvas sizes on fullscreen change for canvas-based games
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 100);
+    });
+  });
+
+  // Wire all FS buttons (delegated)
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.dz-fs-btn');
+    if (!btn) return;
+    var screenId = btn.dataset.screen;
+    if (isFS()) {
+      exitFS();
+    } else {
+      var screen = screenId ? document.getElementById(screenId) : document.documentElement;
+      requestFS(screen || document.documentElement);
+    }
+    setTimeout(function(){ updateFSBtn(btn); }, 100);
+  });
+
+  window.DZFullscreen = { request: requestFS, exit: exitFS, isFS: isFS };
+})();

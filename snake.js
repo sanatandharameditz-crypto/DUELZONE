@@ -7,8 +7,8 @@
   'use strict';
 
   var COLS = 28, ROWS = 20, CELL = 22;
-  var TICK_SPEED = { easy: 180, medium: 130, hard: 55 };
-  var BOT_ERR    = { easy: 0.42, medium: 0.18, hard: 0.005 };
+  var TICK_SPEED = { easy: 200, medium: 140, hard: 26 };
+  var BOT_ERR    = { easy: 0.45, medium: 0.20, hard: 0.0 };
 
   var canvas, ctx;
   var _wired = false;

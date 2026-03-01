@@ -445,7 +445,7 @@
   function dartsBotThrow() {
     if (DS.gameOver) return;
     var tgt = dartsBotTarget(DS.scores[1]);
-    var inac = DS.boardR * ({easy:0.40, medium:0.20, hard:0.018}[DS.botDiff]||0.20);
+    var inac = DS.boardR * ({easy:0.45, medium:0.22, hard:0.003}[DS.botDiff]||0.22);
     var tx = tgt.x + (Math.random()-0.5)*inac;
     var ty = tgt.y + (Math.random()-0.5)*inac;
     dartsThrowAt(tx, ty);

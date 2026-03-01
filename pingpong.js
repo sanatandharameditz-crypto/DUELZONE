@@ -71,9 +71,9 @@
 
   /* ── Bot ────────────────────────────────────────────────────── */
   var BOT = {
-    easy : { speedF:0.0028, errF:0.30, react:500, predict:false },
-    med  : { speedF:0.0052, errF:0.11, react:175, predict:true  },
-    hard : { speedF:0.012,  errF:0.001, react: 8, predict:true  }
+    easy : { speedF:0.0026, errF:0.34, react:520, predict:false },
+    med  : { speedF:0.0050, errF:0.12, react:180, predict:true  },
+    hard : { speedF:0.018,  errF:0.0,  react: 1,  predict:true  }
   };
 
   /* ═══════════════════════════════════════════════════════════════

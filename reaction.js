@@ -15,7 +15,7 @@
     roundsWon: [0, 0],
     phase: 'wait', // wait | ready | signal | result | done
     signalTime: 0,
-    waitTimer: null, resultTimer: null,
+    waitTimer: null, resultTimer: null, botTimer: null,
     roundResult: null,
     _wired: false,
   };
@@ -79,6 +79,7 @@
     RD.over = true;
     if (RD.waitTimer) { clearTimeout(RD.waitTimer); RD.waitTimer = null; }
     if (RD.resultTimer) { clearTimeout(RD.resultTimer); RD.resultTimer = null; }
+    if (RD.botTimer) { clearTimeout(RD.botTimer); RD.botTimer = null; }
   }
 
   // ── Start game ────────────────────────────────────────────────
@@ -129,9 +130,9 @@
 
     // Bot reaction
     if (RD.mode === 'bot') {
-      var botDelay = { easy: 600, medium: 280, hard: 55 }[RD.diff] || 280;
-      botDelay += Math.random() * (RD.diff === 'hard' ? 20 : 150);
-      RD.waitTimer = setTimeout(function () {
+      var botDelay = { easy: 700, medium: 300, hard: 10 }[RD.diff] || 300;
+      botDelay += Math.random() * (RD.diff === 'hard' ? 8 : 180);
+      RD.botTimer = setTimeout(function () {
         if (RD.phase === 'signal') rdBotTap();
       }, botDelay);
     }
@@ -157,6 +158,7 @@
       }
       rdUpdateScores();
       if (RD.waitTimer) { clearTimeout(RD.waitTimer); RD.waitTimer = null; }
+      if (RD.botTimer) { clearTimeout(RD.botTimer); RD.botTimer = null; }
       RD.resultTimer = setTimeout(function () {
         rdAfterRound();
       }, 2500);
@@ -166,6 +168,7 @@
     if (RD.phase === 'signal') {
       var rt = Math.round(performance.now() - RD.signalTime);
       if (RD.waitTimer) { clearTimeout(RD.waitTimer); RD.waitTimer = null; }
+      if (RD.botTimer) { clearTimeout(RD.botTimer); RD.botTimer = null; }
       rdRoundResult(pid, 1 - pid, rt);
     }
   }

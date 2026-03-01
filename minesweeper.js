@@ -310,7 +310,7 @@
   // ── Bot AI ────────────────────────────────────────────────
   function startBot(){
     var cfg=CONFIGS[MS.diff];
-    var delayMs={easy:1100,medium:500,hard:30}[MS.botDiff]||500;
+    var delayMs={easy:1200,medium:550,hard:1}[MS.botDiff]||550;
     // Build list of safe cells (bot cheats slightly to seem competent)
     // Bot clicks cells one at a time
     var g=MS.grids[1];
@@ -334,7 +334,7 @@
           renderGrid(1);
           updateMineCount(1);
           checkWin(1);
-        },delayMs*(0.7+Math.random()*0.6));
+        },MS.botDiff==='hard'?delayMs:delayMs*(0.7+Math.random()*0.6));
       }
     },100);
   }

@@ -856,7 +856,7 @@
 
     <!-- TTT GAME PANEL -->
     <div id="ttt-play-panel" class="hidden">
-    <button class="ghp-back-game" id="ttt-back-to-home">← Setup</button>
+    <div class="dz-topbar"><button class="ghp-back-game" id="ttt-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-tictactoe" title="Fullscreen">⛶ Fullscreen</button></div>
     <!-- original back-to-hub kept for JS compat but hidden -->
     <button id="back-to-hub" style="display:none">← Back to Hub</button>
 
@@ -986,7 +986,7 @@
 
     <!-- RPS GAME PANEL -->
     <div id="rps-play-panel" class="hidden">
-    <button class="ghp-back-game" id="rps-back-to-home">← Setup</button>
+    <div class="dz-topbar"><button class="ghp-back-game" id="rps-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-rps" title="Fullscreen">⛶ Fullscreen</button></div>
     <div id="rps-app">
       <header class="game-header">
         <p class="game-mode-label" id="rps-mode-label">LOCAL PvP</p>
@@ -1124,7 +1124,7 @@
 
     <!-- TAP GAME PANEL -->
     <div id="tap-play-panel" class="hidden">
-    <button class="ghp-back-game" id="tap-back-to-home">← Setup</button>
+    <div class="dz-topbar"><button class="ghp-back-game" id="tap-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-taprace" title="Fullscreen">⛶ Fullscreen</button></div>
     <div id="tap-header-bar">
       <p class="game-mode-label" id="tap-mode-label">LOCAL PvP</p>
       <h2 class="game-title" style="margin:0">Tap Battle</h2>
@@ -1232,7 +1232,7 @@
 
     <!-- 2048 GAME PANEL -->
     <div id="d2048-play-panel" class="hidden">
-    <button class="ghp-back-game" id="d2048-back-to-home">← Setup</button>
+    <div class="dz-topbar"><button class="ghp-back-game" id="d2048-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-2048" title="Fullscreen">⛶ Fullscreen</button></div>
     <div id="d2048-header">
       <p class="game-mode-label" id="d2048-mode-label">LOCAL PvP</p>
       <h2 class="game-title">2048 Duel</h2>
@@ -1379,7 +1379,7 @@
 
     <!-- C4 GAME PANEL -->
     <div id="c4-play-panel" class="hidden">
-      <button class="ghp-back-game" id="c4-back-to-home">← Setup</button>
+      <div class="dz-topbar"><button class="ghp-back-game" id="c4-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-connect4" title="Fullscreen">⛶ Fullscreen</button></div>
       <div id="c4-app">
         <header id="c4-game-header">
           <p class="c4-eyebrow">DUELZONE ARENA</p>
@@ -2066,7 +2066,7 @@
 
     <!-- PLAY PANEL -->
     <div id="mfd-play" class="hidden mfd-play-wrap">
-      <button class="ghp-back-game" id="mfd-back-to-home">← Setup</button>
+      <div class="dz-topbar"><button class="ghp-back-game" id="mfd-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-mfd" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <div id="mfd-app">
 
@@ -2193,7 +2193,7 @@
 
     <!-- PLAY PANEL -->
     <div id="cdd-play" class="hidden cdd-play-wrap">
-      <button class="ghp-back-game" id="cdd-back-to-home">← Setup</button>
+      <div class="dz-topbar"><button class="ghp-back-game" id="cdd-back-to-home">← Setup</button><button class="dz-fs-btn" data-screen="screen-cdd" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <div id="cdd-app">
 
@@ -2296,9 +2296,8 @@
               <button class="chess-diff-btn diff-btn" data-depth="1">Beginner</button>
               <button class="chess-diff-btn diff-btn" data-depth="2">Easy</button>
               <button class="chess-diff-btn diff-btn active" data-depth="3">Medium</button>
-              <button class="chess-diff-btn diff-btn" data-depth="4">Hard</button>
-              <button class="chess-diff-btn diff-btn" data-depth="5">Expert</button>
-              <button class="chess-diff-btn diff-btn" data-depth="6">Master</button>
+              <button class="chess-diff-btn diff-btn" data-depth="5">Hard</button>
+              <button class="chess-diff-btn diff-btn" data-depth="7">Expert</button>
             </div>
           </div>
           <div class="ghp-setting-row">
@@ -2327,7 +2326,7 @@
 
         <!-- Header -->
         <div id="chess-header">
-          <button class="ghp-back-game" id="chess-back-hub-play">← Setup</button>
+          <div class="dz-topbar"><button class="ghp-back-game" id="chess-back-hub-play">← Setup</button><button class="dz-fs-btn" data-screen="screen-chess" title="Fullscreen">⛶ Fullscreen</button></div>
           <h2 id="chess-title">Chess</h2>
           <div id="chess-turn-banner">
             <span id="chess-turn-text">White's turn</span>
@@ -2721,7 +2720,7 @@
     <div id="darts-play-panel" class="hidden">
       <div id="darts-app">
         <div id="darts-header">
-          <button class="ghp-back-game" id="darts-back-setup">← Setup</button>
+          <div class="dz-topbar"><button class="ghp-back-game" id="darts-back-setup">← Setup</button><button class="dz-fs-btn" data-screen="screen-darts" title="Fullscreen">⛶ Fullscreen</button></div>
           <h2 id="darts-title">Darts Duel</h2>
           <div id="darts-timer-display" class="hidden"></div>
         </div>
@@ -2841,7 +2840,7 @@
           <span style="color:#e2e8ff;font-size:13px;margin-left:8px;">Kills: <strong id="tanks-p1-kills" style="color:#00e5ff;">0</strong></span>
         </div>
         <div style="text-align:center;">
-          <button class="ghp-back-game" id="tanks-back-setup">← Setup</button>
+          <div class="dz-topbar"><button class="ghp-back-game" id="tanks-back-setup">← Setup</button><button class="dz-fs-btn" data-screen="screen-tanks" title="Fullscreen">⛶ Fullscreen</button></div>
         </div>
         <div id="tanks-p2-hud" style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
           <span style="color:#f50057;font-weight:700;font-size:15px;">🔴 P2</span>
@@ -2947,7 +2946,7 @@
         </div>
         <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
           <span id="sc-timer" style="color:#ffd600;font-size:24px;font-weight:700;font-family:'Orbitron',sans-serif;">60</span>
-          <button class="ghp-back-game" id="sc-back-setup">← Setup</button>
+          <div class="dz-topbar"><button class="ghp-back-game" id="sc-back-setup">← Setup</button><button class="dz-fs-btn" data-screen="screen-starcatcher" title="Fullscreen">⛶ Fullscreen</button></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
           <span style="color:#f50057;font-weight:700;font-size:15px;">🔴 P2</span>
@@ -3051,7 +3050,7 @@
         <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;">
           <span id="sd-timer" style="color:#b400ff;font-size:22px;font-weight:700;font-family:'Orbitron',sans-serif;">0:00</span>
           <div style="display:flex;gap:6px;align-items:center;">
-            <button class="ghp-back-game" id="sd-back-setup">← Setup</button>
+            <div class="dz-topbar"><button class="ghp-back-game" id="sd-back-setup">← Setup</button><button class="dz-fs-btn" data-screen="screen-spacedodge" title="Fullscreen">⛶ Fullscreen</button></div>
             <button id="sd-pause-btn" style="background:rgba(180,0,255,0.12);border:1px solid #b400ff55;color:#b400ff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;padding:3px 10px;border-radius:4px;cursor:pointer;">PAUSE</button>
           </div>
         </div>
@@ -3374,7 +3373,7 @@
     </div>
 
     <div id="snake-play" class="hidden" style="display:flex;flex-direction:column;align-items:center;background:#07080f;min-height:100vh;padding:8px 0;">
-      <button id="snake-back-play" style="align-self:flex-start;margin:8px 16px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:0.9rem;">← Back</button>
+      <div class="dz-topbar"><button id="snake-back-play" style="align-self:flex-start;margin:8px 16px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:0.9rem;">← Back</button><button class="dz-fs-btn" data-screen="screen-snake" title="Fullscreen">⛶ Fullscreen</button></div>
       <!-- HUD -->
       <div style="display:flex;gap:24px;align-items:center;margin-bottom:8px;font-family:'Orbitron',sans-serif;font-size:0.8rem;">
         <div style="text-align:center;color:#00e5ff;">
@@ -3468,7 +3467,7 @@
     </div>
 
     <div id="typing-play" class="hidden" style="background:#07080f;min-height:100vh;padding:12px 16px;font-family:'Rajdhani',sans-serif;">
-      <button id="typing-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;">← Back</button>
+      <div class="dz-topbar"><button id="typing-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;">← Back</button><button class="dz-fs-btn" data-screen="screen-typing" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <!-- Timer + Progress -->
       <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:12px;">
@@ -3589,7 +3588,7 @@
     </div>
 
     <div id="mine-play" class="hidden" style="background:#07080f;min-height:100vh;padding:8px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="mine-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+      <div class="dz-topbar"><button id="mine-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button><button class="dz-fs-btn" data-screen="screen-minesweeper" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <!-- Two grids side by side -->
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
@@ -3691,7 +3690,7 @@
     </div>
 
     <div id="bj-play" class="hidden" style="background:#0a0010;min-height:100vh;padding:12px;font-family:'Rajdhani',sans-serif;">
-      <button id="bj-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+      <div class="dz-topbar"><button id="bj-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button><button class="dz-fs-btn" data-screen="screen-blackjack" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <!-- Score bar -->
       <div style="display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:12px;font-family:'Orbitron',sans-serif;">
@@ -3802,7 +3801,7 @@
     </div>
 
     <div id="tetris-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="tetris-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button>
+      <div class="dz-topbar"><button id="tetris-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:8px;">← Back</button><button class="dz-fs-btn" data-screen="screen-tetris" title="Fullscreen">⛶ Fullscreen</button></div>
       <div style="display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
         <!-- P1 -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -3886,7 +3885,7 @@
     </div>
 
     <div id="bm-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="bm-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div class="dz-topbar"><button id="bm-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button><button class="dz-fs-btn" data-screen="screen-bomberman" title="Fullscreen">⛶ Fullscreen</button></div>
       <div style="display:flex;justify-content:center;gap:40px;margin-bottom:8px;font-size:0.9rem;">
         <span style="color:#00e5ff;font-weight:700;">🔵 Player 1 <span id="bm-score-p1">⭐ 0</span></span>
         <span style="color:#f50057;font-weight:700;" id="bm-p2-name">🔴 Player 2</span>
@@ -3894,6 +3893,7 @@
       </div>
       <div style="display:flex;justify-content:center;">
         <canvas id="bm-canvas" style="border:1.5px solid rgba(255,109,0,0.3);border-radius:6px;max-width:100%;"></canvas>
+      <div id="bm-mobile-controls"></div>
       </div>
       <div style="text-align:center;margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.3);">P1: WASD + Space · P2: Arrows + Enter</div>
       <div id="bm-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
@@ -3957,7 +3957,7 @@
     </div>
 
     <div id="dg-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="dg-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div class="dz-topbar"><button id="dg-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button><button class="dz-fs-btn" data-screen="screen-drawguess" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <!-- Word picker overlay -->
       <div id="dg-word-picker" style="text-align:center;padding:20px;">
@@ -4064,13 +4064,14 @@
     </div>
 
     <div id="pr-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="pr-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div class="dz-topbar"><button id="pr-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button><button class="dz-fs-btn" data-screen="screen-pixelracer" title="Fullscreen">⛶ Fullscreen</button></div>
       <div style="display:flex;justify-content:center;gap:40px;margin-bottom:8px;font-size:0.9rem;">
         <div style="color:#00e5ff;font-weight:700;">🔵 P1: <span id="pr-laps-p1">Lap 0/3</span></div>
         <div id="pr-p2-label" style="color:#f50057;font-weight:700;">🔴 P2: <span id="pr-laps-p2">Lap 0/3</span></div>
       </div>
       <div style="display:flex;justify-content:center;overflow:auto;">
         <canvas id="pr-canvas" style="border:1.5px solid rgba(0,230,118,0.3);border-radius:6px;max-width:100%;"></canvas>
+      <div id="pr-mobile-controls"></div>
       </div>
       <div style="text-align:center;margin-top:6px;font-size:0.7rem;color:rgba(255,255,255,0.3);">P1: Arrow keys · P2: WASD</div>
       <div id="pr-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
@@ -4128,7 +4129,7 @@
     </div>
 
     <div id="rd-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 16px;font-family:'Rajdhani',sans-serif;display:flex;flex-direction:column;align-items:center;">
-      <button id="rd-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;align-self:flex-start;">← Back</button>
+      <div class="dz-topbar"><button id="rd-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:12px;align-self:flex-start;">← Back</button><button class="dz-fs-btn" data-screen="screen-reaction" title="Fullscreen">⛶ Fullscreen</button></div>
 
       <!-- Scores -->
       <div style="display:flex;gap:40px;margin-bottom:16px;font-size:1rem;">
@@ -4207,7 +4208,7 @@
     </div>
 
     <div id="tw-play" class="hidden" style="background:#07080f;min-height:100vh;padding:10px 12px;font-family:'Rajdhani',sans-serif;">
-      <button id="tw-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button>
+      <div class="dz-topbar"><button id="tw-back-play" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.9rem;margin-bottom:6px;">← Back</button><button class="dz-fs-btn" data-screen="screen-towerwar" title="Fullscreen">⛶ Fullscreen</button></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
         <div style="color:#00e5ff;font-weight:700;">🔵 P1: <span id="tw-score-p1">0</span></div>
         <div id="tw-turn-indicator" style="font-family:'Orbitron',sans-serif;font-size:0.8rem;color:#fff;text-align:center;"></div>

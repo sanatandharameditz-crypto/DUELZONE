@@ -256,8 +256,8 @@
     if(BJ.mode!=='bot'||BJ.players[1].done||BJ.players[1].stood||BJ.players[1].bust) return;
     if(BJ.phase!=='playing') return;
     if(BJ.botTimer){clearTimeout(BJ.botTimer);BJ.botTimer=null;}
-    var delay={easy:1400,medium:900,hard:180}[BJ.diff]||900;
-    delay+=Math.random()*(BJ.diff==='hard'?80:350);
+    var delay={easy:1500,medium:950,hard:60}[BJ.diff]||950;
+    delay+=Math.random()*(BJ.diff==='hard'?30:380);
     BJ.botTimer=setTimeout(function(){
       if(BJ.over||BJ.roundOver) return;
       var p=BJ.players[1];
@@ -278,8 +278,9 @@
           if(pv<=8) shouldHit=true;
           else if(pv===9){shouldHit=(dUp>=3&&dUp<=6);}
           else if(pv===10){shouldHit=(dUp>=10);}
-          else if(pv<=12){shouldHit=(dUp<4||dUp>=7);}
+          else if(pv===12){shouldHit=(dUp<4||dUp>=7);}
           else if(pv<=16){shouldHit=(dUp>=7);}
+          else if(pv===17&&isSoft&&dUp>=10){shouldHit=true;}
           else shouldHit=false;
         }
       } else if(BJ.diff==='medium'){

@@ -27,9 +27,9 @@
     COMBO_WINDOW:85,
     PHYS_STEP:1000/60,
     BOT:{
-      easy:  {delay:55,noise:72,spd:3.8,miss:0.32},
-      medium:{delay:22,noise:28,spd:5.0,miss:0.12},
-      hard:  {delay:1, noise:1, spd:9.0,miss:0.001}
+      easy:  {delay:60,noise:80,spd:3.5,miss:0.35},
+      medium:{delay:25,noise:30,spd:5.0,miss:0.14},
+      hard:  {delay:0, noise:0, spd:12.0,miss:0.0}
     }
   };
 

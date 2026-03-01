@@ -525,13 +525,13 @@ var ck = (function () {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 7 = near-unbeatable)
+  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 10 = essentially unbeatable)
   // ─────────────────────────────────────────────────────────────
   function ckAIMoveHard() {
     var all = ckGetAllMoves(state.board, 2);
     var pool = all.captures.length > 0 ? all.captures : all.moves;
     if (!pool.length) return null;
-    var result = ckMinimax(state.board, 7, -Infinity, Infinity, true, 2);
+    var result = ckMinimax(state.board, 10, -Infinity, Infinity, true, 2);
     return result.move || pool[0];
   }
 

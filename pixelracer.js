@@ -95,7 +95,7 @@
     PR.players[1].name = PR.mode === 'bot' ? '🤖 Bot' : 'Player 2';
 
     // Adjust bot speed
-    var botSpeeds = { easy: 2.8, medium: 3.6, hard: 5.5 };
+    var botSpeeds = { easy: 2.6, medium: 3.5, hard: 7.0 };
     PR.players[1].maxSpeed = PR.mode === 'bot' ? (botSpeeds[PR.diff] || 3.6) : 4.0;
 
     el('pr-home').classList.add('hidden');
@@ -109,8 +109,64 @@
       PR.canvas = canvas; PR.ctx = canvas.getContext('2d');
     }
 
+    prBuildMobileControls();
     prUpdateHUD();
     PR.animFrame = requestAnimationFrame(prLoop);
+  }
+
+  // ── Mobile virtual controls ────────────────────────────────────
+  function prBuildMobileControls() {
+    var wrap = el('pr-mobile-controls');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    wrap.style.cssText = 'width:100%;display:flex;justify-content:space-around;align-items:center;padding:8px 0;user-select:none;-webkit-user-select:none;touch-action:none;';
+
+    function mkDpad(pid, color, keyMap) {
+      var container = document.createElement('div');
+      container.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+      var lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:Rajdhani,sans-serif;text-align:center;margin-bottom:2px;';
+      lbl.textContent = pid === 0 ? '🔵 P1 (ARROWS)' : '🔴 P2 (WASD)';
+      container.appendChild(lbl);
+
+      function mkBtn(arrow, keyName) {
+        var b = document.createElement('button');
+        b.style.cssText = 'width:52px;height:52px;background:rgba(255,255,255,0.08);border:1px solid ' + color + '55;border-radius:8px;color:' + color + ';font-size:1.3rem;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;';
+        b.textContent = arrow;
+        function dn(e){ e.preventDefault(); PR.keys[keyMap[keyName]] = true; }
+        function up(e){ e.preventDefault(); PR.keys[keyMap[keyName]] = false; }
+        b.addEventListener('pointerdown', dn);
+        b.addEventListener('pointerup', up);
+        b.addEventListener('pointercancel', up);
+        b.addEventListener('pointerleave', up);
+        return b;
+      }
+
+      var spacer = document.createElement('div');
+      spacer.style.cssText = 'width:52px;height:52px;';
+
+      var upRow = document.createElement('div');
+      upRow.style.cssText = 'display:flex;justify-content:center;gap:2px;';
+      upRow.appendChild(spacer.cloneNode()); upRow.appendChild(mkBtn('▲', 'up')); upRow.appendChild(spacer.cloneNode());
+
+      var midRow = document.createElement('div');
+      midRow.style.cssText = 'display:flex;gap:2px;';
+      midRow.appendChild(mkBtn('◀', 'left'));
+      midRow.appendChild(mkBtn('▼', 'down'));
+      midRow.appendChild(mkBtn('▶', 'right'));
+
+      container.appendChild(upRow);
+      container.appendChild(midRow);
+      return container;
+    }
+
+    var p1keys = { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight' };
+    var p2keys = { up:'w', down:'s', left:'a', right:'d' };
+
+    wrap.appendChild(mkDpad(0, '#00e5ff', p1keys));
+    if (PR.mode === 'pvp') {
+      wrap.appendChild(mkDpad(1, '#f50057', p2keys));
+    }
   }
 
   // ── Main loop ─────────────────────────────────────────────────
@@ -162,7 +218,7 @@
     if (bot.finished) return;
 
     // Look ahead: aim for waypoint after next for smoother lines on hard
-    var lookAhead = PR.diff === 'hard' ? 2 : 1;
+    var lookAhead = PR.diff === 'hard' ? 3 : 1;
     var wpIdx = (bot.checkpoint + lookAhead) % WAYPOINTS.length;
     var nextWP = WAYPOINTS[(bot.checkpoint + 1) % WAYPOINTS.length];
     var aimWP = WAYPOINTS[wpIdx];
@@ -170,14 +226,14 @@
     var dist = Math.sqrt(dx * dx + dy * dy);
     var targetAngle = Math.atan2(dx, -dy);
 
-    var steerFactor = PR.diff === 'hard' ? 3.0 : 1.5;
+    var steerFactor = PR.diff === 'hard' ? 6.0 : 1.5;
     var diff = targetAngle - bot.angle;
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
     bot.angle += Math.sign(diff) * Math.min(Math.abs(diff), bot.steer * dt * steerFactor);
 
     // Hard: never brake, full speed always
-    bot.speed = Math.min(bot.speed + bot.accel * dt * (PR.diff === 'hard' ? 2 : 1), bot.maxSpeed);
+    bot.speed = Math.min(bot.speed + bot.accel * dt * (PR.diff === 'hard' ? 4 : 1), bot.maxSpeed);
 
     var triggerDist = PR.diff === 'hard' ? 50 : 40;
     var distToNext = Math.sqrt(Math.pow(bot.x-nextWP.x,2)+Math.pow(bot.y-nextWP.y,2));

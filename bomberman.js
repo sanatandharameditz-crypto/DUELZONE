@@ -134,7 +134,83 @@
       canvas.height = ROWS * CELL;
       BM.canvas = canvas; BM.ctx = canvas.getContext('2d');
     }
+    bmBuildMobileControls();
     bmNewRound();
+  }
+
+  // ── Mobile virtual controls ────────────────────────────────────
+  function bmBuildMobileControls() {
+    var wrap = el('bm-mobile-controls');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    wrap.style.cssText = 'width:100%;max-width:' + (COLS * CELL) + 'px;margin:0 auto;display:flex;justify-content:space-around;align-items:center;padding:8px 0;user-select:none;-webkit-user-select:none;touch-action:none;';
+
+    function mkDpad(pid, color) {
+      var keys = pid === 0
+        ? { up:'W', down:'S', left:'A', right:'D', bomb:' ' }
+        : { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', bomb:'Enter' };
+      var label = pid === 0 ? ('🔵 P1') : (BM.mode === 'bot' ? null : '🔴 P2');
+      if (!label) return null;
+
+      var container = document.createElement('div');
+      container.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;';
+
+      var lbl = document.createElement('div');
+      lbl.className = 'dz-ctrl-label';
+      lbl.textContent = label;
+      container.appendChild(lbl);
+
+      function mkBtn(arrow, keyName, extraStyle) {
+        var b = document.createElement('button');
+        b.className = 'dz-dpad-btn';
+        b.textContent = arrow;
+        b.style.cssText = (extraStyle || '') + 'background:rgba(255,255,255,0.08);border:1px solid ' + color + '44;color:' + color + ';';
+        function press(e) { e.preventDefault(); keysDown[keyName] = true; }
+        function release(e) { e.preventDefault(); keysDown[keyName] = false; }
+        b.addEventListener('pointerdown', press);
+        b.addEventListener('pointerup', release);
+        b.addEventListener('pointercancel', release);
+        b.addEventListener('pointerleave', release);
+        return b;
+      }
+      function mkBombBtn() {
+        var b = document.createElement('button');
+        b.className = 'dz-action-btn';
+        b.textContent = '💣';
+        b.style.cssText = 'background:rgba(255,200,0,0.15);border:1px solid ' + color + '88;color:' + color + ';min-width:52px;height:52px;border-radius:8px;font-size:1.4rem;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;';
+        b.addEventListener('pointerdown', function(e){
+          e.preventDefault();
+          bmPlaceBomb(pid);
+        });
+        return b;
+      }
+
+      var upRow = document.createElement('div');
+      upRow.style.cssText = 'display:flex;justify-content:center;';
+      upRow.appendChild(mkBtn('▲', keys.up));
+
+      var midRow = document.createElement('div');
+      midRow.style.cssText = 'display:flex;gap:4px;align-items:center;';
+      midRow.appendChild(mkBtn('◀', keys.left));
+      midRow.appendChild(mkBombBtn());
+      midRow.appendChild(mkBtn('▶', keys.right));
+
+      var downRow = document.createElement('div');
+      downRow.style.cssText = 'display:flex;justify-content:center;';
+      downRow.appendChild(mkBtn('▼', keys.down));
+
+      container.appendChild(upRow);
+      container.appendChild(midRow);
+      container.appendChild(downRow);
+      return container;
+    }
+
+    var p1ctrl = mkDpad(0, '#00e5ff');
+    if (p1ctrl) wrap.appendChild(p1ctrl);
+    if (BM.mode === 'pvp') {
+      var p2ctrl = mkDpad(1, '#f50057');
+      if (p2ctrl) wrap.appendChild(p2ctrl);
+    }
   }
 
   function bmNewRound() {
@@ -350,12 +426,12 @@
   // ── Bot AI ────────────────────────────────────────────────────
   function bmBotSchedule() {
     if (BM.over || !BM.players[1].alive) return;
-    var delay = { easy: 600, medium: 350, hard: 80 }[BM.diff] || 350;
+    var delay = { easy: 700, medium: 380, hard: 25 }[BM.diff] || 380;
     BM.botTimer = setTimeout(function () {
       if (BM.over || !BM.players[1].alive) return;
       bmBotAct();
       bmBotSchedule();
-    }, delay + Math.random() * (BM.diff === 'hard' ? 40 : 200));
+    }, delay + Math.random() * (BM.diff === 'hard' ? 8 : 220));
   }
 
   // Check if a cell is dangerous (flame or bomb blast radius)
