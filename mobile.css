@@ -120,11 +120,25 @@
 #dz-game-area {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   position: relative;
+  min-height: 0;
+}
+
+/* Game screen moved inside wrapper fills the area completely */
+#dz-game-area > [id^="screen-"] {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #dz-universal-controls {
