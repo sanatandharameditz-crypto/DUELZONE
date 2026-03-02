@@ -8569,3 +8569,136 @@ body.light-mode {
     width: 100% !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   DuelZone · Mobile System Base Styles (added to style.css)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Fix arena grid to be 2 columns even on medium-small screens */
+@media (max-width: 560px) {
+  #arena-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+    padding: 0 4px;
+  }
+  .arena-card .card-inner {
+    padding: 14px 12px 12px;
+  }
+  .arena-card .card-title {
+    font-size: 0.78rem;
+  }
+  .arena-card .card-desc {
+    font-size: 0.66rem;
+  }
+}
+
+/* Very small screens — single column hub */
+@media (max-width: 320px) {
+  #arena-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Make game screens take full height */
+[id^="screen-"]:not(#screen-hub) {
+  min-height: 100dvh;
+  box-sizing: border-box;
+}
+
+/* Universal wrapper fullscreen overrides */
+#dz-universal-wrapper:fullscreen,
+#dz-universal-wrapper:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure all game play areas center their content */
+[id$="-play-panel"],
+[id$="-play"] {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Touch-optimized back buttons */
+.ghp-back-hub,
+.ghp-back-v2,
+.ghp-back-game {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Hub screen base on mobile - no horizontal overflow */
+#screen-hub {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Territory / Checkers canvas centering */
+#territory-canvas,
+#checkers-canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Tanks canvas - always centered */
+#tanks-canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Score display in HUDs should not overflow */
+#tanks-p1-hud span,
+#tanks-p2-hud span {
+  white-space: nowrap;
+}
+
+/* Minesweeper grid — scroll on tiny screens */
+#mine-grid-p1,
+#mine-grid-p2 {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  display: grid;
+}
+
+/* Make mine cells use full available space */
+.mine-cell {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Draw & Guess canvas touch */
+#dg-canvas {
+  touch-action: none;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+/* Space Dodge joystick centered */
+#sd-joystick-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ping pong mobile controls centered */
+#pp-mobile-controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+/* Prevent horizontal scroll on mobile */
+body, #screen-hub, [id^="screen-"] {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
