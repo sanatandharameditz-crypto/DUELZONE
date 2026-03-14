@@ -16,6 +16,12 @@
 
   var GRID_W = 16, GRID_H = 12;
   var CELL   = 38;
+
+  function calcCellSize() {
+    var availW = Math.floor((window.innerWidth  - 16) / GRID_W);
+    var availH = Math.floor((window.innerHeight - 155) / GRID_H);
+    CELL = Math.max(18, Math.min(48, availW, availH));
+  }
   var EMPTY  = 0, P1 = 1, P2 = 2;
 
   var TW = {
@@ -24,6 +30,7 @@
     scores: [0, 0],
     botTimer: null,
     _wired: false,
+    cursor: { r: 0, c: 0 },   // joystick-driven grid cursor
   };
 
   window.territoryInit    = function () { if (!TW._wired) { twWireUI(); TW._wired = true; } twShowHome(); };
@@ -35,12 +42,14 @@
 
   function twShowHome() {
     twStop();
+    window.scrollTo(0, 0);
     el('tw-home').classList.remove('hidden');
     el('tw-play').classList.add('hidden');
+    var backBtn = el('tw-back-play'); if (backBtn) backBtn.style.display = 'none';
   }
 
   function twWireUI() {
-    on('tw-back-hub',   function () { twStop(); showHub(); });
+    on('tw-back-hub',   function () { twStop(); showHub(); if (typeof window.dzCheckOrientation==='function') window.dzCheckOrientation(); });
     on('tw-back-play',  function () { twStop(); twShowHome(); });
     on('tw-again',      function () { twStartGame(); });
     on('tw-result-hub', function () { twStop(); showHub(); });
@@ -97,14 +106,26 @@
     TW.grid  = makeGrid();
     TW.turn  = 1;
     TW.scores = [countCells(P1), countCells(P2)];
+    window.scrollTo(0, 0);
 
     el('tw-home').classList.add('hidden');
-    el('tw-play').classList.remove('hidden');
+    var playEl = el('tw-play');
+    if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
     el('tw-result').classList.add('hidden');
+    var backBtn = el('tw-back-play'); if (backBtn) backBtn.style.display = 'block';
+    calcCellSize();
 
     setText('tw-p2-name', TW.mode === 'bot' ? '🤖 Bot' : 'Player 2');
+
+    // Place cursor on first capturable cell for current player
+    TW.cursor = twFindFirstCapturableCell(TW.turn) || { r: 0, c: 0 };
+
     twRenderGrid();
     twUpdateUI();
+
+    // Request landscape orientation when game starts
+    if (typeof window.dzLockLandscape    === 'function') window.dzLockLandscape();
+    if (typeof window.dzCheckOrientation === 'function') window.dzCheckOrientation();
   }
 
   // ── Render ────────────────────────────────────────────────────
@@ -115,18 +136,24 @@
     container.style.gridTemplateColumns = 'repeat(' + GRID_W + ', ' + CELL + 'px)';
     container.style.gridTemplateRows    = 'repeat(' + GRID_H + ', ' + CELL + 'px)';
 
+    var isCursorActive = !TW.over && !(TW.mode === 'bot' && TW.turn === P2);
+
     for (var r = 0; r < GRID_H; r++) {
       for (var c = 0; c < GRID_W; c++) {
         (function (row, col) {
           var cell  = document.createElement('div');
           var owner = TW.grid[row][col];
+          var isCapturable = !TW.over && owner === EMPTY && isAdjacent(row, col, TW.turn);
+          var isCursor     = isCursorActive && TW.cursor.r === row && TW.cursor.c === col;
+
           cell.className = 'tw-cell';
           if      (owner === P1) { cell.className += ' tw-cell-p1'; }
           else if (owner === P2) { cell.className += ' tw-cell-p2'; }
-          else if (!TW.over && isAdjacent(row, col, TW.turn)) {
+          else if (isCapturable) {
             cell.className  += ' tw-cell-capturable';
             cell.style.cursor = 'pointer';
           }
+
           cell.addEventListener('click', function () { twClickCell(row, col); });
           container.appendChild(cell);
         })(r, c);
@@ -151,6 +178,11 @@
 
     twCapture(row, col, TW.turn);
     twUpdateScores();
+
+    // Move cursor to next capturable cell after claiming
+    var next = twFindFirstCapturableCell(TW.turn);
+    if (next) TW.cursor = next;
+
     twRenderGrid();
     twUpdateUI();
 
@@ -232,8 +264,13 @@
   function twEndTurn() {
     if (TW.over) return;
     TW.turn = TW.turn === P1 ? P2 : P1;
+
+    // Move cursor to first capturable cell for new player
+    TW.cursor = twFindFirstCapturableCell(TW.turn) || TW.cursor;
+
     twUpdateUI();
     twRenderGrid();
+    
 
     // FIX: immediately check if the player whose turn just started has any moves
     if (twCheckEndConditions()) return;
@@ -273,6 +310,8 @@
 
     var total = GRID_W * GRID_H;
     setText('tw-total', TW.scores[0] + TW.scores[1] + '/' + total + ' cells claimed');
+
+    
   }
 
   // ── End game ──────────────────────────────────────────────────
@@ -386,8 +425,8 @@
     }
 
     if (depth === 0 || moves.length === 0) {
-      var p2score = twCountCellsInGrid(grid, P2) + twCountCellsInGrid(grid, K2||P2);
-      var p1score = twCountCellsInGrid(grid, P1) + twCountCellsInGrid(grid, K1||P1);
+      var p2score = twCountCellsInGrid(grid, P2);
+      var p1score = twCountCellsInGrid(grid, P1);
       return { score: p2score - p1score, move: null };
     }
 
@@ -450,5 +489,16 @@
     score -= (Math.abs(row - GRID_H/2) + Math.abs(col - GRID_W/2)) * 0.05;
     return score;
   }
+
+  // ── Helper: find first capturable cell for a player ──────────
+  function twFindFirstCapturableCell(player) {
+    for (var r = 0; r < GRID_H; r++) {
+      for (var c = 0; c < GRID_W; c++) {
+        if (TW.grid[r][c] === EMPTY && isAdjacent(r, c, player)) return { r: r, c: c };
+      }
+    }
+    return null;
+  }
+
 
 })();

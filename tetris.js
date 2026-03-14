@@ -8,7 +8,25 @@
   'use strict';
 
   var COLS = 10, ROWS = 20;
-  var CELL = 28; // px per cell
+  var CELL = 28; // px per cell — recalculated by calcCell() at game start
+
+  function calcCell() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var isLandscape = vw > vh && vh < 520;
+    var cellByW, cellByH;
+    if (isLandscape) {
+      // Two boards side by side — each board is COLS wide
+      // Reserve 8px gutters: (vw - 32) / (COLS * 2 + gap_cols)
+      cellByW = Math.floor((vw - 40) / (COLS * 2 + 2));
+      // Height: full vh minus HUD(44px) + topbar
+      cellByH = Math.floor((vh - 56) / ROWS);
+    } else {
+      // Portrait: boards stack side by side, fit in half screen width
+      cellByW = Math.floor((vw - 32) / (COLS * 2 + 2));
+      cellByH = Math.floor((vh * 0.7) / ROWS);
+    }
+    CELL = Math.max(16, Math.min(28, cellByW, cellByH));
+  }
 
   var PIECES = [
     { shape: [[1,1,1,1]],                         color: '#00e5ff' }, // I
@@ -41,8 +59,10 @@
 
   function tbShowHome() {
     tbStop();
+    window.scrollTo(0, 0);
     el('tetris-home').classList.remove('hidden');
     el('tetris-play').classList.add('hidden');
+    var backBtn = el('tetris-back-play'); if (backBtn) backBtn.style.display = 'none';
   }
 
   function tbWireUI() {
@@ -206,7 +226,9 @@
       tbDraw(pid);
     } else if (dy > 0) {
       lock(pid);
-      if (p.lost) { tbEndGame(1 - pid); }
+      if (p.lost) { tbEndGame(1 - pid); return; }
+      // Check if both lost (edge case)
+      if (TB.players[0].lost && TB.players[1].lost) { tbEndGame(-1); return; }
     }
   }
 
@@ -237,16 +259,20 @@
   function tbStartGame() {
     tbStop();
     TB.over = false;
+    window.scrollTo(0, 0);
 
     el('tetris-home').classList.add('hidden');
-    el('tetris-play').classList.remove('hidden');
+    var playEl = el('tetris-play');
+    if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
     el('tetris-result').classList.add('hidden');
+    var backBtn = el('tetris-back-play'); if (backBtn) backBtn.style.display = 'block';
 
     var p2name = TB.mode === 'bot' ? '🤖 Bot' : 'Player 2';
     var p2label = el('tetris-p2-label');
     if (p2label) p2label.textContent = p2name;
 
     // Init canvases
+    calcCell();
     TB.players.forEach(function (p, i) {
       p.board = makeBoard();
       p.piece = randomPiece();
@@ -326,25 +352,40 @@
 
   function tbBotMove() {
     var p = TB.players[1];
-    if (!p.piece) return;
-    // Simple: find best column to drop current piece
+    if (!p.piece || p.lost || TB.over) return;
+
+    // Find best (rotation, column) by exhaustive search
     var best = { score: -Infinity, x: p.piece.x, rotations: 0 };
-    var testPiece = { shape: p.piece.shape.map(function (r) { return r.slice(); }), x: p.piece.x, y: p.piece.y, color: p.piece.color };
+    var testShape = p.piece.shape.map(function (r) { return r.slice(); });
 
     for (var rot = 0; rot < 4; rot++) {
       for (var col = -2; col < COLS; col++) {
-        var tp = { shape: testPiece.shape, x: col, y: 0, color: testPiece.color };
+        var tp = { shape: testShape.map(function(r){ return r.slice(); }), x: col, y: 0, color: p.piece.color };
         if (collides(p.board, tp, 0, 0)) continue;
         // Drop
         while (!collides(p.board, tp, 0, 1)) tp.y++;
         var sc = evalBoard(p.board, tp);
         if (sc > best.score) { best = { score: sc, x: col, rotations: rot }; }
       }
-      testPiece.shape = rotate(testPiece.shape);
+      testShape = rotate(testShape);
     }
 
-    // Apply best rotations and x
-    for (var r = 0; r < best.rotations; r++) tbRotate(1);
+    // HARD MODE: execute the entire move instantly (aimbot mode)
+    if (TB.diff === 'hard') {
+      // Apply rotations directly
+      for (var ri = 0; ri < best.rotations; ri++) tbRotate(1);
+      // Move to target column directly
+      var maxSteps = COLS + 4;
+      while (p.piece.x < best.x && maxSteps-- > 0) tbMove(1, 1, 0);
+      maxSteps = COLS + 4;
+      while (p.piece.x > best.x && maxSteps-- > 0) tbMove(1, -1, 0);
+      // Instantly hard-drop
+      tbHardDrop(1);
+      return;
+    }
+
+    // EASY / MEDIUM: move one step at a time (gradual)
+    for (var r2 = 0; r2 < best.rotations; r2++) tbRotate(1);
     if (p.piece.x < best.x) tbMove(1, 1, 0);
     else if (p.piece.x > best.x) tbMove(1, -1, 0);
     else tbMove(1, 0, 1);
@@ -460,8 +501,13 @@
     if (TB.over) return;
     tbStop();
     var names = ['Player 1', TB.mode === 'bot' ? 'Bot' : 'Player 2'];
-    el('tetris-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
-    el('tetris-result-detail').textContent = 'Scores: P1 ' + TB.players[0].score + ' | ' + names[1] + ' ' + TB.players[1].score;
+    if (winner === -1) {
+      el('tetris-result-title').textContent = '🤝 Draw!';
+      el('tetris-result-detail').textContent = 'Both players topped out simultaneously!';
+    } else {
+      el('tetris-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
+      el('tetris-result-detail').textContent = 'Scores: P1 ' + TB.players[0].score + ' | ' + names[1] + ' ' + TB.players[1].score;
+    }
     el('tetris-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
   }

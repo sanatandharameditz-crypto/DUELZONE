@@ -525,13 +525,14 @@ var ck = (function () {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 10 = essentially unbeatable)
+  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 12 = essentially unbeatable)
   // ─────────────────────────────────────────────────────────────
   function ckAIMoveHard() {
     var all = ckGetAllMoves(state.board, 2);
     var pool = all.captures.length > 0 ? all.captures : all.moves;
     if (!pool.length) return null;
-    var result = ckMinimax(state.board, 10, -Infinity, Infinity, true, 2);
+    // Use depth 12 for near-perfect play — captures searched deeper via quiescence
+    var result = ckMinimax(state.board, 12, -Infinity, Infinity, true, 2);
     return result.move || pool[0];
   }
 
@@ -581,35 +582,39 @@ var ck = (function () {
         var v = board[r][c];
         if (v === P2) {
           score += 100;
-          // Advancement bonus
-          score += (7 - r) * 5;
+          // FIX: P2 moves toward higher rows (row 7 = king row). Higher row = more advanced = better.
+          score += r * 5;
           // Center control
           if (c >= 2 && c <= 5 && r >= 3 && r <= 4) score += 15;
-          // Edge penalty
+          // Edge penalty (both players penalized for edges)
           if (c === 0 || c === 7) score -= 8;
           p2pieces++;
         } else if (v === K2) {
-          score += 280;
+          score += 300;
           // Kings prefer center
-          score += (3 - Math.abs(r-3.5)) * 8;
-          score += (3 - Math.abs(c-3.5)) * 8;
+          score += (3 - Math.abs(r-3.5)) * 10;
+          score += (3 - Math.abs(c-3.5)) * 10;
           p2pieces++;
         } else if (v === P1) {
           score -= 100;
-          score -= r * 5;
+          // P1 moves toward lower rows (row 0 = king row). Lower row = more advanced.
+          score -= (7 - r) * 5;
           if (c >= 2 && c <= 5 && r >= 3 && r <= 4) score -= 15;
           if (c === 0 || c === 7) score += 8;
           p1pieces++;
         } else if (v === K1) {
-          score -= 280;
-          score -= (3 - Math.abs(r-3.5)) * 8;
-          score -= (3 - Math.abs(c-3.5)) * 8;
+          score -= 300;
+          score -= (3 - Math.abs(r-3.5)) * 10;
+          score -= (3 - Math.abs(c-3.5)) * 10;
           p1pieces++;
         }
       }
     }
-    // Bonus for being ahead in pieces (endgame weight)
-    score += (p2pieces - p1pieces) * 30;
+    // Strong bonus for piece advantage (endgame weight)
+    score += (p2pieces - p1pieces) * 50;
+    // Win/loss detection
+    if (p1pieces === 0) score += 10000;
+    if (p2pieces === 0) score -= 10000;
     return score;
   }
 
@@ -713,6 +718,7 @@ var ck = (function () {
 
     panel.classList.remove('ck-hidden');
     ckAnimateResult(isP1Win || state.gameMode === 'pvp');
+
   }
 
   // ─────────────────────────────────────────────────────────────

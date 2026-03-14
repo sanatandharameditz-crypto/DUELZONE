@@ -627,6 +627,30 @@ var bs = (function () {
     return best.length ? best[Math.floor(Math.random() * best.length)] : bsPickRandom();
   }
 
+  // ─── AI HARD — GOD MODE: reads actual ship positions ──────────
+  // The hard AI directly targets player1's unsunk ship cells in order.
+  // This makes hard mode essentially impossible to win against.
+  function bsAIShotGodMode() {
+    // Find all unsunk ship cells that haven't been shot yet
+    var unshot = [];
+    for (var i = 0; i < state.player1Ships.length; i++) {
+      var ship = state.player1Ships[i];
+      if (ship.sunk) continue;
+      for (var j = 0; j < ship.cells.length; j++) {
+        var r = ship.cells[j][0], c = ship.cells[j][1];
+        if (!wasShot(state.player2Shots, r, c)) {
+          unshot.push([r, c]);
+        }
+      }
+    }
+    if (unshot.length > 0) {
+      // Pick one of the ship cells - randomize slightly for realism
+      return unshot[Math.floor(Math.random() * Math.min(3, unshot.length))];
+    }
+    // Fallback (all ships sunk) - should not reach here
+    return bsPickRandom();
+  }
+
   // ─── AI MAIN DISPATCHER ───────────────────────────────────────
   function bsAIShot() {
     if (state.gamePhase !== 'battle' || state.gameOver) return;
@@ -634,7 +658,7 @@ var bs = (function () {
     var target;
     if (state.difficulty === 'easy')   target = bsPickRandom();
     if (state.difficulty === 'medium') target = bsAIShotMedium();
-    if (state.difficulty === 'hard')   target = bsAIShotHard();
+    if (state.difficulty === 'hard')   target = bsAIShotGodMode();
 
     if (!target) return;
     var r = target[0], c = target[1];

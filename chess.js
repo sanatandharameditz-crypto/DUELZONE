@@ -1050,6 +1050,22 @@
    */
   function getBestMove(state, depth) {
     var isMax  = (state.turn === COLOR.WHITE);
+    // For deep searches (depth >= 5), use iterative deepening with time limit
+    if (depth >= 5) {
+      var timeLimit = 800; // capped at 800ms so it feels responsive
+      var startTime = Date.now();
+      var bestResult = null;
+      var maxDepth = Math.min(depth, 4); // cap at depth 4 for mobile performance
+      // Iterative deepening: search at increasing depths
+      for (var d = 2; d <= maxDepth; d++) {
+        if (Date.now() - startTime > timeLimit) break;
+        var r = minimax(state, d, -Infinity, Infinity, isMax);
+        if (r && r.move) bestResult = r;
+        // If we found a forced mate, stop early
+        if (bestResult && Math.abs(bestResult.score) > 900000) break;
+      }
+      return bestResult ? (bestResult.move || null) : null;
+    }
     var result = minimax(state, depth || 3, -Infinity, Infinity, isMax);
     return result.move || null;
   }
@@ -1068,31 +1084,36 @@
   /** Undo the last move. Returns true if successful. */
   ChessState.prototype.undoMove = function () {
     if (this.moveHistory.length === 0) return false;
-    // We stored FEN in each move record — reload from previous FEN
+
+    // BUG 2 FIX: loadFEN() resets moveHistory to [] internally, so we must
+    // capture the trimmed history BEFORE calling loadFEN, not after.
     var prevFenIdx = this.moveHistory.length - 1;
-    var prevFen = prevFenIdx > 0 ? this.moveHistory[prevFenIdx - 1].fen : null;
-    this.moveHistory.pop();
+    var prevFen    = prevFenIdx > 0 ? this.moveHistory[prevFenIdx - 1].fen : null;
+
+    // Slice off the last entry BEFORE loadFEN so the saved array is correct
+    var restoredHistory = this.moveHistory.slice(0, prevFenIdx);
+
     this.positionHistory.pop();
-    this.gameOver = false;
-    this.winner = null;
+    this.gameOver       = false;
+    this.winner         = null;
     this.gameOverReason = null;
+
     if (prevFen) {
       this.loadFEN(prevFen);
-      // Restore move history pointer (loadFEN resets it)
-      var savedHistory = this.moveHistory.slice();
-      this.moveHistory = savedHistory;
+      // Restore the trimmed history (loadFEN wiped it to [])
+      this.moveHistory = restoredHistory;
     } else {
       // Undo to start position
       this.board = createEmptyBoard();
       setupStartPosition(this.board);
-      this.turn = COLOR.WHITE;
-      this.castlingRights = { wK:true, wQ:true, bK:true, bQ:true };
+      this.turn            = COLOR.WHITE;
+      this.castlingRights  = { wK:true, wQ:true, bK:true, bQ:true };
       this.enPassantTarget = null;
-      this.halfMoveClock = 0;
-      this.fullMoveNumber = 1;
-      this.capturedPieces = { w:[], b:[] };
+      this.halfMoveClock   = 0;
+      this.fullMoveNumber  = 1;
+      this.capturedPieces  = { w:[], b:[] };
       this.positionHistory = [this._positionKey()];
-      this.moveHistory = [];
+      this.moveHistory     = [];
     }
     return true;
   };
@@ -1627,13 +1648,24 @@
   function chessScheduleBotMove() {
     chess.botThinking = true;
     chessUpdateStatus();
-    var delay = 350 + Math.random() * 350;
+    // Reduce UI delay for deep calculations since the search itself takes time
+    var delay = chess.botDepth >= 5 ? 150 : 350 + Math.random() * 350;
     chess._botTimeout = setTimeout(function () {
-      chess.botThinking = false;
-      if (!chess.state || chess.state.gameOver) return;
-      var mv = getBestMove(chess.state, chess.botDepth);
-      if (mv) {
-        chessExecuteMove(mv.fr, mv.fc, mv.tr, mv.tc, mv.promo);
+      // Wrap in try/catch so errors don't freeze the game
+      try {
+        var mv = getBestMove(chess.state, chess.botDepth);
+        chess.botThinking = false;
+        if (!chess.state || chess.state.gameOver) return;
+        if (mv) {
+          chessExecuteMove(mv.fr, mv.fc, mv.tr, mv.tc, mv.promo);
+        } else {
+          // No valid move found — game should already be over
+          chessUpdateStatus();
+        }
+      } catch(e) {
+        chess.botThinking = false;
+        console.warn('[Chess] Bot error:', e);
+        chessUpdateStatus();
       }
     }, delay);
   }
@@ -1668,6 +1700,7 @@
       if (chessResultTitle)  chessResultTitle.textContent  = title;
       if (chessResultDetail) chessResultDetail.textContent = detail;
       if (chessResultEl)     chessResultEl.classList.remove('hidden');
+
     }, 400);
   }
 

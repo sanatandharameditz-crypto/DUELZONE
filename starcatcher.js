@@ -68,8 +68,10 @@
     // Touch input: if a touch is active on this player's side, drive toward it
     var tx=touchX[pl.side==='left'?'p1':'p2'];
     if(tx!==null){
-      // Map canvas-pixel X to logical coordinate
-      var scale=CFG.W/(canvas.getBoundingClientRect().width||CFG.W);
+      // BUG 7 FIX: use _cachedCanvasRect (set once per physicsStep) instead of
+      // calling getBoundingClientRect() here — avoids 120 forced reflows/sec.
+      var rectW = (_cachedCanvasRect && _cachedCanvasRect.width) ? _cachedCanvasRect.width : CFG.W;
+      var scale = CFG.W / rectW;
       var logicX=tx*scale;
       // Drive basket center toward touch X
       var cx=pl.x+CFG.BASKET_W*0.5;
@@ -245,8 +247,17 @@
   }
 
   // ── Physics step ─────────────────────────────────────────
+  // BUG 7 FIX: Cache canvas bounding rect once per physics tick.
+  // getBoundingClientRect() is expensive (forces layout reflow). Calling it
+  // inside moveBasket() at 60fps × 2 players = 120 forced reflows/sec on mobile.
+  // We cache it here and moveBasket reads the module-level var instead.
+  var _cachedCanvasRect = null;
+
   function physicsStep(){
     if(gameState!=='playing')return;
+
+    // Refresh the canvas rect cache once per physics step (cheap: one reflow/frame max)
+    _cachedCanvasRect = canvas ? canvas.getBoundingClientRect() : null;
 
     // Wave escalation
     waveTimer++;
@@ -506,6 +517,7 @@
       if(typeof SoundManager!=='undefined')SoundManager.win&&SoundManager.win();
     }
     el.classList.remove('hidden');
+
   }
 
   // ── Start game ────────────────────────────────────────────
@@ -530,6 +542,10 @@
     if(home)home.classList.add('hidden');
     if(res)res.classList.add('hidden');
     if(play){play.classList.remove('hidden');play.style.display='flex';}
+
+    // Show/hide P2 mobile controls based on mode
+    var p2Btns=document.getElementById('sc-p2-mobile-btns');
+    if(p2Btns) p2Btns.style.display=isBot?'none':'flex';
 
     updateHUD();
     lastTime=performance.now();accum=0;
@@ -560,8 +576,19 @@
   // ── Canvas resize ─────────────────────────────────────────
   function resizeCanvas(){
     if(!canvas)return;
-    var maxW=Math.min(window.innerWidth-16,CFG.W);
-    var scale=maxW/CFG.W;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var isLandscape = vw > vh && vh < 520;
+    var scale;
+    if(isLandscape){
+      // Reserve ~44px for HUD bar
+      var availH = vh - 52;
+      var scaleH  = availH / CFG.H;
+      var scaleW  = (vw - 8) / CFG.W;
+      scale = Math.min(scaleH, scaleW, 1);
+    } else {
+      scale = Math.min((vw - 16) / CFG.W, 1);
+    }
+    scale = Math.max(scale, 0.3);
     canvas.style.width=Math.round(CFG.W*scale)+'px';
     canvas.style.height=Math.round(CFG.H*scale)+'px';
   }
@@ -572,42 +599,44 @@
    * On touchmove/touchstart, record X position for each half.
    * basket moveBasket() reads touchX[side] and drives toward it.
    */
-  function canvasX(touch){
-    var rect=canvas.getBoundingClientRect();
-    // Return X in canvas CSS pixels (relative to canvas left edge)
+  function canvasX(touch, rect){
+    // rect passed in to avoid duplicate getBoundingClientRect calls
     return touch.clientX - rect.left;
   }
 
   function onTouchStart(e){
     e.preventDefault();
+    var rect=canvas.getBoundingClientRect();
+    var half=rect.width*0.5;
     for(var i=0;i<e.changedTouches.length;i++){
       var t=e.changedTouches[i];
-      var cx=canvasX(t);
-      var half=canvas.getBoundingClientRect().width*0.5;
+      var cx=canvasX(t, rect);
       if(cx<=half) touchX.p1=cx;
       else          touchX.p2=cx;
     }
   }
   function onTouchMove(e){
     e.preventDefault();
+    var rect=canvas.getBoundingClientRect();
+    var half=rect.width*0.5;
     for(var i=0;i<e.changedTouches.length;i++){
       var t=e.changedTouches[i];
-      var cx=canvasX(t);
-      var half=canvas.getBoundingClientRect().width*0.5;
+      var cx=canvasX(t, rect);
       if(cx<=half) touchX.p1=cx;
       else          touchX.p2=cx;
     }
   }
   function onTouchEnd(e){
     e.preventDefault();
+    var rect=canvas.getBoundingClientRect();
+    var half=rect.width*0.5;
     for(var i=0;i<e.changedTouches.length;i++){
       var t=e.changedTouches[i];
-      var cx=canvasX(t);
-      var half=canvas.getBoundingClientRect().width*0.5;
+      var cx=canvasX(t, rect);
       // Only clear if no other touch in same half remains
       var hasLeft=false,hasRight=false;
       for(var j=0;j<e.touches.length;j++){
-        var tx=canvasX(e.touches[j]);
+        var tx=canvasX(e.touches[j], rect);
         if(tx<=half)hasLeft=true; else hasRight=true;
       }
       if(!hasLeft)  touchX.p1=null;
@@ -645,13 +674,73 @@
       window._scWired = true;
     }
 
+    // ── Wire joystick controls (horizontal-only, maps to A/D and J/L) ──
+    function wireScJoystick(baseId, knobId, leftKey, rightKey) {
+      var base = document.getElementById(baseId);
+      var knob = document.getElementById(knobId);
+      if (!base || !knob || base.__scJoyWired) return;
+      base.__scJoyWired = true;
+
+      var RADIUS = 32; // max knob travel (px)
+      var DEAD   = 0.25; // deadzone fraction of RADIUS
+      var active = false, pointerId = -1, startX = 0;
+
+      function setKeys(dx) {
+        var n = dx / RADIUS; // -1 .. +1
+        keys[leftKey]  = n < -DEAD;
+        keys[rightKey] = n >  DEAD;
+        // move knob visually
+        var clamped = Math.max(-RADIUS, Math.min(RADIUS, dx));
+        knob.style.transform = 'translate(calc(-50% + '+clamped+'px), -50%)';
+        // glow feedback
+        var glow = Math.abs(n) > DEAD ? 1 : 0.3;
+        knob.style.opacity = 0.6 + 0.4 * glow;
+      }
+
+      function reset() {
+        active = false; pointerId = -1;
+        keys[leftKey]  = false;
+        keys[rightKey] = false;
+        knob.style.transform = 'translate(-50%, -50%)';
+        knob.style.opacity = '1';
+      }
+
+      base.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        base.setPointerCapture(e.pointerId);
+        active = true; pointerId = e.pointerId;
+        startX = e.clientX;
+        setKeys(0);
+      }, {passive: false});
+
+      base.addEventListener('pointermove', function(e) {
+        if (!active || e.pointerId !== pointerId) return;
+        e.preventDefault();
+        setKeys(e.clientX - startX);
+      }, {passive: false});
+
+      base.addEventListener('pointerup',     function(e){ if(e.pointerId===pointerId) reset(); }, {passive:false});
+      base.addEventListener('pointercancel', function(e){ if(e.pointerId===pointerId) reset(); }, {passive:false});
+    }
+
+    wireScJoystick('sc-joy1','sc-joy1-knob','a','d');
+    wireScJoystick('sc-joy2','sc-joy2-knob','j','l');
+
+    // Show mobile controls on touch devices
+    var mobileCtrl=document.getElementById('sc-mobile-controls');
+    if(mobileCtrl && (('ontouchstart' in window)||navigator.maxTouchPoints>0)){
+      mobileCtrl.style.display='block';
+    }
+
     document.querySelectorAll('.sc-diff-btn').forEach(function(b){
+      if(b.__scDiffWired) return; b.__scDiffWired=true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.sc-diff-btn').forEach(function(x){x.classList.remove('active');});
         b.classList.add('active');botDiff=b.getAttribute('data-diff');
       });
     });
     document.querySelectorAll('.sc-time-btn').forEach(function(b){
+      if(b.__scTimeWired) return; b.__scTimeWired=true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.sc-time-btn').forEach(function(x){x.classList.remove('active');});
         b.classList.add('active');matchTime=+b.getAttribute('data-sec');

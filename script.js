@@ -36,18 +36,18 @@ var screenTanks        = document.getElementById('screen-tanks');
 var screenStarCatcher  = document.getElementById('screen-starcatcher');
 var screenSpaceDodge   = document.getElementById('screen-spacedodge');
 var screenPingPong     = document.getElementById('screen-pingpong');
-var screenSnake        = document.getElementById('screen-snake');
-var screenTyping       = document.getElementById('screen-typing');
 var screenMinesweeper  = document.getElementById('screen-minesweeper');
-var screenBlackjack    = document.getElementById('screen-blackjack');
 var screenTetris       = document.getElementById('screen-tetris');
 var screenBomberman    = document.getElementById('screen-bomberman');
-var screenDrawGuess    = document.getElementById('screen-drawguess');
-var screenPixelRacer   = document.getElementById('screen-pixelracer');
 var screenReaction     = document.getElementById('screen-reaction');
 var screenTerritory    = document.getElementById('screen-territory');
+// BUG 1 FIX: These screens were never added to ALL_SCREENS, so hideAllScreens()
+// never hid them — they would bleed through on top of the next game or hub.
+var screenLudo     = document.getElementById('screen-ludo');
+var screenSudoku   = document.getElementById('screen-sudoku');
+var screenCarrom   = document.getElementById('screen-carrom');
 
-var ALL_SCREENS = [screenHub, screenTTT, screenRPS, screenTap, screen2048, screenC4, screenCricket, screenAH, screenPB, screenChess, screenBattleship, screenCheckers, screenDarts, screenTanks, screenStarCatcher, screenSpaceDodge, screenPingPong, screenSnake, screenTyping, screenMinesweeper, screenBlackjack, screenTetris, screenBomberman, screenDrawGuess, screenPixelRacer, screenReaction, screenTerritory];
+var ALL_SCREENS = [screenHub, screenTTT, screenRPS, screenTap, screen2048, screenC4, screenCricket, screenAH, screenPB, screenChess, screenBattleship, screenCheckers, screenDarts, screenTanks, screenStarCatcher, screenSpaceDodge, screenPingPong, screenMinesweeper, screenTetris, screenBomberman, screenReaction, screenTerritory, screenLudo, screenSudoku, screenCarrom];
 // Note: screenMFD and screenCDD are push()ed to ALL_SCREENS
 // later in their respective sections once their vars are declared.
 
@@ -56,10 +56,46 @@ function hideAllScreens() {
 }
 
 function showHub() {
-  hideAllScreens();
-  screenHub.classList.remove('hidden');
-  SoundManager.backToHub();
-  window.scrollTo(0, 0);
+  // Hide all fixed play panels and back buttons (position:fixed elements escape parent hide)
+  ['mine-play','tetris-play','bm-play','rd-play',
+   'tw-play','sdk-play','carrom-play','ludo-play'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.classList.add('hidden');
+  });
+  ['mine-back-play','tetris-back-play','bm-back-play','rd-back-play',
+   'tw-back-play','sdk-back-play','carrom-back-play','ludo-back-play'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  // Restore body scroll
+  document.body.style.overflow = '';
+  document.body.style.overscrollBehavior = '';
+
+  // Show ad interstitial for 3 seconds, then navigate to hub
+  var adOverlay    = document.getElementById('dz-ad-interstitial');
+  var countdown    = document.getElementById('dz-ad-countdown');
+  var _doShowHub   = function() {
+    if (adOverlay) adOverlay.style.display = 'none';
+    hideAllScreens();
+    screenHub.classList.remove('hidden');
+    SoundManager.backToHub();
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  if (adOverlay) {
+    adOverlay.style.display = 'flex';
+    if (countdown) countdown.textContent = '3';
+    var _secs = 3;
+    var _tick = setInterval(function() {
+      _secs--;
+      if (countdown) countdown.textContent = _secs;
+      if (_secs <= 0) {
+        clearInterval(_tick);
+        _doShowHub();
+      }
+    }, 1000);
+  } else {
+    _doShowHub();
+  }
 }
 
 function showTTT() {
@@ -130,6 +166,17 @@ function showPB() {
   window.scrollTo(0, 0);
 }
 
+function showChess() {
+  hideAllScreens();
+  var sc = document.getElementById('screen-chess');
+  if (sc) sc.classList.remove('hidden');
+  var home = document.getElementById('chess-home');
+  var play = document.getElementById('chess-play-panel');
+  if (home) home.classList.remove('hidden');
+  if (play) play.classList.add('hidden');
+  window.scrollTo(0, 0);
+}
+
 function showBattleship() {
   hideAllScreens();
   screenBattleship.classList.remove('hidden');
@@ -185,19 +232,7 @@ function showPingPong() {
   window.scrollTo(0, 0);
 }
 
-function showSnake() {
-  hideAllScreens();
-  if (screenSnake) screenSnake.classList.remove('hidden');
-  if (typeof snakeInit === 'function') snakeInit();
-  window.scrollTo(0, 0);
-}
 
-function showTyping() {
-  hideAllScreens();
-  if (screenTyping) screenTyping.classList.remove('hidden');
-  if (typeof typingInit === 'function') typingInit();
-  window.scrollTo(0, 0);
-}
 
 function showMinesweeper() {
   hideAllScreens();
@@ -206,12 +241,7 @@ function showMinesweeper() {
   window.scrollTo(0, 0);
 }
 
-function showBlackjack() {
-  hideAllScreens();
-  if (screenBlackjack) screenBlackjack.classList.remove('hidden');
-  if (typeof blackjackInit === 'function') blackjackInit();
-  window.scrollTo(0, 0);
-}
+
 
 function showTetris() {
   hideAllScreens();
@@ -234,12 +264,7 @@ function showDrawGuess() {
   window.scrollTo(0, 0);
 }
 
-function showPixelRacer() {
-  hideAllScreens();
-  if (screenPixelRacer) screenPixelRacer.classList.remove('hidden');
-  if (typeof pixelracerInit === 'function') pixelracerInit();
-  window.scrollTo(0, 0);
-}
+
 
 function showReaction() {
   hideAllScreens();
@@ -252,6 +277,50 @@ function showTerritory() {
   hideAllScreens();
   if (screenTerritory) screenTerritory.classList.remove('hidden');
   if (typeof territoryInit === 'function') territoryInit();
+  window.scrollTo(0, 0);
+}
+
+function showLudo() {
+  // BUG 4 FIX: Cancel any running Ludo animation loop before navigating.
+  // The ludo-back-play handler already contains the cancelAnimationFrame logic —
+  // programmatically trigger it so the RAF is cleaned up properly.
+  var ludoBackBtn = document.getElementById('ludo-back-play');
+  if (ludoBackBtn) ludoBackBtn.click();
+  hideAllScreens();
+  var s = document.getElementById('screen-ludo');
+  if (s) {
+    s.classList.remove('hidden');
+    var home = document.getElementById('ludo-home');
+    var play = document.getElementById('ludo-play');
+    if (home) home.classList.remove('hidden');
+    if (play) play.classList.add('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+function showSudoku() {
+  hideAllScreens();
+  var s = document.getElementById('screen-sudoku');
+  if (s) {
+    s.classList.remove('hidden');
+    var home = document.getElementById('sdk-home');
+    var play = document.getElementById('sdk-play');
+    if (home) home.classList.remove('hidden');
+    if (play) play.classList.add('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+function showCarrom() {
+  hideAllScreens();
+  var s = document.getElementById('screen-carrom');
+  if (s) {
+    s.classList.remove('hidden');
+    var home = document.getElementById('carrom-home');
+    var play = document.getElementById('carrom-play');
+    if (home) home.classList.remove('hidden');
+    if (play) play.classList.add('hidden');
+  }
   window.scrollTo(0, 0);
 }
 
@@ -504,37 +573,32 @@ var SoundManager = (function() {
 
 // Wire up all back-to-hub buttons with sound
 document.addEventListener('DOMContentLoaded', function() {
-  // Mute toggle button if present
+  // Mute toggle — SVG icon version
   var muteBtn = document.getElementById('dz-mute-btn');
   if (muteBtn) {
     muteBtn.addEventListener('click', function() {
-      var m = SoundManager.toggleMute();
-      muteBtn.textContent = m ? '🔇' : '🔊';
-    });
-  }
-
-  // Dark/Light mode toggle
-  var themeBtn = document.getElementById('dz-theme-btn');
-  if (themeBtn) {
-    // Restore saved preference
-    var savedTheme = localStorage.getItem('dz-theme');
-    if (savedTheme === 'light') { document.body.classList.add('light-mode'); themeBtn.textContent = '☀️'; }
-    themeBtn.addEventListener('click', function() {
-      var isLight = document.body.classList.toggle('light-mode');
-      themeBtn.textContent = isLight ? '☀️' : '🌙';
-      localStorage.setItem('dz-theme', isLight ? 'light' : 'dark');
+      var isMuted = SoundManager.toggleMute();
+      muteBtn.classList.toggle('muted', isMuted);
+      var icon = document.getElementById('dz-mute-icon');
+      if (icon) {
+        icon.innerHTML = isMuted
+          ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+          : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/>';
+      }
     });
   }
 
   // Recently played
   dzUpdateRecentlyPlayed();
+  // Init saved games
+  dzInitSavedGames();
 });
 
 function dzTrackRecentGame(gameName, screen, accent) {
   try {
     var recent = JSON.parse(localStorage.getItem('dz-recent') || '[]');
     recent = recent.filter(function(g){ return g.screen !== screen; });
-    recent.unshift({ name: gameName, screen: screen, accent: accent || '#00e5ff' });
+    recent.unshift({ name: gameName, screen: screen, accent: accent || '#00e5ff', playedAt: Date.now() });
     recent = recent.slice(0, 4);
     localStorage.setItem('dz-recent', JSON.stringify(recent));
     dzUpdateRecentlyPlayed();
@@ -588,16 +652,15 @@ var GAMES = [
   { name: 'Star Catcher',        screen: 'starcatcher', url: null, accent: '#ffd600' },
   { name: 'Space Dodge',         screen: 'spacedodge',  url: null, accent: '#b400ff' },
   { name: 'Ping Pong',            screen: 'pingpong',    url: null, accent: '#00e5ff' },
-  { name: 'Snake Duel',           screen: 'snake',       url: null, accent: '#00e676' },
-  { name: 'Typing Race',          screen: 'typing',      url: null, accent: '#fbbf24' },
   { name: 'Minesweeper Duel',     screen: 'minesweeper', url: null, accent: '#ef4444' },
-  { name: 'Blackjack Duel',       screen: 'blackjack',   url: null, accent: '#a855f7' },
   { name: 'Tetris Battle',        screen: 'tetris',      url: null, accent: '#00e5ff' },
   { name: 'Bomberman Duel',       screen: 'bomberman',   url: null, accent: '#ff6d00' },
   { name: 'Draw and Guess',       screen: 'drawguess',   url: null, accent: '#f50057' },
-  { name: 'Pixel Racer',          screen: 'pixelracer',  url: null, accent: '#00e676' },
   { name: 'Reaction Duel',        screen: 'reaction',    url: null, accent: '#aa00ff' },
   { name: 'Territory Wars',       screen: 'territory',   url: null, accent: '#ffd600' },
+  { name: 'Ludo',                 screen: 'ludo',        url: null, accent: '#ff1744' },
+  { name: 'Sudoku',               screen: 'sudoku',      url: null, accent: '#6c63ff' },
+  { name: 'Carrom',               screen: 'carrom',      url: null, accent: '#ffab40' },
 ];
 
 var overlay    = document.getElementById('launch-overlay');
@@ -611,24 +674,76 @@ function findGame(name) {
 }
 
 function launchWithOverlay(gameName, accentColor) {
+  var progress = document.getElementById('launch-progress');
   overlay.style.setProperty('--launch-color', accentColor);
   launchGame.textContent = gameName.toUpperCase();
+  // Reset progress bar
+  if (progress) { progress.style.transition = 'none'; progress.style.width = '0%'; }
+  overlay.classList.remove('fade-out');
   overlay.classList.add('active');
   overlay.removeAttribute('aria-hidden');
-  console.log('%c[DuelZone] Launching: ' + gameName, 'color:' + accentColor + '; font-weight:bold;');
+
+  // Animate progress bar in steps
+  var steps = [
+    { pct: 25,  delay: 80  },
+    { pct: 55,  delay: 320 },
+    { pct: 78,  delay: 680 },
+    { pct: 92,  delay: 1100 },
+    { pct: 100, delay: 1550 },
+  ];
+  steps.forEach(function(s) {
+    setTimeout(function() {
+      if (progress) {
+        progress.style.transition = 'width 0.35s cubic-bezier(0.4,0,0.2,1)';
+        progress.style.width = s.pct + '%';
+      }
+    }, s.delay);
+  });
+
   setTimeout(function() {
     var game = findGame(gameName);
-    if (game && game.url) {
-      // window.location.href = game.url;  // uncomment when pages exist
-      console.log('[DuelZone] Would navigate to:', game.url);
-    }
     dismissOverlay();
-  }, 1800);
+    if (game) _routeToGame(game.screen);
+  }, 2000);
+}
+
+function _routeToGame(screenId) {
+  if (screenId === 'ttt')         { showTTT();          return; }
+  if (screenId === 'rps')         { showRPS();          return; }
+  if (screenId === 'tapbattle')   { showTap();          return; }
+  if (screenId === 'duel2048')    { show2048();         return; }
+  if (screenId === 'c4')          { showC4();           return; }
+  if (screenId === 'cricket')     { showCricket();      return; }
+  if (screenId === 'airhockey')   { showAH();           return; }
+  if (screenId === 'passbreach')  { showPB();           return; }
+  if (screenId === 'memoryflip')  { showMFD();          return; }
+  if (screenId === 'connectdots') { showCDD();          return; }
+  if (screenId === 'chess')       { showChess();        return; }
+  if (screenId === 'battleship')  { showBattleship();   return; }
+  if (screenId === 'checkers')    { showCheckers();     return; }
+  if (screenId === 'darts')       { showDarts();        return; }
+  if (screenId === 'tanks')       { showTanks();        return; }
+  if (screenId === 'starcatcher') { showStarCatcher();  return; }
+  if (screenId === 'spacedodge')  { showSpaceDodge();   return; }
+  if (screenId === 'pingpong')    { showPingPong();     return; }
+  if (screenId === 'minesweeper') { showMinesweeper();  return; }
+  if (screenId === 'tetris')      { showTetris();       return; }
+  if (screenId === 'bomberman')   { showBomberman();    return; }
+  if (screenId === 'drawguess')   { showDrawGuess();    return; }
+  if (screenId === 'reaction')    { showReaction();     return; }
+  if (screenId === 'territory')   { showTerritory();    return; }
+  if (screenId === 'ludo')        { showLudo();         return; }
+  if (screenId === 'sudoku')      { showSudoku();       return; }
+  if (screenId === 'carrom')      { showCarrom();       return; }
 }
 
 function dismissOverlay() {
-  overlay.classList.remove('active');
-  overlay.setAttribute('aria-hidden', 'true');
+  overlay.classList.add('fade-out');
+  setTimeout(function() {
+    overlay.classList.remove('active');
+    overlay.classList.remove('fade-out');
+    overlay.setAttribute('aria-hidden', 'true');
+  }, 400);
 }
 
 function spawnRipple(card, evt) {
@@ -646,12 +761,6 @@ function spawnRipple(card, evt) {
   card.appendChild(ripple);
   ripple.addEventListener('animationend', function(){ ripple.remove(); });
 }
-(function(){
-  var s=document.createElement('style');
-  s.textContent='@keyframes ripple-expand{to{transform:scale(3);opacity:0}}';
-  document.head.appendChild(s);
-})();
-
 // Wire up every hub card
 var hubCards = document.querySelectorAll('.arena-card');
 
@@ -662,6 +771,7 @@ hubCards.forEach(function(card) {
 
   card.addEventListener('click', function(evt) {
     if (overlay.classList.contains('active')) return;
+    if (evt.target.closest('.card-save-btn'))  return;
 
     var gameName    = card.getAttribute('data-game');
     var accentColor = getComputedStyle(card).getPropertyValue('--accent').trim();
@@ -671,6 +781,9 @@ hubCards.forEach(function(card) {
 
     // Track recently played
     if (game) dzTrackRecentGame(gameName, game.screen, accentColor);
+
+    // Show Hub & Setup in dropdown menu when in-game
+    if (game && window.dzSetInGame) window.dzSetInGame(game.screen);
 
     // Route to correct screen
     if (game && game.screen === 'ttt')        { showTTT();     return; }
@@ -691,16 +804,15 @@ hubCards.forEach(function(card) {
     if (game && game.screen === 'starcatcher') { showStarCatcher(); return; }
     if (game && game.screen === 'spacedodge')  { showSpaceDodge();  return; }
     if (game && game.screen === 'pingpong')    { showPingPong();     return; }
-    if (game && game.screen === 'snake')       { showSnake();        return; }
-    if (game && game.screen === 'typing')      { showTyping();       return; }
     if (game && game.screen === 'minesweeper') { showMinesweeper();  return; }
-    if (game && game.screen === 'blackjack')   { showBlackjack();    return; }
     if (game && game.screen === 'tetris')      { showTetris();       return; }
     if (game && game.screen === 'bomberman')   { showBomberman();    return; }
     if (game && game.screen === 'drawguess')   { showDrawGuess();    return; }
-    if (game && game.screen === 'pixelracer')  { showPixelRacer();   return; }
     if (game && game.screen === 'reaction')    { showReaction();     return; }
     if (game && game.screen === 'territory')   { showTerritory();    return; }
+    if (game && game.screen === 'ludo')        { showLudo();         return; }
+    if (game && game.screen === 'sudoku')      { showSudoku();       return; }
+    if (game && game.screen === 'carrom')      { showCarrom();       return; }
 
     // Other games use the launch overlay placeholder
     launchWithOverlay(gameName, accentColor);
@@ -1059,8 +1171,8 @@ function rpsRevealChoices(p1c, p2c) {
   } else if (winner === 'p2') {
     rpsScores.p2++;
     rpsScoreP2El.textContent = rpsScores.p2;
-    rpsResultEl.textContent = 'P2 WINS!';
-    rpsResultEl.className = 'lose';
+    rpsResultEl.textContent = (rpsMode === 'pve') ? 'BOT WINS!' : 'P2 WINS!';
+    rpsResultEl.className = 'p2win';
     rpsCardP2El.classList.add('active'); rpsCardP1El.classList.remove('active');
   } else {
     rpsResultEl.textContent = 'DRAW';
@@ -1144,6 +1256,9 @@ function rpsRestart() {
   rpsBtnsP1El.classList.remove('hidden');
   rpsBtnsP2El.classList.add('hidden');
   rpsPickPrompt.textContent = (rpsMode === 'pvp') ? 'Player 1 — Choose your weapon!' : 'Choose your weapon!';
+  // Hide in-game settings during active play
+  var rpsApp = document.getElementById('rps-app');
+  if (rpsApp) rpsApp.classList.add('rps-game-active');
 }
 
 function rpsSetMode(mode) {
@@ -1275,15 +1390,16 @@ function tapStartCountdown() {
 function tapGetBotInterval() {
   var base;
   if (tapDiff === 'easy')   base = 1000 / (5 + Math.random() * 2);
-  else if (tapDiff === 'medium') base = 1000 / (7 + Math.random() * 2);
+  else if (tapDiff === 'medium') base = 1000 / (8 + Math.random() * 2);
   else {
-    // Hard: speed up if losing
+    // BRUTAL: always near max speed, ramps up if losing, nearly unbeatable
     var ratio = tapCounts.p1 / Math.max(tapCounts.p2, 1);
-    var speed = 8 + (ratio > 1 ? (ratio - 1) * 4 : 0); // up to ~14 taps/s
-    speed = Math.min(speed, 14);
+    // Base speed: 18 taps/s. When losing: ramp to 24 taps/s
+    var speed = 18 + (ratio > 1 ? Math.min((ratio - 1) * 6, 6) : 0);
+    speed = Math.min(speed, 24);
     base = 1000 / speed;
   }
-  return Math.max(base, 70);
+  return Math.max(base, 42); // minimum 42ms = ~24 taps/sec max
 }
 
 function tapRunBot() {
@@ -1905,11 +2021,16 @@ function d2048AddSwipe(boardEl, pIdx) {
   boardEl.addEventListener('touchstart', function(e) {
     sx = e.touches[0].clientX;
     sy = e.touches[0].clientY;
+    e.stopPropagation(); // prevent hub scroll but don't preventDefault here (allows tap)
   }, { passive: true });
+  boardEl.addEventListener('touchmove', function(e) {
+    e.preventDefault(); // PREVENT page scroll during swipe on 2048 board
+  }, { passive: false });
   boardEl.addEventListener('touchend', function(e) {
     var dx = e.changedTouches[0].clientX - sx;
     var dy = e.changedTouches[0].clientY - sy;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    e.preventDefault();
     var dir = Math.abs(dx) > Math.abs(dy)
       ? (dx > 0 ? 'right' : 'left')
       : (dy > 0 ? 'down'  : 'up');
@@ -1928,7 +2049,7 @@ function d2048AddSwipe(boardEl, pIdx) {
         d2048TriggerBot();
       }
     });
-  }, { passive: true });
+  }, { passive: false });
 }
 
 // ── Simultaneous bot timer ──────────────────────────────────────
@@ -2148,30 +2269,88 @@ function cricAddBatterWkt() {
 }
 
 function cricBotPick() {
+  var botIsBatting = !cricPlayerBats; // player bowling = bot batting
+
+  // ── EASY: pure random ────────────────────────────────────────
   if (cricDiff === 'easy') return Math.floor(Math.random() * 10) + 1;
+
+  // ── MEDIUM ───────────────────────────────────────────────────
   if (cricDiff === 'medium') {
-    if (cricPlayerHistory.length > 0 && Math.random() < 0.5) {
+    if (cricPlayerHistory.length > 0 && Math.random() < 0.55) {
       var last = cricPlayerHistory[cricPlayerHistory.length - 1];
-      if (cricMode === 'crazy' && !cricPlayerBats) {
-        var adj = last + (Math.random() < 0.5 ? 1 : -1);
-        return Math.max(1, Math.min(10, adj));
+      if (botIsBatting) {
+        // Bot BATTING — avoid the bowler's (player's) predicted number
+        if (cricMode === 'crazy') {
+          // In crazy mode, OUT = adjacent (±1). Avoid numbers within 1 of last bowler pick.
+          var safe = [];
+          for (var s = 1; s <= 10; s++) {
+            if (Math.abs(s - last) > 1) safe.push(s);
+          }
+          if (safe.length > 0) return safe[Math.floor(Math.random() * safe.length)];
+        } else {
+          // Normal mode, OUT = exact match. Pick anything except last.
+          var alt = Math.floor(Math.random() * 9) + 1;
+          if (alt >= last) alt++;
+          return Math.min(10, alt);
+        }
+      } else {
+        // Bot BOWLING — try to match batter's (player's) predicted number
+        if (cricMode === 'crazy') {
+          // In crazy mode, OUT = adjacent. Pick ±1 of last batter pick.
+          var adjPick = last + (Math.random() < 0.5 ? 1 : -1);
+          return Math.max(1, Math.min(10, adjPick));
+        } else {
+          // Normal mode, OUT = exact match. Copy last batter pick.
+          return last;
+        }
       }
-      return last;
     }
     return Math.floor(Math.random() * 10) + 1;
   }
+
+  // ── HARD ─────────────────────────────────────────────────────
   if (cricPlayerHistory.length >= 3) {
     var freq = {};
     for (var i = 1; i <= 10; i++) freq[i] = 0;
     cricPlayerHistory.forEach(function(n){ freq[n]++; });
+    // Find most-picked number
     var predicted = 1, maxF = 0;
-    for (var k in freq) { if (freq[k] > maxF) { maxF = freq[k]; predicted = parseInt(k); } }
-    if (cricMode === 'crazy' && !cricPlayerBats) {
-      var tries = [predicted - 1, predicted + 1];
-      var pick = tries[Math.floor(Math.random() * 2)];
-      return Math.max(1, Math.min(10, pick));
+    for (var k in freq) {
+      if (freq[k] > maxF) { maxF = freq[k]; predicted = parseInt(k); }
     }
-    if (cricMode === 'normal' && !cricPlayerBats) return predicted;
+    if (botIsBatting) {
+      // Bot BATTING — pick the number LEAST likely to match the bowler
+      if (cricMode === 'crazy') {
+        // Avoid all numbers adjacent to predicted bowler pick
+        var safeNums = [];
+        for (var n = 1; n <= 10; n++) {
+          if (Math.abs(n - predicted) > 1) safeNums.push(n);
+        }
+        if (safeNums.length > 0) {
+          // Among safe numbers, pick the one the bowler bowls LEAST (minimise risk)
+          var bestSafe = safeNums[0], minF2 = Infinity;
+          safeNums.forEach(function(x) { if ((freq[x]||0) < minF2) { minF2 = freq[x]||0; bestSafe = x; } });
+          return bestSafe;
+        }
+      } else {
+        // Normal mode — pick the number the bowler throws LEAST often
+        var leastPicked = 1, minFreq = Infinity;
+        for (var m = 1; m <= 10; m++) {
+          if ((freq[m]||0) < minFreq) { minFreq = freq[m]||0; leastPicked = m; }
+        }
+        return leastPicked;
+      }
+    } else {
+      // Bot BOWLING — aim to get batter out
+      if (cricMode === 'crazy') {
+        // Adjacent = out. Pick ±1 of predicted batter number.
+        var tries = [predicted - 1, predicted + 1].filter(function(x){ return x>=1&&x<=10; });
+        return tries[Math.floor(Math.random() * tries.length)];
+      } else {
+        // Normal mode — pick the most frequent batter number (exact match = out).
+        return predicted;
+      }
+    }
   }
   return Math.floor(Math.random() * 10) + 1;
 }
@@ -2742,9 +2921,20 @@ document.querySelectorAll('.cric-bot-toss-btn').forEach(function(btn) {
       cricBatBowlBtns.classList.remove('hidden');
     } else {
       setTimeout(function() {
-        cricTossWinner.textContent += ' Bot chooses to BAT.';
+        // Bot makes a smart toss decision based on difficulty
+        var botBatsFirst;
+        if (cricDiff === 'easy') {
+          botBatsFirst = Math.random() < 0.5; // random
+        } else if (cricDiff === 'medium') {
+          botBatsFirst = Math.random() < 0.65; // slightly prefers batting
+        } else {
+          // Hard: prefer batting to set a target, but sometimes bowl to chase
+          botBatsFirst = Math.random() < 0.55;
+        }
+        cricTossWinner.textContent += ' Bot chooses to ' + (botBatsFirst ? 'BAT.' : 'BOWL.');
         cricBatBowlBtns.classList.add('hidden');
-        setTimeout(function() { cricStartMatch(false); }, 1000);
+        // botBatsFirst=true means bot bats → P1 (player) does NOT bat first
+        setTimeout(function() { cricStartMatch(!botBatsFirst); }, 1000);
       }, 800);
     }
   });
@@ -3293,6 +3483,20 @@ function c4UpdateGhostDisc(hoveredCol) {
     }
   });
 }
+function c4BotDrop(col) {
+  // Bot bypass: skip the pve+P2 guard since this IS the bot turn
+  if (!c4GameActive) return;
+  if (col < 0 || col >= C4_COLS) return;
+  var row = c4GetNextOpenRow(c4Board, col);
+  if (row === -1) { c4ResetGame(); return; }
+  c4Board[row][col] = c4CurrentPlayer;
+  c4RenderCell(row, col, c4CurrentPlayer, true);
+  SoundManager.c4Drop();
+  var winPairs = c4CheckWin(c4Board, c4CurrentPlayer);
+  if (winPairs) { c4EndGame(c4CurrentPlayer, winPairs); return; }
+  if (c4CheckDraw(c4Board)) { c4EndGame(null, null); return; }
+  c4SwitchTurn();
+}
 function c4HandleColumnClick(col) {
   if (!c4GameActive) return;
   if (col < 0 || col >= C4_COLS) return;
@@ -3322,7 +3526,7 @@ function c4SwitchTurn() {
         board: c4Board, botPlayer: C4_P2, humanPlayer: C4_P1,
         emptyVal: C4_EMPTY, rows: C4_ROWS, cols: C4_COLS
       }, c4Difficulty);
-      c4HandleColumnClick(move);
+      c4BotDrop(move);
     }, 350 + Math.floor(Math.random() * 300));
   } else {
     var name = (c4CurrentPlayer === C4_P1) ? 'Player 1' : (c4GameMode === 'pve' ? 'Bot 🤖' : 'Player 2');
@@ -3601,9 +3805,11 @@ function ahResetPositions(serveWho) {
   // dir= -1 → puck launches upward (toward bot goal) when P1 serves
   // dir= +1 → puck launches downward (toward P1 goal) when bot serves
   var dir     = (serveWho === 0) ? -1 : 1;
-  var diffMult = ahDiff === 'hard' ? 1.45 : ahDiff === 'medium' ? 1.2 : 1.0;
+  // Fixed medium serve speed: all difficulties get same puck launch speed
+  // Hard hits (paddle velocity) will still increase puck speed naturally
+  var diffMult = 1.2; // consistent medium speed for all difficulties
   var serveVy = dir * ahW * 1.65 * diffMult;  // px/s vertical component
-  var serveVx = (Math.random() - 0.5) * Math.abs(serveVy) * 1.2; // px/s horizontal
+  var serveVx = (Math.random() - 0.5) * Math.abs(serveVy) * 0.7; // reduced lateral variance
   ahPuck.vServe = { vx: serveVx, vy: serveVy };
   ahTrail = []; ahSpeedLines = [];
 }
@@ -3793,6 +3999,14 @@ function ahPhysicsStep(dt_sub, wallFlags) {
   // Kill micro-drift (below 1 px/s)
   var spd2 = ahPuck.vx * ahPuck.vx + ahPuck.vy * ahPuck.vy;
   if (spd2 < 1) { ahPuck.vx = 0; ahPuck.vy = 0; }
+  // SPEED NORMALIZATION: if puck is moving but too slow (< 15% of medium serve speed),
+  // nudge it back up so gameplay doesn't crawl.
+  var minSpd = ahW * 0.18; // minimum rolling speed in px/s
+  if (spd2 > 1 && spd2 < minSpd * minSpd) {
+    var curSpd = Math.sqrt(spd2);
+    var scale = minSpd / curSpd;
+    ahPuck.vx *= scale; ahPuck.vy *= scale;
+  }
 
   // Move (px/s * seconds = px)
   ahPuck.x += ahPuck.vx * sec;
@@ -5273,12 +5487,30 @@ function mfdGetAvailable() {
 
 // ── Find a known matching pair from bot memory ────────────────
 function mfdBotFindKnownPair() {
+  // Check botSeenPairs first
   for (var pv in mfdState.botSeenPairs) {
     var pair = mfdState.botSeenPairs[pv];
     var a = pair[0], b = pair[1];
     var ca = mfdState.cards[a], cb = mfdState.cards[b];
     if (ca && cb && !ca.isMatched && !cb.isMatched) {
       return pair; // [idxA, idxB]
+    }
+  }
+  // Also scan botMemory for any pair where both are known + unmatched
+  var seen = {};
+  for (var ki in mfdState.botMemory) {
+    var ki_int = parseInt(ki);
+    var pairV = mfdState.botMemory[ki];
+    var card = mfdState.cards[ki_int];
+    if (!card || card.isMatched) continue;
+    if (seen[pairV] !== undefined) {
+      var partner = seen[pairV];
+      var partnerCard = mfdState.cards[partner];
+      if (partnerCard && !partnerCard.isMatched) {
+        return [partner, ki_int];
+      }
+    } else {
+      seen[pairV] = ki_int;
     }
   }
   return null;
@@ -5345,7 +5577,7 @@ function mfdScheduleBotMove() {
   if (mfdState.gameOver) return;
   mfdState.locked = true;
   mfdUpdateActivePlayer();
-  var delay = 600 + Math.floor(Math.random() * 300); // 600–900ms
+  var delay = mfdState.diff === 'extreme' ? 300 : 600 + Math.floor(Math.random() * 300); // 600–900ms
   mfdState.botTimeout = setTimeout(mfdExecuteBotMove, delay);
 }
 
@@ -6575,6 +6807,7 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
     difficulty:     'easy',
     gameOver:       false,
     botThinking:    false,
+    gridSize:       3,      // 3=3x3 boxes (4x4 dots), 5=5x5 boxes, 10=10x10 boxes
     totalLines:     24,
     drawnLines:     0
   };
@@ -6662,6 +6895,19 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
   });
 
   // Start game
+  // Grid Size buttons (3x3, 5x5, 10x10)
+  var cddGridBtns = document.querySelectorAll('.cdd-grid-size-btn');
+  if (cddGridBtns.length) {
+    cddGridBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        cddGridBtns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        cdd.gridSize = parseInt(btn.dataset.gridsize, 10) || 3;
+        SoundManager.click();
+      });
+    });
+  }
+
   if (cddHpStart) {
     cddHpStart.addEventListener('click', function() {
       SoundManager.click();
@@ -6765,24 +7011,27 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
   // ── Data Structures ─────────────────────────────────────────
 
   function cddBuildData() {
-    // Horizontal lines: h-{row}-{col}, row=0..3, col=0..2
-    for (var r = 0; r <= 3; r++) {
-      for (var c = 0; c <= 2; c++) {
+    var G = cdd.gridSize; // number of boxes per side
+    // Horizontal lines: h-{row}-{col}, row=0..G, col=0..G-1
+    for (var r = 0; r <= G; r++) {
+      for (var c = 0; c <= G-1; c++) {
         var hid = 'h-' + r + '-' + c;
         cdd.lines[hid] = {id: hid, type: 'h', row: r, col: c, isDrawn: false, owner: null};
       }
     }
-    // Vertical lines: v-{row}-{col}, row=0..2, col=0..3
-    for (var r = 0; r <= 2; r++) {
-      for (var c = 0; c <= 3; c++) {
+    // Vertical lines: v-{row}-{col}, row=0..G-1, col=0..G
+    for (var r = 0; r <= G-1; r++) {
+      for (var c = 0; c <= G; c++) {
         var vid = 'v-' + r + '-' + c;
         cdd.lines[vid] = {id: vid, type: 'v', row: r, col: c, isDrawn: false, owner: null};
       }
     }
+    // Update totalLines
+    cdd.totalLines = (G+1)*G + G*(G+1); // H lines + V lines
 
-    // Boxes: box-{row}-{col}, row=0..2, col=0..2
-    for (var r = 0; r <= 2; r++) {
-      for (var c = 0; c <= 2; c++) {
+    // Boxes: box-{row}-{col}, row=0..G-1, col=0..G-1
+    for (var r = 0; r <= G-1; r++) {
+      for (var c = 0; c <= G-1; c++) {
         var bid = 'box-' + r + '-' + c;
         cdd.boxes[bid] = {
           id: bid, row: r, col: c,
@@ -6815,9 +7064,35 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
     if (!cddGrid) return;
     cddGrid.innerHTML = '';
     cddGrid.classList.remove('locked');
+    var G = cdd.gridSize;
+    var totalCells = (G * 2 + 1); // dots + lines alternating
 
-    for (var vi = 0; vi <= 6; vi++) {
-      for (var vj = 0; vj <= 6; vj++) {
+    // ── Compute sizes that always fit the screen ──────────────
+    // DOT: fixed small size for the dot rows/columns
+    var DOT = 12;
+    // Available width: viewport minus container side padding (2×16px),
+    // capped at the #cdd-app max-width of 520px
+    var availW = Math.min(window.innerWidth - 32, 520);
+    // CELL fills remaining space evenly; clamp to sensible range
+    var CELL = Math.floor((availW - (G + 1) * DOT) / G);
+    if (G <= 3) CELL = Math.min(CELL, 92);   // don't get absurdly large on desktop
+    if (G <= 5) CELL = Math.min(CELL, 74);
+    CELL = Math.max(CELL, 28);               // minimum touch-friendly size
+    // Expose sizes as CSS custom properties so CSS rules can read them
+    cddGrid.style.setProperty('--cdd-dot-sz',  DOT  + 'px');
+    cddGrid.style.setProperty('--cdd-cell-sz', CELL + 'px');
+
+    // Build alternating column/row template: DOT CELL DOT CELL ... DOT
+    var trackList = [];
+    for (var t = 0; t < totalCells; t++) {
+      trackList.push(t % 2 === 0 ? DOT + 'px' : CELL + 'px');
+    }
+    var tpl = trackList.join(' ');
+    cddGrid.style.gridTemplateColumns = tpl;
+    cddGrid.style.gridTemplateRows    = tpl;
+
+    for (var vi = 0; vi < totalCells; vi++) {
+      for (var vj = 0; vj < totalCells; vj++) {
         var el;
         var ri = vi % 2, rj = vj % 2; // 0=even, 1=odd
 
@@ -6872,7 +7147,16 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
   }
 
   function cddSetLineClickHandler(el, lid) {
+    // touchend fires before click — handle it and flag so click doesn't double-fire
+    var _touchFired = false;
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault(); // prevent synthesised mouse click
+      _touchFired = true;
+      cddOnLineClick(lid);
+      setTimeout(function() { _touchFired = false; }, 500);
+    }, { passive: false });
     el.addEventListener('click', function() {
+      if (_touchFired) return; // already handled by touchend
       cddOnLineClick(lid);
     });
     el.addEventListener('keydown', function(e) {
@@ -7372,3 +7656,436 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
 
   window.DZFullscreen = { request: requestFS, exit: exitFS, isFS: isFS };
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 6: Onboarding Modal — show once on first visit
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  var modal   = document.getElementById('dz-onboarding');
+  var closeBtn= document.getElementById('dz-ob-close');
+  var noshowChk = document.getElementById('dz-ob-noshowcheck');
+
+  if(!modal || !closeBtn) return;
+
+  var STORAGE_KEY = 'dz_onboarding_done';
+
+  function showOnboarding(){
+    modal.classList.remove('hidden');
+    // Focus close button for accessibility
+    setTimeout(function(){ if(closeBtn) closeBtn.focus(); }, 100);
+  }
+
+  function dismissOnboarding(){
+    modal.classList.add('hidden');
+    if(noshowChk && noshowChk.checked){
+      try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e){}
+    }
+  }
+
+  closeBtn.addEventListener('click', dismissOnboarding);
+
+  // Dismiss on backdrop click
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) dismissOnboarding();
+  });
+
+  // Show if not dismissed before
+  var done = false;
+  try { done = !!localStorage.getItem(STORAGE_KEY); } catch(e){}
+
+  if(!done){
+    // Small delay so the hub renders first
+    setTimeout(showOnboarding, 600);
+  }
+})();
+
+
+
+
+// ═══════════════════════════════════════════════════════════
+// HAMBURGER MENU
+// ═══════════════════════════════════════════════════════════
+
+var _dzMenuOpen = false;
+
+function dzToggleMenu() {
+  _dzMenuOpen ? dzCloseMenu() : dzOpenMenu();
+}
+
+function dzOpenMenu() {
+  _dzMenuOpen = true;
+  var btn  = document.getElementById('dz-hamburger');
+  var drop = document.getElementById('dz-dropdown');
+  var bk   = document.getElementById('dz-menu-backdrop');
+  if (btn)  btn.classList.add('open');
+  if (btn)  btn.setAttribute('aria-expanded', 'true');
+  if (drop) drop.classList.add('open');
+  if (drop) drop.setAttribute('aria-hidden', 'false');
+  if (bk)   bk.classList.add('active');
+}
+
+function dzCloseMenu() {
+  _dzMenuOpen = false;
+  var btn  = document.getElementById('dz-hamburger');
+  var drop = document.getElementById('dz-dropdown');
+  var bk   = document.getElementById('dz-menu-backdrop');
+  if (btn)  btn.classList.remove('open');
+  if (btn)  btn.setAttribute('aria-expanded', 'false');
+  if (drop) drop.classList.remove('open');
+  if (drop) drop.setAttribute('aria-hidden', 'true');
+  if (bk)   bk.classList.remove('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVBAR NAVIGATION
+// ═══════════════════════════════════════════════════════════
+
+function dzGoHome() {
+  // Close any open panels/menus/modals first
+  dzCloseMenu();
+  dzClosePanels();
+  dzCloseAllLegal();
+  // If a game screen is active, navigate back to hub
+  var hub = document.getElementById('screen-hub');
+  if (hub && hub.classList.contains('hidden')) {
+    // Find and click the back button of whatever game is showing,
+    // or directly show hub + hide all game screens
+    document.querySelectorAll('[id^="screen-"]').forEach(function(s) {
+      s.classList.add('hidden');
+    });
+    hub.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  _dzSetDropdownActive('dd-home-btn');
+}
+
+function dzNavShowHome() {
+  dzCloseMenu();
+  dzClosePanels();
+
+  // ── Stop every game that could be running in the background ──
+  if (typeof window.mineDestroy      === 'function') window.mineDestroy();
+  if (typeof window.tetrisDestroy    === 'function') window.tetrisDestroy();
+  if (typeof window.bombermanDestroy === 'function') window.bombermanDestroy();
+  if (typeof window.reactionDestroy  === 'function') window.reactionDestroy();
+  if (typeof window.territoryDestroy === 'function') window.territoryDestroy();
+  if (typeof tanksDestroy            === 'function') tanksDestroy();
+  if (typeof scDestroy               === 'function') scDestroy();
+  if (typeof GameLoader !== 'undefined' && GameLoader.getActiveGameId && GameLoader.getActiveGameId()) {
+    if (typeof GameLoader.closeCurrentGame === 'function') GameLoader.closeCurrentGame();
+  }
+
+  // ── Force-hide ALL fixed play panels (position:fixed escapes parent hide) ──
+  ['mine-play','tetris-play','bm-play','rd-play',
+   'tw-play','sdk-play','carrom-play','ludo-play'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+
+  // ── Hide all floating back buttons ──
+  ['mine-back-play','tetris-back-play','bm-back-play','rd-back-play',
+   'tw-back-play','sdk-back-play','carrom-back-play','ludo-back-play'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // ── Restore body scroll ──
+  document.body.style.overflow = '';
+  document.body.style.overscrollBehavior = '';
+
+  // ── Show hub ──
+  document.querySelectorAll('[id^="screen-"]').forEach(function(s) {
+    s.classList.add('hidden');
+  });
+  var hub = document.getElementById('screen-hub');
+  if (hub) hub.classList.remove('hidden');
+
+  // Force scroll to top — multiple methods for cross-browser reliability
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  _dzSetDropdownActive('dd-home-btn');
+}
+
+function dzNavShowSaved() {
+  dzCloseMenu();
+  var panel = document.getElementById('dz-saved-panel');
+  var isOpen = panel && panel.classList.contains('open');
+  dzClosePanels();
+  if (isOpen) return;
+  dzRenderSavedPanel();
+  if (panel) panel.classList.add('open');
+  var bk = document.getElementById('dz-panel-backdrop');
+  if (bk) bk.classList.add('active');
+  _dzSetDropdownActive('dd-saved-btn');
+}
+
+function dzNavShowRecent() {
+  dzCloseMenu();
+  var panel = document.getElementById('dz-recent-panel');
+  var isOpen = panel && panel.classList.contains('open');
+  dzClosePanels();
+  if (isOpen) return;
+  dzRenderRecentPanel();
+  if (panel) panel.classList.add('open');
+  var bk = document.getElementById('dz-panel-backdrop');
+  if (bk) bk.classList.add('active');
+  _dzSetDropdownActive('dd-recent-btn');
+}
+
+function dzClosePanels() {
+  var saved   = document.getElementById('dz-saved-panel');
+  var recent  = document.getElementById('dz-recent-panel');
+  var bk      = document.getElementById('dz-panel-backdrop');
+  if (saved)  saved.classList.remove('open');
+  if (recent) recent.classList.remove('open');
+  if (bk)     bk.classList.remove('active');
+}
+
+function _dzSetDropdownActive(id) {
+  document.querySelectorAll('.dropdown-item').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SAVED GAMES
+// ═══════════════════════════════════════════════════════════
+
+function dzGetSaved() {
+  try { return JSON.parse(localStorage.getItem('dz-saved') || '[]'); } catch(e) { return []; }
+}
+
+function dzSetSaved(arr) {
+  try { localStorage.setItem('dz-saved', JSON.stringify(arr)); } catch(e) {}
+}
+
+function dzInitSavedGames() {
+  var saved = dzGetSaved();
+  // Restore saved state on all card buttons
+  for (var i = 0; i < saved.length; i++) {
+    var btn = document.querySelector('[data-save-screen="' + saved[i].screen + '"]');
+    if (btn) btn.classList.add('saved');
+  }
+  dzUpdateSavedBadge();
+}
+
+function dzToggleSave(btn, gameName, screen) {
+  var saved = dzGetSaved();
+  // Find existing entry (no findIndex required)
+  var foundIdx = -1;
+  for (var i = 0; i < saved.length; i++) {
+    if (saved[i].screen === screen) { foundIdx = i; break; }
+  }
+  if (foundIdx === -1) {
+    // Save it — grab accent from CSS var on the card
+    var cardEl = btn.parentNode;
+    while (cardEl && !cardEl.classList.contains('arena-card')) {
+      cardEl = cardEl.parentNode;
+    }
+    var accent = '#00e5ff';
+    if (cardEl) {
+      var raw = cardEl.getAttribute('style') || '';
+      var m = raw.match(/--accent:\s*([^;]+)/);
+      if (m) accent = m[1].trim();
+    }
+    saved.push({ name: gameName, screen: screen, accent: accent });
+    btn.classList.add('saved');
+  } else {
+    saved.splice(foundIdx, 1);
+    btn.classList.remove('saved');
+  }
+  dzSetSaved(saved);
+  dzUpdateSavedBadge();
+}
+
+function dzUpdateSavedBadge() {
+  var saved  = dzGetSaved();
+  var badge  = document.getElementById('saved-count-badge');
+  var ddBadge = document.getElementById('saved-count-label');
+  var count  = saved.length;
+  if (badge) {
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+  if (ddBadge) {
+    ddBadge.textContent = count;
+    ddBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function dzRenderSavedPanel() {
+  var list = document.getElementById('saved-panel-list');
+  if (!list) return;
+  // Remove any existing clear button
+  var existingClear = list.parentNode.querySelector('.panel-clear-btn');
+  if (existingClear) existingClear.remove();
+  var saved = dzGetSaved();
+  if (saved.length === 0) {
+    list.innerHTML = '<div class="panel-empty">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>' +
+      '<p>No saved games yet</p>' +
+      '<span>Tap the bookmark icon on any game card to save it here</span>' +
+      '</div>';
+    return;
+  }
+  var html = '<div style="padding:4px 2px 8px;font-family:\'Rajdhani\',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.28);letter-spacing:0.1em;">' + saved.length + ' SAVED</div>';
+  for (var i = 0; i < saved.length; i++) {
+    var g = saved[i];
+    var accentSafe = g.accent || '#00e5ff';
+    html += '<div class="panel-game-item" style="--pg-accent:' + accentSafe + '" onclick="showGame(\'' + g.screen + '\'); dzClosePanels();">' +
+      '<div class="panel-game-dot" style="background:' + accentSafe + ';box-shadow:0 0 10px ' + accentSafe + '70"></div>' +
+      '<div class="panel-game-info">' +
+        '<span class="panel-game-name">' + g.name + '</span>' +
+      '</div>' +
+      '<button class="panel-game-action" style="color:' + accentSafe + ';border-color:' + accentSafe + '55" ' +
+        'onclick="event.stopPropagation();showGame(\'' + g.screen + '\');dzClosePanels();">▶ PLAY</button>' +
+      '</div>';
+  }
+  list.innerHTML = html;
+  // Add clear all button after list
+  var clearBtn = document.createElement('button');
+  clearBtn.className = 'panel-clear-btn';
+  clearBtn.textContent = '✕ CLEAR ALL SAVED';
+  clearBtn.onclick = function() {
+    if (confirm('Clear all saved games?')) {
+      localStorage.removeItem('dz-saved');
+      document.querySelectorAll('.card-save-btn.saved').forEach(function(b){ b.classList.remove('saved'); });
+      dzUpdateSavedBadge();
+      dzRenderSavedPanel();
+    }
+  };
+  list.parentNode.appendChild(clearBtn);
+}
+
+function dzRenderRecentPanel() {
+  var list = document.getElementById('recent-panel-list');
+  if (!list) return;
+  // Remove any existing clear button
+  var existingClear = list.parentNode.querySelector('.panel-clear-btn');
+  if (existingClear) existingClear.remove();
+  var recent = [];
+  try { recent = JSON.parse(localStorage.getItem('dz-recent') || '[]'); } catch(e) {}
+  if (recent.length === 0) {
+    list.innerHTML = '<div class="panel-empty">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>' +
+      '<p>No recent games yet</p>' +
+      '<span>Play a game to see your history here</span>' +
+      '</div>';
+    return;
+  }
+  var now = Date.now();
+  function timeAgo(ts) {
+    if (!ts) return '';
+    var diff = Math.floor((now - ts) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+  }
+  var html = '<div style="padding:4px 2px 8px;font-family:\'Rajdhani\',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.28);letter-spacing:0.1em;">' + recent.length + ' RECENT</div>';
+  for (var i = 0; i < recent.length; i++) {
+    var g = recent[i];
+    var accentSafe = g.accent || '#00e5ff';
+    var ago = g.playedAt ? timeAgo(g.playedAt) : '';
+    html += '<div class="panel-game-item" style="--pg-accent:' + accentSafe + '" onclick="showGame(\'' + g.screen + '\'); dzClosePanels();">' +
+      '<div class="panel-game-dot" style="background:' + accentSafe + ';box-shadow:0 0 10px ' + accentSafe + '70"></div>' +
+      '<div class="panel-game-info">' +
+        '<span class="panel-game-name">' + g.name + '</span>' +
+        (ago ? '<span class="panel-game-meta">' + ago + '</span>' : '') +
+      '</div>' +
+      '<button class="panel-game-action" style="color:' + accentSafe + ';border-color:' + accentSafe + '55" ' +
+        'onclick="event.stopPropagation();showGame(\'' + g.screen + '\');dzClosePanels();">▶ PLAY</button>' +
+      '</div>';
+  }
+  list.innerHTML = html;
+  // Clear history button
+  var clearBtn = document.createElement('button');
+  clearBtn.className = 'panel-clear-btn';
+  clearBtn.textContent = '✕ CLEAR HISTORY';
+  clearBtn.onclick = function() {
+    if (confirm('Clear recent games history?')) {
+      localStorage.removeItem('dz-recent');
+      dzRenderRecentPanel();
+    }
+  };
+  list.parentNode.appendChild(clearBtn);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LEGAL MODALS
+// ═══════════════════════════════════════════════════════════
+
+var _legalIds = ['modal-about','modal-privacy','modal-terms','modal-contact'];
+
+function dzOpenLegal(id) {
+  var bk = document.getElementById('dz-legal-backdrop');
+  var el = document.getElementById(id);
+  // Show backdrop
+  if (bk) { bk.classList.remove('hidden'); requestAnimationFrame(function(){ bk.classList.add('active'); }); }
+  // Show modal (requestAnimationFrame ensures the transition fires)
+  if (el) { el.classList.remove('hidden'); requestAnimationFrame(function(){ el.classList.add('active'); }); }
+  document.body.style.overflow = 'hidden';
+}
+
+function dzCloseLegal(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('active');
+    // After transition ends, check if we should hide backdrop too
+    setTimeout(function() {
+      var anyOpen = false;
+      for (var i = 0; i < _legalIds.length; i++) {
+        var m = document.getElementById(_legalIds[i]);
+        if (m && m.classList.contains('active')) { anyOpen = true; break; }
+      }
+      if (!anyOpen) {
+        var bk = document.getElementById('dz-legal-backdrop');
+        if (bk) bk.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }, 380);
+  }
+}
+
+function dzCloseAllLegal() {
+  for (var i = 0; i < _legalIds.length; i++) {
+    var m = document.getElementById(_legalIds[i]);
+    if (m) m.classList.remove('active');
+  }
+  setTimeout(function() {
+    var bk = document.getElementById('dz-legal-backdrop');
+    if (bk) bk.classList.remove('active');
+    document.body.style.overflow = '';
+  }, 380);
+}
+
+// ── Music / Sound toggle in dropdown ──
+function dzToggleMusicFromMenu() {
+  var isMuted = SoundManager.toggleMute();
+  var label   = document.getElementById('dd-music-label');
+  var toggle  = document.getElementById('dd-music-toggle');
+  var btn     = document.getElementById('dd-music-btn');
+  var icon    = document.getElementById('dd-music-icon');
+  if (label)  label.textContent = isMuted ? 'Sound: Off' : 'Sound: On';
+  if (toggle) { toggle.textContent = isMuted ? 'OFF' : 'ON'; toggle.classList.toggle('off', isMuted); }
+  if (btn)    btn.classList.toggle('muted', isMuted);
+  // Update wave paths on icon
+  if (icon) {
+    var wavePath = icon.getElementById ? icon.getElementById('dd-music-waves') : document.getElementById('dd-music-waves');
+    if (wavePath) wavePath.setAttribute('d', isMuted ? '' : 'M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07');
+  }
+}
+
+// Keyboard escape closes everything
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    dzCloseAllLegal();
+    dzClosePanels();
+    dzCloseMenu();
+  }
+});
+

@@ -32,8 +32,10 @@
 
   function rdShowHome() {
     rdStop();
+    window.scrollTo(0, 0);
     el('rd-home').classList.remove('hidden');
     el('rd-play').classList.add('hidden');
+    var backBtn = el('rd-back-play'); if (backBtn) backBtn.style.display = 'none';
   }
 
   function rdWireUI() {
@@ -88,10 +90,13 @@
     RD.over = false;
     RD.roundsWon = [0, 0];
     RD.phase = 'wait';
+    window.scrollTo(0, 0);
 
     el('rd-home').classList.add('hidden');
-    el('rd-play').classList.remove('hidden');
+    var playEl = el('rd-play');
+    if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
     el('rd-result').classList.add('hidden');
+    var backBtn = el('rd-back-play'); if (backBtn) backBtn.style.display = 'block';
 
     var p2name = RD.mode === 'bot' ? '🤖 Bot' : 'Player 2';
     setText('rd-p2-name', p2name);
@@ -206,10 +211,17 @@
 
   function rdShowFinal() {
     RD.over = true;
-    var winner = RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1;
     var names = ['Player 1', RD.mode === 'bot' ? 'Bot' : 'Player 2'];
-    el('rd-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
-    el('rd-result-detail').textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds';
+    // BUG 5 FIX: the old code was `RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1`
+    // which always picked Player 2 on a tie. Handle tie explicitly.
+    if (RD.roundsWon[0] === RD.roundsWon[1]) {
+      el('rd-result-title').textContent  = '🤝 Draw!';
+      el('rd-result-detail').textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds (tied)';
+    } else {
+      var winner = RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1;
+      el('rd-result-title').textContent  = '🏆 ' + names[winner] + ' Wins!';
+      el('rd-result-detail').textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds';
+    }
     el('rd-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
   }

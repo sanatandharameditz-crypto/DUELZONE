@@ -177,16 +177,16 @@
     bot.timer=p.react;
 
     if(enemy.dead){
-      // Wander toward center
-      inp['bot_up']=bk.y>CFG.H*0.5;
-      inp['bot_down']=bk.y<CFG.H*0.5;
-      inp['bot_left']=bk.x>CFG.W*0.5;
-      inp['bot_right']=bk.x<CFG.W*0.5;
+      // Wander toward center when enemy is respawning
+      var ca0=Math.atan2(CFG.H/2-bk.y,CFG.W/2-bk.x);
+      var cnx0=Math.cos(ca0),cny0=Math.sin(ca0);
+      inp['bot_up']=cny0<-0.28;   inp['bot_down']=cny0>0.28;
+      inp['bot_left']=cnx0<-0.28; inp['bot_right']=cnx0>0.28;
       inp['bot_fire']=false;
       return;
     }
 
-    // Predict enemy position (hard mode)
+    // Predict enemy position (hard mode uses bullet-travel-time prediction)
     var ex=enemy.x,ey=enemy.y;
     if(botDiff==='hard'){
       var tof=Math.hypot(ex-bk.x,ey-bk.y)/CFG.BULLET_SPEED;
@@ -196,7 +196,7 @@
     var toAng=Math.atan2(ey-bk.y,ex-bk.x)+(Math.random()-0.5)*p.err*2;
     var dist=Math.hypot(enemy.x-bk.x,enemy.y-bk.y);
 
-    // Strafe sideways when too close
+    // Strafe sideways when too close (keeps distance while circling)
     if(dist<110) toAng+=Math.PI*0.5;
 
     var mnx=Math.cos(toAng),mny=Math.sin(toAng);
@@ -205,19 +205,39 @@
     inp['bot_up']=mny<-0.28;   inp['bot_down']=mny>0.28;
     inp['bot_left']=mnx<-0.28; inp['bot_right']=mnx>0.28;
 
-    // Shoot when tank face is close to enemy angle
+    // Shoot when tank face is aligned to enemy — hard bot has near-perfect aim
     var faceDiff=toAng-bk.angle;
     while(faceDiff>Math.PI)faceDiff-=Math.PI*2;
     while(faceDiff<-Math.PI)faceDiff+=Math.PI*2;
-    inp['bot_fire']=Math.abs(faceDiff)<(botDiff==='hard'?0.02:0.40);
+    inp['bot_fire']=Math.abs(faceDiff)<(botDiff==='hard'?0.05:0.40);
 
-    // Wall avoidance override
+    // Hard bot: seek health powerup when low HP
+    if(botDiff==='hard' && bk.hp < 40 && powerups.length > 0){
+      var closestPow=null, closestDist=Infinity;
+      for(var pi=0;pi<powerups.length;pi++){
+        var pp=powerups[pi];
+        if(pp.type==='health'){
+          var pd=Math.hypot(pp.x-bk.x,pp.y-bk.y);
+          if(pd<closestDist){closestDist=pd;closestPow=pp;}
+        }
+      }
+      if(closestPow && closestDist < 200){
+        var powAng=Math.atan2(closestPow.y-bk.y,closestPow.x-bk.x);
+        var pnx=Math.cos(powAng),pny=Math.sin(powAng);
+        inp['bot_up']=pny<-0.28;   inp['bot_down']=pny>0.28;
+        inp['bot_left']=pnx<-0.28; inp['bot_right']=pnx>0.28;
+        // Still shoot while moving to powerup
+      }
+    }
+
+    // Wall avoidance override — only override movement, never suppress fire
     var mg=80;
     if(bk.x<mg||bk.x>CFG.W-mg||bk.y<mg||bk.y>CFG.H-mg){
       var ca=Math.atan2(CFG.H/2-bk.y,CFG.W/2-bk.x);
       var cnx=Math.cos(ca),cny=Math.sin(ca);
       inp['bot_up']=cny<-0.28;   inp['bot_down']=cny>0.28;
       inp['bot_left']=cnx<-0.28; inp['bot_right']=cnx>0.28;
+      // FIX: Do NOT reset bot_fire during wall avoidance — bot should still shoot
     }
   }
 
@@ -538,87 +558,139 @@
     if(home)home.classList.remove('hidden');
   }
 
-  // ── Mobile virtual controls ───────────────────────────────
+  // ── Mobile joystick controls ──────────────────────────────
   /*
-   * Renders on-screen D-pad + FIRE buttons.
-   * Uses Pointer Events (works for touch + mouse + stylus).
-   * Each button calls inp[key]=true on pointerdown,
-   * inp[key]=false on pointerup/leave/cancel.
+   * Replaces the old D-pad grid with analog joystick + FIRE button.
+   * The joystick maps 8-directional drag → up/down/left/right keys.
+   * A separate round FIRE button stays on the right of the joystick.
    */
   function buildMobileControls(botMode){
     if(!mobileDiv)return;
     mobileDiv.innerHTML='';
+    var isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 520;
+    var joySize = isLandscape ? 80 : 96;
+    var fireSize = isLandscape ? 52 : 64;
+    var padding = isLandscape ? '3px 8px' : '8px 10px';
     mobileDiv.style.cssText=
-      'display:flex;justify-content:center;gap:16px;'
-      +'padding:12px 8px;flex-wrap:wrap;'
-      +'user-select:none;-webkit-user-select:none;touch-action:none;';
+      'display:flex;justify-content:center;align-items:center;gap:10px;'
+      +'padding:'+padding+';flex-wrap:nowrap;width:100%;'
+      +'user-select:none;-webkit-user-select:none;touch-action:none;box-sizing:border-box;'
+      +'background:rgba(7,8,15,0.88);border-top:1px solid rgba(255,255,255,0.06);';
     if(botMode){
-      mobileDiv.appendChild(mkControlSet('🔵 P1','p1','#00e5ff'));
+      mobileDiv.appendChild(mkJoySet('🔵 P1','p1','#00e5ff',joySize,fireSize));
     } else {
-      mobileDiv.appendChild(mkControlSet('🔵 P1','p1','#00e5ff'));
-      // Spacer
-      var sp=document.createElement('div');sp.style.flex='1 1 16px';
+      mobileDiv.appendChild(mkJoySet('🔵 P1','p1','#00e5ff',joySize,fireSize));
+      var sp=document.createElement('div');
+      sp.style.cssText='flex:0 0 1px;height:70px;background:rgba(255,255,255,0.07);';
       mobileDiv.appendChild(sp);
-      mobileDiv.appendChild(mkControlSet('🔴 P2','p2','#f50057'));
+      mobileDiv.appendChild(mkJoySet('🔴 P2','p2','#f50057',joySize,fireSize));
     }
   }
 
-  function mkControlSet(label,prefix,color){
+  function mkJoySet(label, prefix, color, joySize, fireSize){
     var wrap=document.createElement('div');
-    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:6px;';
+    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;';
 
+    // Label
     var lbl=document.createElement('div');
     lbl.textContent=label;
-    lbl.style.cssText='font-family:Orbitron,sans-serif;font-size:10px;color:'+color
-      +';letter-spacing:2px;text-shadow:0 0 8px '+color+'80;';
+    lbl.style.cssText='font-family:Orbitron,sans-serif;font-size:8px;color:'+color
+      +';letter-spacing:1.5px;text-shadow:0 0 8px '+color+'60;';
     wrap.appendChild(lbl);
 
     var row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:10px;';
 
-    // D-pad (3x3 CSS grid, 5 cells used)
-    var dpad=document.createElement('div');
-    dpad.style.cssText=
-      'display:grid;grid-template-columns:repeat(3,46px);'
-      +'grid-template-rows:repeat(3,46px);gap:3px;';
+    // Joystick base
+    var base=document.createElement('div');
+    base.style.cssText=
+      'position:relative;width:'+joySize+'px;height:'+joySize+'px;border-radius:50%;'
+      +'border:2.5px solid '+color+'50;background:'+color+'08;'
+      +'touch-action:none;cursor:pointer;flex-shrink:0;';
 
-    [{r:1,c:2,d:'up',   icon:'▲'},
-     {r:2,c:1,d:'left', icon:'◀'},
-     {r:2,c:3,d:'right',icon:'▶'},
-     {r:3,c:2,d:'down', icon:'▼'}
-    ].forEach(function(cfg){
-      var btn=mkVBtn(cfg.icon,color,false);
-      btn.style.gridRow=cfg.r+'';btn.style.gridColumn=cfg.c+'';
-      attachHold(btn,prefix+'_'+cfg.d);
-      dpad.appendChild(btn);
-    });
+    // Joystick knob
+    var knobSize=Math.round(joySize*0.42);
+    var knob=document.createElement('div');
+    knob.style.cssText=
+      'position:absolute;top:50%;left:50%;'
+      +'transform:translate(-50%,-50%);'
+      +'width:'+knobSize+'px;height:'+knobSize+'px;border-radius:50%;pointer-events:none;'
+      +'background:radial-gradient(circle at 38% 36%,'+color+'bb,'+color+'44);'
+      +'border:2px solid '+color+'99;'
+      +'box-shadow:0 0 12px '+color+'55;'
+      +'transition:transform 0.05s;';
+    base.appendChild(knob);
 
-    var fire=mkVBtn('💥',color,true);
-    fire.style.cssText+=';width:62px;height:62px;font-size:26px;'
-      +'border-radius:50%;background:rgba(255,255,255,0.07);';
-    attachHold(fire,prefix+'_fire');
+    // Wire joystick
+    wireJoystick(base, knob, prefix, joySize);
 
-    row.appendChild(dpad);
+    // Fire button
+    var fire=document.createElement('button');
+    fire.textContent='💥';
+    fire.style.cssText=
+      'width:'+fireSize+'px;height:'+fireSize+'px;border-radius:50%;'
+      +'background:rgba(255,255,255,0.07);'
+      +'border:2px solid '+color+'60;color:'+color+';'
+      +'font-size:'+(fireSize*0.38)+'px;display:flex;align-items:center;'
+      +'justify-content:center;cursor:pointer;flex-shrink:0;'
+      +'-webkit-tap-highlight-color:transparent;'
+      +'touch-action:none;user-select:none;'
+      +'transition:background 0.08s,transform 0.08s;'
+      +'box-shadow:0 2px 10px rgba(0,0,0,0.4);';
+    fire.addEventListener('contextmenu',function(e){e.preventDefault();});
+    attachHold(fire, prefix+'_fire');
+
+    row.appendChild(base);
     row.appendChild(fire);
     wrap.appendChild(row);
     return wrap;
   }
 
-  function mkVBtn(icon,color,big){
-    var b=document.createElement('button');
-    b.textContent=icon;
-    b.style.cssText=
-      'width:46px;height:46px;border-radius:8px;'
-      +'background:rgba(255,255,255,0.06);'
-      +'border:1.5px solid '+color+'50;color:'+color+';'
-      +'font-size:18px;display:flex;align-items:center;'
-      +'justify-content:center;cursor:pointer;'
-      +'-webkit-tap-highlight-color:transparent;'
-      +'touch-action:none;user-select:none;'
-      +'transition:background 0.08s,transform 0.08s;'
-      +'box-shadow:0 2px 8px rgba(0,0,0,0.3);';
-    b.addEventListener('contextmenu',function(e){e.preventDefault();});
-    return b;
+  function wireJoystick(base, knob, prefix, joySize){
+    var RADIUS = joySize * 0.35; // max travel radius
+    var DEAD   = 0.22;           // deadzone fraction
+    var active=false, pointerId=-1, startX=0, startY=0;
+
+    function setDir(dx, dy){
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      var nx=dist>0?dx/dist:0, ny=dist>0?dy/dist:0;
+      var mag=Math.min(1,dist/RADIUS);
+      // Threshold for key activation
+      inp[prefix+'_up']    = ny < -DEAD && Math.abs(ny) >= Math.abs(nx)*0.5;
+      inp[prefix+'_down']  = ny >  DEAD && Math.abs(ny) >= Math.abs(nx)*0.5;
+      inp[prefix+'_left']  = nx < -DEAD && Math.abs(nx) >= Math.abs(ny)*0.5;
+      inp[prefix+'_right'] = nx >  DEAD && Math.abs(nx) >= Math.abs(ny)*0.5;
+      // Clamp knob visually
+      var clampDist=Math.min(dist,RADIUS);
+      var kx=dist>0?(dx/dist)*clampDist:0;
+      var ky=dist>0?(dy/dist)*clampDist:0;
+      knob.style.transform='translate(calc(-50% + '+kx+'px), calc(-50% + '+ky+'px))';
+      knob.style.boxShadow='0 0 '+(8+mag*14)+'px '+knob.style.borderColor;
+    }
+
+    function resetDir(){
+      inp[prefix+'_up']=inp[prefix+'_down']=inp[prefix+'_left']=inp[prefix+'_right']=false;
+      knob.style.transform='translate(-50%,-50%)';
+      active=false; pointerId=-1;
+    }
+
+    base.addEventListener('pointerdown',function(e){
+      e.preventDefault();
+      base.setPointerCapture(e.pointerId);
+      active=true; pointerId=e.pointerId;
+      var r=base.getBoundingClientRect();
+      startX=r.left+r.width/2; startY=r.top+r.height/2;
+      setDir(0,0);
+    },{passive:false});
+
+    base.addEventListener('pointermove',function(e){
+      if(!active||e.pointerId!==pointerId)return;
+      e.preventDefault();
+      setDir(e.clientX-startX, e.clientY-startY);
+    },{passive:false});
+
+    base.addEventListener('pointerup',    function(e){if(e.pointerId===pointerId)resetDir();},{passive:false});
+    base.addEventListener('pointercancel',function(e){if(e.pointerId===pointerId)resetDir();},{passive:false});
   }
 
   function attachHold(btn,key){
@@ -631,7 +703,7 @@
     function release(e){
       e.preventDefault();
       inp[key]=false;
-      btn.style.background='rgba(255,255,255,0.06)';
+      btn.style.background='rgba(255,255,255,0.07)';
       btn.style.transform='scale(1)';
     }
     btn.addEventListener('pointerdown', press,   {passive:false});
@@ -640,13 +712,26 @@
     btn.addEventListener('pointercancel',release,{passive:false});
   }
 
-  // ── Canvas resize ─────────────────────────────────────────
+  // ── Canvas resize — landscape-aware ───────────────────────
   function resizeCanvas(){
     if(!canvas)return;
-    var maxW=Math.min(window.innerWidth-16,CFG.W);
-    var scale=maxW/CFG.W;
-    canvas.style.width=Math.round(CFG.W*scale)+'px';
-    canvas.style.height=Math.round(CFG.H*scale)+'px';
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var isLandscape = vw > vh;
+    var scale;
+    if(isLandscape && vh < 520){
+      // Landscape phone: height is the scarce resource
+      // Reserve ~48px for HUD bar, ~110px for controls strip
+      var availH = vh - 48 - 110;
+      var scaleH  = availH / CFG.H;
+      var scaleW  = (vw - 8) / CFG.W;
+      scale = Math.min(scaleH, scaleW, 1);
+    } else {
+      // Portrait / tablet: constrain by width as before
+      scale = Math.min((vw - 16) / CFG.W, 1);
+    }
+    scale = Math.max(scale, 0.3);
+    canvas.style.width  = Math.round(CFG.W * scale) + 'px';
+    canvas.style.height = Math.round(CFG.H * scale) + 'px';
   }
 
   // ── tanksInit ─────────────────────────────────────────────
@@ -658,6 +743,7 @@
     mobileDiv=document.getElementById('tanks-mobile-controls');
     resizeCanvas();
 
+    // Read active difficulty/kills from DOM (persists across navigations)
     var ad=document.querySelector('.tanks-diff-btn.active');
     var ak=document.querySelector('.tanks-kills-btn.active');
     botDiff=ad?ad.getAttribute('data-diff'):'medium';
@@ -669,23 +755,35 @@
     if(home)home.classList.remove('hidden');
     if(play){play.classList.add('hidden');play.style.display='none';}
 
-    if (!window._tanksWired) {
+    if (!window._tanksKeyWired) {
       document.addEventListener('keydown', onKey, false);
       document.addEventListener('keyup',   onKey, false);
-      window.addEventListener('resize', resizeCanvas);
-      window._tanksWired = true;
+      window.addEventListener('resize', function(){
+        resizeCanvas();
+        if(gameState==='play' && mobileDiv && mobileDiv.children.length>0){
+          buildMobileControls(isBot);
+        }
+      });
+      window._tanksKeyWired = true;
     }
 
+    // Always re-wire button clicks (use flag per button to avoid duplicates)
     document.querySelectorAll('.tanks-diff-btn').forEach(function(b){
+      if(b.__tanksDiffWired) return;
+      b.__tanksDiffWired = true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.tanks-diff-btn').forEach(function(x){x.classList.remove('active');});
-        b.classList.add('active');botDiff=b.getAttribute('data-diff');
+        b.classList.add('active');
+        botDiff=b.getAttribute('data-diff');
       });
     });
     document.querySelectorAll('.tanks-kills-btn').forEach(function(b){
+      if(b.__tanksKillsWired) return;
+      b.__tanksKillsWired = true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.tanks-kills-btn').forEach(function(x){x.classList.remove('active');});
-        b.classList.add('active');killTarget=+b.getAttribute('data-kills');
+        b.classList.add('active');
+        killTarget=+b.getAttribute('data-kills');
       });
     });
 
@@ -712,7 +810,7 @@
     document.removeEventListener('keydown',onKey);
     document.removeEventListener('keyup',  onKey);
     window.removeEventListener('resize',resizeCanvas);
-    window._tanksWired = false;
+    window._tanksKeyWired = false;
     if(mobileDiv)mobileDiv.innerHTML='';
   };
 

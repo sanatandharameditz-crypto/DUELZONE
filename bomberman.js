@@ -8,7 +8,18 @@
   'use strict';
 
   var COLS = 13, ROWS = 11;
-  var CELL = 36; // canvas cell size
+  var CELL = 36; // canvas cell size — overridden dynamically by calcCell()
+
+  function calcCell() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var ctrlH = 150; // height reserved for bottom controls strip
+    var headerH = 90; // heading + scores
+    var availW = vw - 16;
+    var availH = vh - headerH - ctrlH;
+    var byW = Math.floor(availW / COLS);
+    var byH = Math.floor(availH / ROWS);
+    CELL = Math.max(18, Math.min(52, byW, byH));
+  }
   var BOMB_TIMER = 2200; // ms fuse
   var FLAME_DUR = 700;   // ms flame visible
 
@@ -41,8 +52,10 @@
 
   function bmShowHome() {
     bmStop();
+    window.scrollTo(0, 0);
     el('bm-home').classList.remove('hidden');
     el('bm-play').classList.add('hidden');
+    var backBtn = el('bm-back-play'); if (backBtn) backBtn.style.display = 'none';
   }
 
   function bmWireUI() {
@@ -123,13 +136,17 @@
     BM.scores = [0, 0];
     BM.players[0].wins = 0; BM.players[1].wins = 0;
     BM.players[1].name = BM.mode === 'bot' ? '🤖 Bot' : 'Player 2';
+    window.scrollTo(0, 0);
 
     el('bm-home').classList.add('hidden');
-    el('bm-play').classList.remove('hidden');
+    var playEl = el('bm-play');
+    if (playEl) { playEl.classList.remove('hidden'); }
     el('bm-result').classList.add('hidden');
+    var backBtn = el('bm-back-play'); if (backBtn) backBtn.style.display = 'block';
 
     var canvas = el('bm-canvas');
     if (canvas) {
+      calcCell();
       canvas.width = COLS * CELL;
       canvas.height = ROWS * CELL;
       BM.canvas = canvas; BM.ctx = canvas.getContext('2d');
@@ -138,78 +155,107 @@
     bmNewRound();
   }
 
-  // ── Mobile virtual controls ────────────────────────────────────
+  // ── Mobile virtual controls (bottom strip) ─────────────────────
   function bmBuildMobileControls() {
-    var wrap = el('bm-mobile-controls');
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    wrap.style.cssText = 'width:100%;max-width:' + (COLS * CELL) + 'px;margin:0 auto;display:flex;justify-content:space-around;align-items:center;padding:8px 0;user-select:none;-webkit-user-select:none;touch-action:none;';
+    var p1wrap = el('bm-ctrl-p1');
+    var p2wrap = el('bm-ctrl-p2');
+    if (!p1wrap) return;
+    p1wrap.innerHTML = '';
+    if (p2wrap) p2wrap.innerHTML = '';
+
+    var btnSize = '52px';
+    var bombSize = '56px';
+    var gap = '3px';
 
     function mkDpad(pid, color) {
       var keys = pid === 0
         ? { up:'W', down:'S', left:'A', right:'D', bomb:' ' }
         : { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', bomb:'Enter' };
-      var label = pid === 0 ? ('🔵 P1') : (BM.mode === 'bot' ? null : '🔴 P2');
+      var label = pid === 0 ? '🔵 P1' : (BM.mode === 'bot' ? null : '🔴 P2');
       if (!label) return null;
 
       var container = document.createElement('div');
-      container.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;';
+      container.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
 
       var lbl = document.createElement('div');
-      lbl.className = 'dz-ctrl-label';
       lbl.textContent = label;
+      lbl.style.cssText = 'color:' + color + ';font-size:0.7rem;font-weight:700;font-family:Rajdhani,sans-serif;margin-bottom:2px;letter-spacing:0.05em;';
       container.appendChild(lbl);
 
-      function mkBtn(arrow, keyName, extraStyle) {
+      // D-pad + bomb side by side
+      var controls = document.createElement('div');
+      controls.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+      // D-pad (cross layout)
+      var dpad = document.createElement('div');
+      dpad.style.cssText = 'display:grid;grid-template-columns:repeat(3,'+btnSize+');grid-template-rows:repeat(3,'+btnSize+');gap:'+gap+';';
+
+      function mkBtn(arrow, keyName, gridCol, gridRow) {
         var b = document.createElement('button');
-        b.className = 'dz-dpad-btn';
         b.textContent = arrow;
-        b.style.cssText = (extraStyle || '') + 'background:rgba(255,255,255,0.08);border:1px solid ' + color + '44;color:' + color + ';';
-        function press(e) { e.preventDefault(); keysDown[keyName] = true; }
-        function release(e) { e.preventDefault(); keysDown[keyName] = false; }
-        b.addEventListener('pointerdown', press);
-        b.addEventListener('pointerup', release);
-        b.addEventListener('pointercancel', release);
-        b.addEventListener('pointerleave', release);
-        return b;
-      }
-      function mkBombBtn() {
-        var b = document.createElement('button');
-        b.className = 'dz-action-btn';
-        b.textContent = '💣';
-        b.style.cssText = 'background:rgba(255,200,0,0.15);border:1px solid ' + color + '88;color:' + color + ';min-width:52px;height:52px;border-radius:8px;font-size:1.4rem;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;';
-        b.addEventListener('pointerdown', function(e){
-          e.preventDefault();
-          bmPlaceBomb(pid);
-        });
+        b.style.cssText =
+          'grid-column:'+gridCol+';grid-row:'+gridRow+';'
+          + 'width:'+btnSize+';height:'+btnSize+';'
+          + 'background:rgba(255,255,255,0.08);border:1.5px solid '+color+'55;'
+          + 'color:'+color+';border-radius:10px;font-size:1.2rem;cursor:pointer;'
+          + 'touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;'
+          + 'display:flex;align-items:center;justify-content:center;'
+          + 'transition:background 0.08s,transform 0.08s;';
+        function press(e) { e.preventDefault(); keysDown[keyName] = true; b.style.background = color+'33'; b.style.transform='scale(0.9)'; }
+        function release(e) { e.preventDefault(); keysDown[keyName] = false; b.style.background='rgba(255,255,255,0.08)'; b.style.transform='scale(1)'; }
+        b.addEventListener('pointerdown', press, {passive:false});
+        b.addEventListener('pointerup', release, {passive:false});
+        b.addEventListener('pointercancel', release, {passive:false});
+        b.addEventListener('pointerleave', release, {passive:false});
         return b;
       }
 
-      var upRow = document.createElement('div');
-      upRow.style.cssText = 'display:flex;justify-content:center;';
-      upRow.appendChild(mkBtn('▲', keys.up));
+      // Empty corners, arrow buttons in cross positions
+      dpad.appendChild(mkBtn('▲', keys.up,    2, 1)); // top centre
+      dpad.appendChild(mkBtn('◀', keys.left,  1, 2)); // mid left
+      dpad.appendChild(mkBtn('▼', keys.down,  2, 3)); // bottom centre
+      dpad.appendChild(mkBtn('▶', keys.right, 3, 2)); // mid right
 
-      var midRow = document.createElement('div');
-      midRow.style.cssText = 'display:flex;gap:4px;align-items:center;';
-      midRow.appendChild(mkBtn('◀', keys.left));
-      midRow.appendChild(mkBombBtn());
-      midRow.appendChild(mkBtn('▶', keys.right));
+      // Centre empty cell (visual gap)
+      var centre = document.createElement('div');
+      centre.style.cssText = 'grid-column:2;grid-row:2;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid '+color+'22;';
+      dpad.appendChild(centre);
 
-      var downRow = document.createElement('div');
-      downRow.style.cssText = 'display:flex;justify-content:center;';
-      downRow.appendChild(mkBtn('▼', keys.down));
+      controls.appendChild(dpad);
 
-      container.appendChild(upRow);
-      container.appendChild(midRow);
-      container.appendChild(downRow);
+      // 💣 Bomb button beside dpad
+      var bombBtn = document.createElement('button');
+      bombBtn.textContent = '💣';
+      bombBtn.style.cssText =
+        'width:'+bombSize+';height:'+bombSize+';'
+        + 'background:rgba(255,200,0,0.12);border:2px solid '+color+'77;'
+        + 'color:'+color+';border-radius:14px;font-size:1.5rem;cursor:pointer;'
+        + 'touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;'
+        + 'display:flex;align-items:center;justify-content:center;'
+        + 'transition:background 0.08s,transform 0.08s;align-self:center;';
+      bombBtn.addEventListener('pointerdown', function(e){
+        e.preventDefault();
+        bmPlaceBomb(pid);
+        bombBtn.style.background = 'rgba(255,200,0,0.35)';
+        bombBtn.style.transform = 'scale(0.9)';
+      }, {passive:false});
+      bombBtn.addEventListener('pointerup',     function(){ bombBtn.style.background='rgba(255,200,0,0.12)'; bombBtn.style.transform='scale(1)'; }, {passive:false});
+      bombBtn.addEventListener('pointercancel', function(){ bombBtn.style.background='rgba(255,200,0,0.12)'; bombBtn.style.transform='scale(1)'; }, {passive:false});
+
+      controls.appendChild(bombBtn);
+      container.appendChild(controls);
       return container;
     }
 
     var p1ctrl = mkDpad(0, '#00e5ff');
-    if (p1ctrl) wrap.appendChild(p1ctrl);
-    if (BM.mode === 'pvp') {
+    if (p1ctrl) p1wrap.appendChild(p1ctrl);
+
+    if (BM.mode === 'pvp' && p2wrap) {
       var p2ctrl = mkDpad(1, '#f50057');
-      if (p2ctrl) wrap.appendChild(p2ctrl);
+      if (p2ctrl) p2wrap.appendChild(p2ctrl);
+    } else if (p2wrap) {
+      // Bot mode: show keyboard hint in P2 area
+      p2wrap.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:0.65rem;font-family:Rajdhani,sans-serif;text-align:center;padding:8px;">🤖 Bot<br>playing</div>';
     }
   }
 
@@ -280,7 +326,7 @@
     // Max 1 bomb at a time per player (upgradeable later)
     var hasBomb = BM.bombs.some(function (b) { return b.owner === pid; });
     if (hasBomb) return;
-    var bomb = { x: p.x, y: p.y, owner: pid, range: p.range, timer: null };
+    var bomb = { x: p.x, y: p.y, owner: pid, range: p.range, timer: null, placedAt: Date.now() };
     BM.bombs.push(bomb);
     bomb.timer = setTimeout(function () { bmExplode(bomb); }, BOMB_TIMER);
   }
@@ -324,6 +370,11 @@
   }
 
   function bmCheckRoundEnd() {
+    // BUG 3 FIX: When both players die from the same explosion, bmExplode's
+    // forEach loop schedules bmCheckRoundEnd once per killed player (potentially
+    // twice). The BM.over guard prevents the second call from double-awarding
+    // a point or starting two new rounds simultaneously.
+    if (BM.over) return;
     var alive0 = BM.players[0].alive, alive1 = BM.players[1].alive;
     if (alive0 && !alive1) { BM.scores[0]++; bmRoundOver(0); }
     else if (!alive0 && alive1) { BM.scores[1]++; bmRoundOver(1); }
@@ -457,39 +508,50 @@
 
   function bmBotAct() {
     var bot = BM.players[1];
-    var p1 = BM.players[0];
-    var dx = p1.x - bot.x, dy = p1.y - bot.y;
+    var p1  = BM.players[0];
+    var dx  = p1.x - bot.x, dy = p1.y - bot.y;
+    var distToP1 = Math.abs(dx) + Math.abs(dy);
     var inDanger = bmCellDangerous(bot.x, bot.y);
+    var hasBomb  = BM.bombs.some(function(b){ return b.owner === 1; });
 
-    if (inDanger) {
-      bmBotFleeSafely(bot); return;
+    // PRIORITY 1: Flee if standing on danger
+    if (inDanger) { bmBotFleeSafely(bot); return; }
+
+    // PRIORITY 2: If own bomb is ticking, flee — but only for a few ticks
+    // (avoid running forever — check bomb fuse time remaining)
+    if (hasBomb) {
+      var myBomb = BM.bombs.filter(function(b){ return b.owner === 1; })[0];
+      var fuseLeft = myBomb ? (myBomb.placedAt + BOMB_TIMER - Date.now()) : 0;
+      // If fuse > 400ms left, move away; otherwise stay put and wait
+      if (fuseLeft > 400) { bmBotFleeSafely(bot); return; }
+      // Fuse almost done — hold position unless dangerous
+      return;
     }
 
-    if (BM.diff === 'hard') {
-      // Hard: predict, trap, and always flee after bombing
-      var distToP1 = Math.abs(dx) + Math.abs(dy);
-      var hasBomb = BM.bombs.some(function(b){ return b.owner===1; });
+    // PRIORITY 3: Can we hurt the player with a bomb RIGHT NOW?
+    // Check if player is in line-of-sight along a row or column within range
+    var canBlastPlayer = bmCanBlastTarget(bot, p1);
 
-      // If very close and no bomb active, place bomb then flee
-      if (!hasBomb && distToP1 <= 2) {
+    if (canBlastPlayer) {
+      bmPlaceBomb(1);
+      bmBotFleeSafely(bot);
+      return;
+    }
+
+    // PRIORITY 4: Bomb soft blocks that are blocking the path to the player
+    if (BM.diff !== 'easy' || distToP1 <= 4) {
+      var blockDir = bmFindBlockingBlock(bot, p1);
+      if (blockDir) {
         bmPlaceBomb(1);
         bmBotFleeSafely(bot);
         return;
       }
-      // If bomb placed, flee to safety
-      if (hasBomb) {
-        bmBotFleeSafely(bot);
-        return;
-      }
-      // Move toward player using BFS
+    }
+
+    // PRIORITY 5: Move toward player
+    if (BM.diff === 'hard') {
       bmBotBFSMove(bot, p1.x, p1.y);
     } else {
-      // Easy/Medium: simple approach
-      if (Math.abs(dx) + Math.abs(dy) <= 2) {
-        bmPlaceBomb(1);
-        bmBotMoveRandom(bot);
-        return;
-      }
       var dirs = [];
       if (Math.abs(dx) > Math.abs(dy)) {
         dirs.push([dx > 0 ? 1 : -1, 0]);
@@ -499,14 +561,63 @@
         dirs.push([dx > 0 ? 1 : -1, 0]);
       }
       dirs.push([-1, 0]); dirs.push([1, 0]); dirs.push([0, -1]); dirs.push([0, 1]);
+      var moved = false;
       for (var i = 0; i < dirs.length; i++) {
         var nx = bot.x + dirs[i][0], ny = bot.y + dirs[i][1];
         if (nx >= 0 && ny >= 0 && nx < COLS && ny < ROWS && BM.grid[ny][nx] === EMPTY &&
-            !BM.bombs.some(function(b){return b.x===nx&&b.y===ny;})) {
-          bot.x = nx; bot.y = ny; return;
+            !BM.bombs.some(function(b){ return b.x === nx && b.y === ny; }) &&
+            !bmCellDangerous(nx, ny)) {
+          bot.x = nx; bot.y = ny; moved = true; break;
+        }
+      }
+      // Blocked by a soft block in the preferred direction — bomb it
+      if (!moved) {
+        for (var j = 0; j < dirs.length; j++) {
+          var bnx = bot.x + dirs[j][0], bny = bot.y + dirs[j][1];
+          if (bnx >= 0 && bny >= 0 && bnx < COLS && bny < ROWS && BM.grid[bny][bnx] === BLOCK) {
+            bmPlaceBomb(1);
+            bmBotFleeSafely(bot);
+            return;
+          }
         }
       }
     }
+  }
+
+  // Returns true if placing a bomb at bot's position would hit p1 (clear line of sight)
+  function bmCanBlastTarget(bot, target) {
+    var dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (var d = 0; d < dirs.length; d++) {
+      for (var r = 1; r <= bot.range; r++) {
+        var bx = bot.x + dirs[d][0] * r;
+        var by = bot.y + dirs[d][1] * r;
+        if (bx < 0 || by < 0 || bx >= COLS || by >= ROWS) break;
+        if (BM.grid[by][bx] === WALL) break;
+        if (BM.grid[by][bx] === BLOCK) break;  // blocked by soft wall
+        if (bx === target.x && by === target.y) return true;
+      }
+    }
+    return false;
+  }
+
+  // Returns direction of a blocking soft block toward the player, or null
+  function bmFindBlockingBlock(bot, target) {
+    var dx = target.x - bot.x, dy = target.y - bot.y;
+    var dirs = [];
+    if (Math.abs(dx) > Math.abs(dy)) {
+      dirs.push([dx > 0 ? 1 : -1, 0]);
+      dirs.push([0, dy > 0 ? 1 : -1]);
+    } else {
+      dirs.push([0, dy > 0 ? 1 : -1]);
+      dirs.push([dx > 0 ? 1 : -1, 0]);
+    }
+    for (var i = 0; i < dirs.length; i++) {
+      var nx = bot.x + dirs[i][0], ny = bot.y + dirs[i][1];
+      if (nx >= 0 && ny >= 0 && nx < COLS && ny < ROWS && BM.grid[ny][nx] === BLOCK) {
+        return dirs[i];
+      }
+    }
+    return null;
   }
 
   // BFS to move one step toward target, avoiding danger

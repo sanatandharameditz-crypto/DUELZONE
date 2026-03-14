@@ -439,13 +439,15 @@
     $('darts-result').classList.remove('hidden');
     dartsConfetti();
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
+
   }
 
   // ─── Bot ──────────────────────────────────────────────────────
   function dartsBotThrow() {
     if (DS.gameOver) return;
     var tgt = dartsBotTarget(DS.scores[1]);
-    var inac = DS.boardR * ({easy:0.45, medium:0.22, hard:0.003}[DS.botDiff]||0.22);
+    // Hard bot has near-perfect aim (inaccuracy ~0 — essentially a perfect throw every time)
+    var inac = DS.boardR * ({easy:0.45, medium:0.22, hard:0.0001}[DS.botDiff]||0.22);
     var tx = tgt.x + (Math.random()-0.5)*inac;
     var ty = tgt.y + (Math.random()-0.5)*inac;
     dartsThrowAt(tx, ty);
@@ -458,10 +460,23 @@
       var a = Math.random()*Math.PI*2, d = Math.random()*r*0.7;
       return {x: cx+Math.cos(a)*d, y: cy+Math.sin(a)*d};
     }
-    if (rem === 50 || rem === 25) return {x:cx, y:cy}; // bullseye
 
-    if (DS.doubleOut && rem <= 40 && rem % 2 === 0) {
-      // Aim for the exact double needed
+    // Hard/Medium: optimal checkout strategy
+    // Step 1: Bullseye for 50 or 25
+    if (rem === 50) return {x:cx, y:cy}; // bullseye (50)
+    if (rem === 25) return {x:cx, y:cy+RFRACS.bullseye*r*1.2}; // outer bull (25)
+
+    // Step 2: Use checkout table for scores <= 170
+    if (diff === 'hard' && rem <= 170) {
+      var checkout = dartsCheckoutSuggestion(rem);
+      if (checkout && checkout.length > 0) {
+        var firstTarget = checkout[0];
+        return dartsBotParseTarget(firstTarget, r, cx, cy);
+      }
+    }
+
+    // Step 3: For double-out finish (<= 40, even)
+    if (DS.doubleOut && rem <= 40 && rem % 2 === 0 && rem > 0) {
       var si = SEGMENTS.indexOf(rem/2);
       if (si >= 0) {
         var sa = dartsSegAngle(si);
@@ -470,25 +485,44 @@
       }
     }
 
-    if (diff === 'hard') {
-      // Hard: optimal target strategy
-      // If rem > 60 aim triple 20, if rem > 40 aim triple 20 or triple best
-      if (rem > 60) {
-        var t20 = (RFRACS.tripleIn+RFRACS.tripleOut)/2*r;
-        return {x:cx+Math.cos(-Math.PI/2)*t20, y:cy+Math.sin(-Math.PI/2)*t20};
-      }
-      // For awkward numbers, aim at the segment directly
-      var bestSeg = Math.min(20, rem > 20 ? 20 : rem);
-      var si2 = SEGMENTS.indexOf(bestSeg);
-      if (si2 >= 0) {
-        var sa2 = dartsSegAngle(si2);
-        var ts = (RFRACS.tripleIn+RFRACS.tripleOut)/2*r;
-        return {x:cx+Math.cos(sa2)*ts, y:cy+Math.sin(sa2)*ts};
-      }
+    // Step 4: Always aim triple 20 when score > 60
+    if (rem > 60) {
+      var t20 = (RFRACS.tripleIn+RFRACS.tripleOut)/2*r;
+      return {x:cx+Math.cos(-Math.PI/2)*t20, y:cy+Math.sin(-Math.PI/2)*t20};
     }
-    // Default: Aim triple 20
+
+    // Step 5: For rem <= 60, aim at the exact segment (single) to set up checkout
+    var targetNum = rem > 20 ? 20 : rem;
+    var si3 = SEGMENTS.indexOf(targetNum);
+    if (si3 >= 0) {
+      var sa3 = dartsSegAngle(si3);
+      // Aim for single (middle of segment)
+      var singleR = (RFRACS.tripleOut + RFRACS.doubleIn) / 2 * r;
+      return {x:cx+Math.cos(sa3)*singleR, y:cy+Math.sin(sa3)*singleR};
+    }
+
+    // Default fallback: Triple 20
     var t20b = (RFRACS.tripleIn+RFRACS.tripleOut)/2*r;
     return {x:cx+Math.cos(-Math.PI/2)*t20b, y:cy+Math.sin(-Math.PI/2)*t20b};
+  }
+
+  // Parse a checkout target string like "T20", "D16", "Bull" into board coordinates
+  function dartsBotParseTarget(target, r, cx, cy) {
+    if (target === 'Bull' || target === 'BULL') return {x:cx, y:cy};
+    var multi = 1;
+    var numStr = target;
+    if (target[0] === 'T') { multi = 3; numStr = target.slice(1); }
+    else if (target[0] === 'D') { multi = 2; numStr = target.slice(1); }
+    var num = parseInt(numStr, 10);
+    if (isNaN(num)) return {x:cx, y:cy - r*0.36}; // fallback T20
+    var si = SEGMENTS.indexOf(num);
+    if (si < 0) return {x:cx, y:cy - r*0.36};
+    var sa = dartsSegAngle(si);
+    var rr;
+    if (multi === 3) rr = (RFRACS.tripleIn + RFRACS.tripleOut) / 2 * r;
+    else if (multi === 2) rr = (RFRACS.doubleIn + RFRACS.doubleOut) / 2 * r;
+    else rr = (RFRACS.tripleOut + RFRACS.doubleIn) / 2 * r; // single
+    return {x: cx + Math.cos(sa)*rr, y: cy + Math.sin(sa)*rr};
   }
 
   // ─── Score calculation ────────────────────────────────────────

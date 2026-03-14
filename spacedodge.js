@@ -25,12 +25,12 @@
 
     SHIP_HP:    120,
     SHIP_R:     13,
-    THRUST:     480,        // ↑ faster normal acceleration
-    MAX_SPD:    380,        // ↑ higher normal top speed
+    THRUST:     960,        // 2× normal acceleration
+    MAX_SPD:    760,        // 2× normal top speed
     ROT_SPD:    3.8,        // slightly snappier turning
     FRICTION:   0.87,
-    BOOST_FORCE:1400,       // massive burst force for nitro
-    BOOST_MAX:  1140,       // 3× normal max speed (380×3) during nitro
+    BOOST_FORCE:2800,       // 4× original burst force
+    BOOST_MAX:  1520,       // 4× original normal max speed during boost
     BOOST_DUR:  0.38,       // slightly longer nitro window
     BOOST_CD:   2.8,
     RAM_DMG:    22,
@@ -173,7 +173,7 @@
       qa('.sd-arena-btn', function(x){ x.classList.remove('active'); });
       b.classList.add('active'); arenaSize = b.getAttribute('data-size');
     }); });
-    on('sd-back-hub',   function(){ if (typeof showHub === 'function') showHub(); });
+    on('sd-back-hub',   function(){ if (typeof showHub === 'function') showHub(); if (typeof window.dzCheckOrientation==='function') window.dzCheckOrientation(); });
     on('sd-start-pvp',  function(){ startGame(true);  });
     on('sd-start-bot',  function(){ startGame(false); });
     on('sd-back-setup', goSetup);
@@ -181,17 +181,200 @@
     on('sd-resume-btn', togglePause);
     on('sd-play-again', function(){ startGame(isPvP); });
     on('sd-to-setup',   goSetup);
+    // Joystick + action buttons are built dynamically in buildSdControls()
   }
 
-  function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+  // ── Build mobile joystick controls (dynamic, landscape-aware) ──
+  /*
+   * Creates joystick base + knob + BOOST + FIRE action buttons
+   * for each player and injects them into #sd-mobile-joysticks.
+   * Analog dx/dy values fed directly into joy1/joy2 state objects.
+   */
+  function buildSdControls(pvp) {
+    var container = document.getElementById('sd-mobile-joysticks');
+    if (!container) return;
+    container.innerHTML = '';
+
+    var isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 520;
+    var joySize  = isLandscape ? 80  : 100;
+    var btnH     = isLandscape ? 32  : 38;
+    var btnFontS = isLandscape ? 11  : 13;
+    var gap      = isLandscape ? 4   : 8;
+    var padding  = isLandscape ? '3px 10px' : '10px 12px 6px';
+
+    container.style.cssText =
+      'display:flex;justify-content:space-between;align-items:center;'
+      +'gap:8px;padding:'+padding+';box-sizing:border-box;width:100%;'
+      +'background:rgba(3,5,8,0.95);border-top:1px solid rgba(180,0,255,0.18);'
+      +'user-select:none;-webkit-user-select:none;';
+
+    // P1 set
+    container.appendChild(mkSdSet('P1 Steer','#00e5ff','#ff8800',1,joySize,btnH,btnFontS,gap));
+
+    // Divider
+    var div = document.createElement('div');
+    div.style.cssText = 'width:1px;height:70px;background:rgba(255,255,255,0.07);flex-shrink:0;';
+    container.appendChild(div);
+
+    // P2 set (hidden in bot mode)
+    var p2set = mkSdSet('P2 Steer','#ff3d71','#ff8800',2,joySize,btnH,btnFontS,gap);
+    p2set.id = 'sd-joy2-wrap';
+    if (!pvp) p2set.style.display = 'none';
+    container.appendChild(p2set);
+  }
+
+  function mkSdSet(label, joyColor, fireColor, playerNum, joySize, btnH, btnFontS, gap) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:'+gap+'px;';
+
+    // Label
+    var lbl = document.createElement('span');
+    lbl.textContent = label;
+    lbl.style.cssText =
+      'font-family:Rajdhani,sans-serif;font-size:10px;color:'+joyColor
+      +';letter-spacing:1.5px;text-transform:uppercase;';
+    wrap.appendChild(lbl);
+
+    // Joystick base
+    var knobSize = Math.round(joySize * 0.42);
+    var base = document.createElement('div');
+    base.id = 'sd-joy' + playerNum;
+    base.style.cssText =
+      'position:relative;width:'+joySize+'px;height:'+joySize+'px;border-radius:50%;'
+      +'border:2.5px solid '+joyColor+'55;background:'+joyColor+'08;'
+      +'touch-action:none;cursor:pointer;flex-shrink:0;';
+
+    var knob = document.createElement('div');
+    knob.id = 'sd-joy'+playerNum+'-knob';
+    knob.style.cssText =
+      'position:absolute;top:50%;left:50%;'
+      +'transform:translate(-50%,-50%);'
+      +'width:'+knobSize+'px;height:'+knobSize+'px;border-radius:50%;pointer-events:none;'
+      +'background:radial-gradient(circle at 40% 38%,'+joyColor+'bb,'+joyColor+'33);'
+      +'border:2px solid '+joyColor+'99;'
+      +'box-shadow:0 0 14px '+joyColor+'55;';
+    base.appendChild(knob);
+    wrap.appendChild(base);
+
+    // Wire the joystick (analog dx/dy → joy1 or joy2)
+    wireSdJoystick(base, knob, playerNum, joySize);
+
+    // Action buttons row
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:2px;';
+
+    var boost = mkSdBtn('⚡ BOOST', joyColor,   btnH, btnFontS);
+    var fire  = mkSdBtn('🔫 FIRE',  fireColor,  btnH, btnFontS);
+    boost.id = 'sd-boost' + playerNum;
+    fire.id  = 'sd-fire'  + playerNum;
+
+    wireSdActionBtn(boost, joyColor,  function(v){ if(playerNum===1) bst1=v; else bst2=v; });
+    wireSdActionBtn(fire,  fireColor, function(v){ if(playerNum===1) fir1=v; else fir2=v; });
+
+    btnRow.appendChild(boost);
+    btnRow.appendChild(fire);
+    wrap.appendChild(btnRow);
+    return wrap;
+  }
+
+  function mkSdBtn(label, color, h, fontSize) {
+    var b = document.createElement('button');
+    b.textContent = label;
+    b.style.cssText =
+      'height:'+h+'px;padding:0 12px;'
+      +'background:'+color+'18;border:2px solid '+color+'77;border-radius:10px;'
+      +'color:'+color+';font-family:Rajdhani,sans-serif;font-weight:700;'
+      +'font-size:'+fontSize+'px;cursor:pointer;touch-action:none;'
+      +'user-select:none;-webkit-tap-highlight-color:transparent;'
+      +'transition:background 0.08s,transform 0.08s;';
+    b.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+    return b;
+  }
+
+  function wireSdJoystick(base, knob, playerNum, joySize) {
+    if (base.__sdJoyWired) return;
+    base.__sdJoyWired = true;
+
+    var RADIUS = joySize * 0.38;   // max knob travel
+    var active = false, pointerId = -1, cx = 0, cy = 0;
+
+    function getJoy() { return playerNum === 1 ? joy1 : joy2; }
+
+    function setJoy(dx, dy) {
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      var maxR = RADIUS;
+      // normalized -1..1 values fed to game loop
+      var nx = dist > maxR ? dx/dist : dx/maxR;
+      var ny = dist > maxR ? dy/dist : dy/maxR;
+      // knob visual travel
+      var kx = Math.min(dist, maxR) * (dist > 0 ? dx/dist : 0);
+      var ky = Math.min(dist, maxR) * (dist > 0 ? dy/dist : 0);
+      knob.style.transform = 'translate(calc(-50% + '+kx+'px), calc(-50% + '+ky+'px))';
+      // Dynamic glow
+      var mag = Math.min(1, dist/maxR);
+      knob.style.boxShadow = '0 0 '+(8 + mag*14)+'px ' + knob.style.borderColor;
+      var j = getJoy();
+      j.active = true; j.dx = nx; j.dy = ny;
+    }
+
+    function resetJoy() {
+      active = false; pointerId = -1;
+      knob.style.transform = 'translate(-50%,-50%)';
+      var j = getJoy();
+      j.active = false; j.dx = 0; j.dy = 0;
+    }
+
+    base.addEventListener('pointerdown', function(e) {
+      e.preventDefault();
+      base.setPointerCapture(e.pointerId);
+      active = true; pointerId = e.pointerId;
+      var r = base.getBoundingClientRect();
+      cx = r.left + r.width/2;
+      cy = r.top  + r.height/2;
+      setJoy(0, 0);
+    }, {passive:false});
+
+    base.addEventListener('pointermove', function(e) {
+      if (!active || e.pointerId !== pointerId) return;
+      e.preventDefault();
+      setJoy(e.clientX - cx, e.clientY - cy);
+    }, {passive:false});
+
+    base.addEventListener('pointerup',     function(e){ if(e.pointerId===pointerId) resetJoy(); }, {passive:false});
+    base.addEventListener('pointercancel', function(e){ if(e.pointerId===pointerId) resetJoy(); }, {passive:false});
+  }
+
+  function wireSdActionBtn(btn, color, setter) {
+    if (btn.__sdBtnWired) return;
+    btn.__sdBtnWired = true;
+    function press(e) {
+      e.preventDefault(); setter(true);
+      btn.style.background = color + '33';
+      btn.style.transform  = 'scale(0.94)';
+      btn.style.borderColor = color;
+    }
+    function release(e) {
+      setter(false);
+      btn.style.background  = color + '18';
+      btn.style.transform   = 'scale(1)';
+      btn.style.borderColor = color + '77';
+    }
+    btn.addEventListener('pointerdown',  press,   {passive:false});
+    btn.addEventListener('pointerup',    release, {passive:false});
+    btn.addEventListener('pointercancel',release, {passive:false});
+    btn.addEventListener('pointerleave', release, {passive:false});
+  }
   function qs(sel, fn) { document.querySelectorAll(sel).forEach(fn); }
   function qa(sel, fn) { document.querySelectorAll(sel).forEach(fn); }
+  function on(id, fn)  { var e = document.getElementById(id); if (e) e.addEventListener('click', fn); }
   function show(el) { if (el) el.classList.remove('hidden'); }
   function hide(el) { if (el) el.classList.add('hidden'); }
 
   function goSetup() {
     sdStopGame();
     hide(domResult); hide(domPause); hide(domPlay);
+    var joyDiv = document.getElementById('sd-mobile-joysticks');
+    if (joyDiv) { joyDiv.style.display = 'none'; joyDiv.innerHTML = ''; }
     show(domHome);
   }
 
@@ -245,6 +428,17 @@
     hide(domHome);
     show(domPlay);
 
+    // Build and show joystick controls (always visible for touch + desktop fallback)
+    var joyDiv = document.getElementById('sd-mobile-joysticks');
+    if (joyDiv) {
+      buildSdControls(pvp);
+      joyDiv.style.display = 'flex';
+    }
+
+    // Request landscape orientation when game starts
+    if (typeof window.dzLockLandscape    === 'function') window.dzLockLandscape();
+    if (typeof window.dzCheckOrientation === 'function') window.dzCheckOrientation();
+
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup',   onKeyUp);
     attachTouch();
@@ -258,12 +452,23 @@
   // ─────────────────────────────────────────────────────────────
   function resizeCanvas() {
     if (!domCanvas) return;
-    var maxW = Math.min(window.innerWidth - 8, CFG.W);
-    var sc   = maxW / CFG.W;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var isLandscape = vw > vh && vh < 520;
+    var scale;
+    if (isLandscape) {
+      // Reserve ~44px HUD + ~8px padding
+      var availH = vh - 52;
+      var scaleH  = availH / CFG.H;
+      var scaleW  = (vw - 8) / CFG.W;
+      scale = Math.min(scaleH, scaleW, 1);
+    } else {
+      scale = Math.min((vw - 8) / CFG.W, 1);
+    }
+    scale = Math.max(scale, 0.3);
     domCanvas.width  = CFG.W;
     domCanvas.height = CFG.H;
-    domCanvas.style.width  = Math.round(CFG.W * sc) + 'px';
-    domCanvas.style.height = Math.round(CFG.H * sc) + 'px';
+    domCanvas.style.width  = Math.round(CFG.W * scale) + 'px';
+    domCanvas.style.height = Math.round(CFG.H * scale) + 'px';
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1442,8 +1647,8 @@
     // ── Countdown overlay ──────────────────────────────────────
     if (inCD) drawCountdown();
 
-    // ── Mobile joysticks overlay ───────────────────────────────
-    if (hasTouchScreen()) drawJoysticks();
+    // ── Mobile joysticks are rendered as HTML below the canvas ──
+    // (canvas overlay removed to avoid blocking gameplay)
   }
 
   // ─────────────────────────────────────────────────────────────
