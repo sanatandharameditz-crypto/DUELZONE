@@ -293,7 +293,16 @@
     if (res) {
       res.classList.remove('hidden');
       res.style.display = 'flex';
+      // Inject share button if not already present
+      if (!res.querySelector('.mine-share-btn')) {
+        var shareBtn = document.createElement('button');
+        shareBtn.className = 'mine-share-btn ghp-result-btn-share';
+        shareBtn.textContent = '📤 Share';
+        shareBtn.onclick = function () { if (window.DZShare) DZShare.openModal(); };
+        res.appendChild(shareBtn);
+      }
     }
+    if (window.DZShare) DZShare.setResult({ game:'Minesweeper', slug:'minesweeper', winner:won?'You Win! 🏆':'Boom! 💥', detail:won?'Cleared in '+ms.timerVal+'s':'Better luck next time!', accent:'#ef4444', icon:'💣' });
   }
 
   // ── Timer ────────────────────────────────────────────

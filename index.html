@@ -10,6 +10,8 @@
     gtag('config', 'G-2J0DDSF6BV');
   </script>
   <meta name="monetag" content="ba98e9cf393508cc2f16b48abda0e2a0">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7303252613346738"
+     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#07080f"/>
@@ -17,6 +19,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <title>DuelZone – Choose Your Arena</title>
+  <meta name="description" content="DuelZone — 25+ free browser games for 2 players. No download. No signup. Play now!">
+  <link rel="canonical" href="https://duelzone.online/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <!-- Hub fonts: Orbitron + Rajdhani  |  TTT fonts: Bebas Neue + DM Mono -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,16 +29,28 @@
 </head>
 <body>
 
-  <!-- ══ Portrait / Rotate-Phone Warning Overlay ══
-       Shown via CSS on portrait+mobile, JS can also toggle it.
-       Tap "Skip" to dismiss for the session. -->
-  <div id="dz-portrait-warn" role="dialog" aria-modal="true" aria-label="Please rotate your device">
-    <div class="pw-icon">📱</div>
-    <div class="pw-accent-line"></div>
-    <div class="pw-title">Rotate Your Phone</div>
-    <div class="pw-sub">DuelZone games are designed for landscape (horizontal) view.</div>
-    <button class="pw-skip" id="dz-pw-skip">Play in Portrait Anyway</button>
-  </div>
+  <!-- ── Early route guard: if URL is /chess, /ludo etc hide hub instantly
+       so the hub never flashes before the game screen appears ── -->
+  <script>
+  (function(){
+    var slug = window.location.pathname.replace(/^\/+/,'').replace(/\/+$/,'');
+    var KNOWN = ['tic-tac-toe','connect-four','rock-paper-scissors','tap-battle',
+      'hand-cricket','2048-duel','air-hockey','password-breaker','memory-flip',
+      'connect-dots','chess','battleship','checkers','darts','ping-pong','tetris',
+      'reaction-duel','ludo','sudoku','carrom','minesweeper','bomberman',
+      'space-dodge','star-catcher','tanks','territory','draw-and-guess'];
+    if (slug && KNOWN.indexOf(slug) !== -1) {
+      // Hide hub immediately — before any other script runs
+      document.documentElement.style.setProperty('--dz-early-hide','1');
+      document.addEventListener('DOMContentLoaded', function(){
+        var hub = document.getElementById('screen-hub');
+        if (hub) hub.classList.add('hidden');
+      });
+    }
+  })();
+  </script>
+
+  <!-- Portrait warn overlay removed — landscape scrolling enabled -->
 
   <!-- ══ Interstitial Ad Overlay ══
        Shown every 3–4 hub navigations. Skippable after 5 seconds. -->
@@ -90,7 +106,7 @@
       min-height:100px;
     ">
       <script async="async" data-cfasync="false" src="https://pl28471313.effectivegatecpm.com/4f144bf8c27528ce9ccf75a8bfd0b175/invoke.js"></script>
-      <div id="container-4f144bf8c27528ce9ccf75a8bfd0b175"></div>
+      <div id="container-4f144bf8c27528ce9ccf75a8bfd0b175-b"></div>
     </div>
     <div style="
       background:rgba(255,255,255,0.04);
@@ -111,7 +127,7 @@
       font-family:'Rajdhani',sans-serif;
       font-size:0.7rem;
       letter-spacing:0.1em;
-    ">Returning to hub in <span id="dz-ad-countdown">3</span>s…</div>
+    ">Returning to hub in <span id="dz-inti-countdown">3</span>s…</div>
   </div>
   <!-- ══ END AD INTERSTITIAL ═══════════════════════════════════ -->
 
@@ -274,50 +290,6 @@
   <!-- Dropdown backdrop -->
   <div id="dz-menu-backdrop" onclick="dzCloseMenu()"></div>
 
-  <!-- ══ IN-GAME Menu (shown only when inside a game) ══ -->
-  <div id="dz-ingame-dropdown" class="dz-ingame-dropdown" aria-hidden="true">
-    <!-- Header -->
-    <div class="igd-header">
-      <div class="igd-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17,2 12,7 7,2"/></svg>
-      </div>
-      <span class="igd-title">GAME MENU</span>
-      <button class="igd-close-x" onclick="dzCloseIngameMenu()" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-
-    <!-- Hub button -->
-    <button class="igd-item" onclick="dzNavShowHome(); dzCloseIngameMenu();">
-      <span class="igd-item-icon igd-cyan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-      </span>
-      <span class="igd-item-label">← Hub</span>
-      <span class="igd-item-arrow">›</span>
-    </button>
-
-    <!-- Setup button -->
-    <button class="igd-item" id="igd-setup-btn" onclick="dzIngameSetup();">
-      <span class="igd-item-icon igd-violet">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      </span>
-      <span class="igd-item-label">⚙ Setup</span>
-      <span class="igd-item-arrow">›</span>
-    </button>
-
-    <!-- Sound toggle -->
-    <button class="igd-item" id="igd-sound-btn" onclick="dzIngameToggleSound();">
-      <span class="igd-item-icon igd-green" id="igd-sound-icon-wrap">
-        <svg id="igd-sound-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path id="igd-sound-waves" d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
-        </svg>
-      </span>
-      <span class="igd-item-label" id="igd-sound-label">Sound: On</span>
-      <span class="igd-sound-toggle" id="igd-sound-toggle">ON</span>
-    </button>
-  </div>
-
   <!-- Saved Games Panel -->
   <div id="dz-saved-panel" class="dz-side-panel">
     <div class="panel-header">
@@ -448,7 +420,7 @@
           </div>
 
           <div id="about-vgwa" class="lm-vgwa-card">
-            <div class="lm-vgwa-logo-box"><img src="V-Photoroom.png" alt="VGWA" class="lm-vgwa-img" /></div>
+            <div class="lm-vgwa-logo-box"><img loading="lazy" decoding="async" src="V-Photoroom.png" alt="VGWA" class="lm-vgwa-img" /></div>
             <div class="lm-vgwa-body">
               <h3 class="lm-vgwa-name">VGWA Studio</h3>
               <p class="lm-vgwa-desc">DuelZone is a product of <strong>VGWA</strong> — a gaming and web applications studio dedicated to crafting high-quality, accessible digital entertainment. VGWA was founded with the goal of making the web a more playful place: building games and interactive experiences that anyone can enjoy, anywhere, on any device. Every product we ship reflects our core values: quality, accessibility, and genuine fun.</p>
@@ -459,7 +431,7 @@
             <div class="lm-section-icon lm-si--pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
             <div class="lm-section-body">
               <h3 class="lm-section-title">Get In Touch</h3>
-              <p class="lm-section-text">Have a game idea? Found a bug? Want to partner or advertise? We read every message and genuinely appreciate feedback — it's how DuelZone gets better. Reach us at <a href="/cdn-cgi/l/email-protection#f69283939a8c999893d89990909f959f979ab6919b979f9ad895999b" class="lm-link"><span class="__cf_email__" data-cfemail="debaabbbb2a4b1b0bbf0b1b8b8b7bdb7bfb29eb9b3bfb7b2f0bdb1b3">[email&#160;protected]</span></a></p>
+              <p class="lm-section-text">Have a game idea? Found a bug? Want to partner or advertise? We read every message and genuinely appreciate feedback — it's how DuelZone gets better. Reach us at <a href="/cdn-cgi/l/email-protection#c0a4b5a5acbaafaea5eeafa6a6a9a3a9a1ac80a7ada1a9aceea3afad" class="lm-link"><span class="__cf_email__" data-cfemail="315544545d4b5e5f541f5e5757585258505d71565c50585d1f525e5c">[email&#160;protected]</span></a></p>
               <button class="lm-cta-btn" onclick="dzCloseLegal('modal-about'); dzOpenLegal('modal-contact')">View All Contact Channels →</button>
             </div>
           </div>
@@ -555,7 +527,7 @@
             <div class="lm-section-body">
               <h3 class="lm-section-title">Children's Privacy</h3>
               <p class="lm-section-text">DuelZone is designed to be suitable for all ages. We do not knowingly collect personal information from children under the age of 13 (or the applicable age of digital consent in your jurisdiction). Since we collect no personal information from any user, DuelZone is compliant with children's privacy regulations including COPPA.</p>
-              <p class="lm-section-text" style="margin-top:8px">Parents and guardians should be aware that our ad network partners may serve advertisements on the platform. If you have concerns about ad content your child is viewing, please contact us at <a href="/cdn-cgi/l/email-protection#395d4c5c554356575c17565f5f505a505855795e54585055175a5654" class="lm-link"><span class="__cf_email__" data-cfemail="600415050c1a0f0e054e0f0606090309010c20070d01090c4e030f0d">[email&#160;protected]</span></a> and we will investigate promptly.</p>
+              <p class="lm-section-text" style="margin-top:8px">Parents and guardians should be aware that our ad network partners may serve advertisements on the platform. If you have concerns about ad content your child is viewing, please contact us at <a href="/cdn-cgi/l/email-protection#0f6b7a6a637560616a21606969666c666e634f68626e6663216c6062" class="lm-link"><span class="__cf_email__" data-cfemail="14706171786e7b7a713a7b72727d777d7578547379757d783a777b79">[email&#160;protected]</span></a> and we will investigate promptly.</p>
             </div>
           </div>
 
@@ -564,7 +536,7 @@
             <div class="lm-section-body">
               <h3 class="lm-section-title">Changes to This Policy</h3>
               <p class="lm-section-text">We review and update this Privacy Policy periodically to reflect changes in our practices or legal requirements. When we make material changes, the "Last updated" date at the top of this document will be revised. We encourage you to revisit this policy occasionally.</p>
-              <p class="lm-section-text" style="margin-top:8px">Questions about this policy? Contact us at <a href="/cdn-cgi/l/email-protection#462233232a3c292823682920202f252f272a06212b272f2a6825292b" class="lm-link"><span class="__cf_email__" data-cfemail="5b3f2e3e372134353e75343d3d3238323a371b3c363a323775383436">[email&#160;protected]</span></a> — we aim to respond within 48 hours.</p>
+              <p class="lm-section-text" style="margin-top:8px">Questions about this policy? Contact us at <a href="/cdn-cgi/l/email-protection#abcfdecec7d1c4c5ce85c4cdcdc2c8c2cac7ebccc6cac2c785c8c4c6" class="lm-link"><span class="__cf_email__" data-cfemail="9ffbeafaf3e5f0f1fab1f0f9f9f6fcf6fef3dff8f2fef6f3b1fcf0f2">[email&#160;protected]</span></a> — we aim to respond within 48 hours.</p>
             </div>
           </div>
         </div>
@@ -683,7 +655,7 @@
             <div class="lm-section-body">
               <h3 class="lm-section-title">Modifications &amp; Governing Law</h3>
               <p class="lm-section-text">VGWA reserves the right to amend, update, or replace these Terms at any time at its sole discretion. When changes are made, the "Last updated" date will be revised. Your continued use of DuelZone following any modification constitutes your acceptance of the new Terms. If you disagree with any changes, you must stop using DuelZone.</p>
-              <p class="lm-section-text" style="margin-top:8px">These Terms are governed by and construed in accordance with applicable laws. Any dispute arising from these Terms or your use of DuelZone that cannot be resolved informally shall be submitted to binding arbitration or resolved in the courts of the applicable jurisdiction. For questions, contact <a href="/cdn-cgi/l/email-protection#0f6b7a6a637560616a21606969666c666e634f68626e6663216c6062" class="lm-link"><span class="__cf_email__" data-cfemail="c5a1b0a0a9bfaaaba0ebaaa3a3aca6aca4a985a2a8a4aca9eba6aaa8">[email&#160;protected]</span></a>.</p>
+              <p class="lm-section-text" style="margin-top:8px">These Terms are governed by and construed in accordance with applicable laws. Any dispute arising from these Terms or your use of DuelZone that cannot be resolved informally shall be submitted to binding arbitration or resolved in the courts of the applicable jurisdiction. For questions, contact <a href="/cdn-cgi/l/email-protection#eb8f9e8e879184858ec5848d8d8288828a87ab8c868a8287c5888486" class="lm-link"><span class="__cf_email__" data-cfemail="92f6e7f7fee8fdfcf7bcfdf4f4fbf1fbf3fed2f5fff3fbfebcf1fdff">[email&#160;protected]</span></a>.</p>
             </div>
           </div>
         </div>
@@ -731,38 +703,38 @@
 
           <div id="contact-channels" class="lm-contact-grid lm-contact-grid--wide">
             <!-- PRIMARY: Gmail -->
-            <a href="/cdn-cgi/l/email-protection#0d697868617762636823626b6b646e646c614d6a606c6461236e6260" class="lm-contact-card lm-cc--cyan lm-cc--primary">
+            <a href="/cdn-cgi/l/email-protection#f79382929b8d989992d99891919e949e969bb7909a969e9bd994989a" class="lm-contact-card lm-cc--cyan lm-cc--primary">
               <div class="lm-cc-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               </div>
               <div class="lm-cc-body">
                 <span class="lm-cc-label">Official Email · All Inquiries</span>
-                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="3a5e4f5f564055545f14555c5c5359535b567a5d575b535614595557">[email&#160;protected]</span></span>
+                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="3e5a4b5b524451505b10515858575d575f527e59535f5752105d5153">[email&#160;protected]</span></span>
               </div>
               <span class="lm-cc-primary-badge">PRIMARY</span>
             </a>
             <!-- Grid of secondary channels -->
-            <a href="/cdn-cgi/l/email-protection#a6c2d3c3cadcc9c8c388c9c0c0cfc5cfc7cae6c1cbc7cfca88c5c9cb" class="lm-contact-card lm-cc--violet">
+            <a href="/cdn-cgi/l/email-protection#3c584959504653525912535a5a555f555d507c5b515d5550125f5351" class="lm-contact-card lm-cc--violet">
               <div class="lm-cc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
               <div class="lm-cc-body">
                 <span class="lm-cc-label">Privacy &amp; Security</span>
-                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="086c7d6d647267666d26676e6e616b616964486f65696164266b6765">[email&#160;protected]</span></span>
+                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="a8ccddcdc4d2c7c6cd86c7cecec1cbc1c9c4e8cfc5c9c1c486cbc7c5">[email&#160;protected]</span></span>
               </div>
               <span class="lm-cc-arrow">→</span>
             </a>
-            <a href="/cdn-cgi/l/email-protection#0c687969607663626922636a6a656f656d604c6b616d6560226f6361" class="lm-contact-card lm-cc--green">
+            <a href="/cdn-cgi/l/email-protection#4b2f3e2e273124252e65242d2d2228222a270b2c262a222765282426" class="lm-contact-card lm-cc--green">
               <div class="lm-cc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
               <div class="lm-cc-body">
                 <span class="lm-cc-label">Support &amp; Bug Reports</span>
-                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="f69283939a8c999893d89990909f959f979ab6919b979f9ad895999b">[email&#160;protected]</span></span>
+                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="34504151584e5b5a511a5b52525d575d5558745359555d581a575b59">[email&#160;protected]</span></span>
               </div>
               <span class="lm-cc-arrow">→</span>
             </a>
-            <a href="/cdn-cgi/l/email-protection#b7d3c2d2dbcdd8d9d299d8d1d1ded4ded6dbf7d0dad6dedb99d4d8da" class="lm-contact-card lm-cc--pink">
+            <a href="/cdn-cgi/l/email-protection#14706171786e7b7a713a7b72727d777d7578547379757d783a777b79" class="lm-contact-card lm-cc--pink">
               <div class="lm-cc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
               <div class="lm-cc-body">
                 <span class="lm-cc-label">Partnership &amp; Collab</span>
-                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="55312030392f3a3b307b3a33333c363c3439153238343c397b363a38">[email&#160;protected]</span></span>
+                <span class="lm-cc-val"><span class="__cf_email__" data-cfemail="0c687969607663626922636a6a656f656d604c6b616d6560226f6361">[email&#160;protected]</span></span>
               </div>
               <span class="lm-cc-arrow">→</span>
             </a>
@@ -778,9 +750,9 @@
 
           <!-- Logos -->
           <div class="lm-logos-row">
-            <img src="DZ__1_-Photoroom.png" alt="DuelZone" class="lm-footer-logo" />
+            <img loading="lazy" decoding="async" src="DZ__1_-Photoroom.png" alt="DuelZone" class="lm-footer-logo" />
             <div class="lm-logos-divider"></div>
-            <img src="V-Photoroom.png" alt="VGWA" class="lm-footer-logo" />
+            <img loading="lazy" decoding="async" src="V-Photoroom.png" alt="VGWA" class="lm-footer-logo" />
           </div>
         </div>
       </div>
@@ -1403,15 +1375,30 @@
 
     </main>
 
+
+    <!-- ── Hub ad unit — shown only on hub screen, above footer ── -->
+    <div id="hub-footer-ad" style="display:flex;justify-content:center;align-items:center;width:100%;padding:12px 0 4px;">
+      <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        atOptions = {
+          'key' : 'e4597720f7ceeecbe1bda9e5f182b8b3',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script src="https://www.highperformanceformat.com/e4597720f7ceeecbe1bda9e5f182b8b3/invoke.js"></script>
+    </div>
+
     <footer id="footer">
       <div class="footer-inner">
         <div class="footer-brand">
-          <img src="DZ__1_-Photoroom.png" alt="DuelZone" class="footer-logo-dz" />
+          <img loading="lazy" decoding="async" src="DZ__1_-Photoroom.png" alt="DuelZone" class="footer-logo-dz" />
           <div class="footer-brand-text">
             <span class="footer-copyright">&#169; 2025 DuelZone. All rights reserved.</span>
             <span class="footer-vgwa-tag">
               A product of
-              <img src="V-Photoroom.png" alt="VGWA" class="footer-logo-vgwa" />
+              <img loading="lazy" decoding="async" src="V-Photoroom.png" alt="VGWA" class="footer-logo-vgwa" />
               <strong>VGWA</strong>
             </span>
           </div>
@@ -1438,7 +1425,7 @@
 
     <!-- TTT HOME PAGE -->
     <div id="ttt-home" class="game-home-panel" style="--ghp-accent:#00e5ff">
-      <button class="ghp-back-hub" id="ttt-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="ttt-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#00e5ff">
@@ -1484,7 +1471,7 @@
 
     <!-- TTT GAME PANEL -->
     <div id="ttt-play-panel" class="hidden">
-    <div class="dz-topbar">
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
       <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
       <button class="ghp-back-game" id="ttt-back-to-home">⚙ Setup</button>
     </div>
@@ -1492,7 +1479,7 @@
     <button id="back-to-hub" style="display:none">← Back to Hub</button>
 
     <!-- TTT app shell (mirrors the standalone game's #app) -->
-    <div id="ttt-app">
+    <div id="ttt-app" style="padding-top:54px;box-sizing:border-box;">
 
       <header id="ttt-header">
         <p id="mode-label">LOCAL PvP</p>
@@ -1548,8 +1535,13 @@
         <div class="cell" data-index="8"></div>
       </div>
 
-      <!-- Restart button (resets current game only, stays on TTT screen) -->
-      <button id="restart">↺ New Game</button>
+      <!-- Result buttons -->
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+        <button id="restart" class="ghp-result-btn-primary" style="--rb-color:#00e5ff;">▶ Play Again</button>
+        <button id="ttt-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
+        <button id="ttt-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+        <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      </div>
 
     </div><!-- /#ttt-app -->
     </div><!-- /#ttt-play-panel -->
@@ -1562,7 +1554,7 @@
   <div id="screen-rps" class="hidden">
     <!-- RPS HOME PAGE -->
     <div id="rps-home" class="game-home-panel" style="--ghp-accent:#00e676">
-      <button class="ghp-back-hub" id="rps-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="rps-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#00e676">
@@ -1617,11 +1609,11 @@
 
     <!-- RPS GAME PANEL -->
     <div id="rps-play-panel" class="hidden">
-    <div class="dz-topbar">
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
       <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
       <button class="ghp-back-game" id="rps-back-to-home">⚙ Setup</button>
     </div>
-    <div id="rps-app">
+    <div id="rps-app" style="padding-top:72px;box-sizing:border-box;"><!-- BUG 6 FIX: was 54px (< 60px hamburger bottom); CSS overhaul !important wins anyway but kept in sync -->
       <header class="game-header">
         <p class="game-mode-label" id="rps-mode-label">LOCAL PvP</p>
         <h2 class="game-title">Rock Paper Scissors</h2>
@@ -1635,8 +1627,9 @@
       <div id="rps-bestof-selector">
         <span class="diff-label-text">BEST OF</span>
         <div class="diff-btn-group">
-          <button class="diff-btn active" id="rps-bo3">3</button>
-          <button class="diff-btn" id="rps-bo5">5</button>
+          <button class="diff-btn" id="rps-bo3">3</button>
+          <!-- BUG 2 FIX: active moved from rps-bo3 to rps-bo5 — matches rpsBestOf = 5 default -->
+          <button class="diff-btn active" id="rps-bo5">5</button>
           <button class="diff-btn" id="rps-bo7">7</button>
         </div>
       </div>
@@ -1698,7 +1691,12 @@
         </div>
       </div>
 
-      <button class="restart-btn" id="rps-restart">↺ New Game</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px;">
+        <button class="ghp-result-btn-primary" id="rps-restart" style="--rb-color:#00e676;">▶ Play Again</button>
+        <button class="ghp-result-btn-secondary" id="rps-result-setup">⚙ Setup</button>
+        <button class="ghp-result-btn-secondary" id="rps-result-hub">⬅ Hub</button>
+        <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      </div>
     </div>
     </div><!-- /#rps-play-panel -->
   </div>
@@ -1709,7 +1707,7 @@
   <div id="screen-tapbattle" class="hidden">
     <!-- TAP BATTLE HOME PAGE -->
     <div id="tap-home" class="game-home-panel" style="--ghp-accent:#f50057">
-      <button class="ghp-back-hub" id="tap-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="tap-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#f50057">
@@ -1758,11 +1756,11 @@
 
     <!-- TAP GAME PANEL -->
     <div id="tap-play-panel" class="hidden">
-    <div class="dz-topbar">
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
       <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
       <button class="ghp-back-game" id="tap-back-to-home">⚙ Setup</button>
     </div>
-    <div id="tap-header-bar">
+    <div id="tap-header-bar" style="padding-top:54px;">
       <p class="game-mode-label" id="tap-mode-label">LOCAL PvP</p>
       <h2 class="game-title" style="margin:0">Tap Battle</h2>
     </div>
@@ -1808,7 +1806,12 @@
       <div id="tap-win-inner">
         <div id="tap-win-emoji">🏆</div>
         <div id="tap-win-text">Player 1 Wins!</div>
-        <button class="restart-btn" id="tap-restart">↺ Play Again</button>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
+          <button class="ghp-result-btn-primary" id="tap-restart" style="--rb-color:#f50057;">▶ Play Again</button>
+          <button class="ghp-result-btn-secondary" id="tap-result-setup">⚙ Setup</button>
+          <button class="ghp-result-btn-secondary" id="tap-result-hub">⬅ Hub</button>
+          <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        </div>
       </div>
     </div><!-- /#tap-win-overlay -->
     </div><!-- /#tap-play-panel -->
@@ -1820,7 +1823,7 @@
   <div id="screen-duel2048" class="hidden">
     <!-- 2048 HOME PAGE -->
     <div id="d2048-home" class="game-home-panel" style="--ghp-accent:#aa00ff">
-      <button class="ghp-back-hub" id="d2048-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="d2048-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#aa00ff">
@@ -1869,11 +1872,11 @@
 
     <!-- 2048 GAME PANEL -->
     <div id="d2048-play-panel" class="hidden">
-    <div class="dz-topbar">
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
       <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
       <button class="ghp-back-game" id="d2048-back-to-home">⚙ Setup</button>
     </div>
-    <div id="d2048-header">
+    <div id="d2048-header" style="padding-top:54px;">
       <p class="game-mode-label" id="d2048-mode-label">LOCAL PvP</p>
       <h2 class="game-title">2048 Duel</h2>
     </div>
@@ -1951,7 +1954,11 @@
       </div>
     </div>
 
-    <button class="restart-btn" id="d2048-restart">↺ New Game</button>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px;">
+      <button class="ghp-result-btn-primary" id="d2048-restart" style="--rb-color:#aa00ff;">▶ New Game</button>
+      <button class="ghp-result-btn-secondary" id="d2048-result-setup">⚙ Setup</button>
+      <button class="ghp-result-btn-secondary" id="d2048-result-hub">⬅ Hub</button>
+    </div>
 
     <!-- Win overlay -->
     <div id="d2048-win-overlay" class="hidden">
@@ -1959,7 +1966,12 @@
         <div id="d2048-win-trophy">🏆</div>
         <div id="d2048-win-text">Player 1 Wins!</div>
         <div id="d2048-win-sub"></div>
-        <button class="restart-btn" id="d2048-win-restart" style="margin-top:8px;width:auto;padding:12px 32px;">↺ Play Again</button>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
+          <button class="ghp-result-btn-primary" id="d2048-win-restart" style="--rb-color:#aa00ff;">▶ Play Again</button>
+          <button class="ghp-result-btn-secondary" id="d2048-win-setup">⚙ Setup</button>
+          <button class="ghp-result-btn-secondary" id="d2048-win-hub">⬅ Hub</button>
+          <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        </div>
       </div>
     </div>
     </div><!-- /#d2048-play-panel -->
@@ -1971,7 +1983,7 @@
   <div id="screen-c4" class="hidden">
     <!-- C4 HOME PAGE -->
     <div id="c4-home" class="game-home-panel" style="--ghp-accent:#ff6d00">
-      <button class="ghp-back-hub" id="c4-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="c4-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#ff6d00">
@@ -2019,11 +2031,11 @@
 
     <!-- C4 GAME PANEL -->
     <div id="c4-play-panel" class="hidden">
-      <div class="dz-topbar">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" id="c4-back-to-home">⚙ Setup</button>
       </div>
-      <div id="c4-app">
+      <div id="c4-app" style="padding-top:54px;box-sizing:border-box;">
         <header id="c4-game-header">
           <p class="c4-eyebrow">DUELZONE ARENA</p>
           <h2 id="c4-game-title">CONNECT FOUR</h2>
@@ -2070,7 +2082,12 @@
           </div>
         </div>
 
-        <button class="restart-btn" id="c4-btn-reset">↺ New Game</button>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px;">
+          <button class="ghp-result-btn-primary" id="c4-btn-reset" style="--rb-color:#ff6d00;">▶ New Game</button>
+          <button class="ghp-result-btn-secondary" id="c4-result-setup">⚙ Setup</button>
+          <button class="ghp-result-btn-secondary" id="c4-result-hub">⬅ Hub</button>
+          <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        </div>
       </div><!-- /#c4-app -->
     </div><!-- /#c4-play-panel -->
   </div><!-- /#screen-c4 -->
@@ -2083,7 +2100,7 @@
 
     <div id="cricket-app">
       <!-- SETUP -->
-      <div id="cricket-setup">
+      <div id="cricket-setup" style="padding-top:62px;box-sizing:border-box;">
         <div class="ghp-wrap" style="max-width:560px;width:100%">
           <div class="ghp-hero">
             <div class="ghp-icon-wrap" style="--ghp-accent:#76ff03">
@@ -2153,7 +2170,7 @@
           </div>
           <p class="cricket-mode-desc" id="cricket-mode-desc" style="text-align:center;margin-top:-4px;">Normal: matching numbers = OUT. Score your own number otherwise.</p>
           <button class="ghp-start-btn" id="cric-start-btn" style="--ghp-accent:#76ff03">🏏 START MATCH</button>
-          <button class="ghp-back-hub" id="cricket-hub-btn" style="margin-top:10px;align-self:center;">← Hub</button>
+          <button class="ghp-back-hub" id="cricket-hub-btn" style="display:none!important" aria-hidden="true">← Hub</button>
         </div>
       </div>
 
@@ -2372,6 +2389,11 @@
             <span id="cric-final-bot"></span>
           </div>
           <button class="restart-btn" id="cric-play-again" style="margin-top:16px;">↺ Play Again</button>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+            <button class="ghp-result-btn-secondary" id="cric-result-setup">⚙ Setup</button>
+            <button class="ghp-result-btn-secondary" id="cric-result-hub">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+          </div>
         </div>
       </div>
 
@@ -2385,7 +2407,7 @@
 
     <!-- Home Panel -->
     <div id="ah-home" class="game-home-panel" style="--ghp-accent:#00e5ff">
-      <button class="ghp-back-hub" id="ah-main-back">← Hub</button>
+      <button class="ghp-back-hub" id="ah-main-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
 
         <!-- Hero -->
@@ -2448,11 +2470,11 @@
     </div>
 
     <!-- Play Panel -->
-    <div id="ah-play-panel" class="hidden ah-play-wrap">
+    <div id="ah-play-panel" class="hidden ah-play-wrap" style="padding-top:54px;box-sizing:border-box;">
 
       <!-- Score Bar -->
       <div class="ah-scorebar">
-        <button class="ah-back-btn" id="ah-back-to-home">←</button>
+        <button class="ah-back-btn" id="ah-back-to-home" style="display:none!important" aria-hidden="true">←</button>
         <div class="ah-score-block ah-score-p1">
           <span class="ah-score-name">P1</span>
           <span class="ah-score-num" id="ah-p1-val">0</span>
@@ -2489,7 +2511,7 @@
 
     <!-- Home Panel -->
     <div id="pb-home" class="game-home-panel" style="--ghp-accent:#00ff88">
-      <button class="ghp-back-hub" id="pb-main-back">← Hub</button>
+      <button class="ghp-back-hub" id="pb-main-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="pb-home-hero">
           <div class="pb-home-lock-anim">
@@ -2643,7 +2665,9 @@
               <div class="pb-result-stats" id="pb-result-stats"></div>
               <div class="pb-result-actions">
                 <button class="pb-action-btn" id="pb-play-again">↺ Play Again</button>
-                <button class="pb-action-btn pb-btn-secondary" id="pb-back-hub">← Hub</button>
+                <button class="pb-action-btn pb-btn-secondary" id="pb-result-setup">⚙ Setup</button>
+                <button class="pb-action-btn pb-btn-secondary" id="pb-back-hub">⬅ Hub</button>
+                <button class="pb-action-btn pb-btn-share" onclick="DZShare.openModal()">📤 Share</button>
               </div>
             </div>
           </div>
@@ -2662,7 +2686,7 @@
 
     <!-- HOME / SETUP PANEL -->
     <div id="mfd-home" class="game-home-panel" style="--ghp-accent:#c084fc">
-      <button class="ghp-back-hub" id="mfd-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="mfd-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#c084fc">
@@ -2710,7 +2734,7 @@
 
     <!-- PLAY PANEL -->
     <div id="mfd-play" class="hidden mfd-play-wrap">
-      <div class="dz-topbar">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" id="mfd-back-to-home">⚙ Setup</button>
       </div>
@@ -2718,7 +2742,7 @@
       <div id="mfd-app">
 
         <!-- Header -->
-        <div id="mfd-header">
+        <div id="mfd-header" style="padding-top:54px;">
           <h2 id="mfd-title">Memory Flip Duel</h2>
           <p id="mfd-mode-label">PvP</p>
         </div>
@@ -2757,8 +2781,10 @@
             <div id="mfd-result-title"></div>
             <div id="mfd-result-scores"></div>
             <div id="mfd-result-btns">
-              <button id="mfd-play-again">↺ Play Again</button>
-              <button id="mfd-result-hub">← Hub</button>
+              <button id="mfd-play-again" class="ghp-result-btn-primary" style="--rb-color:#c084fc;">▶ Play Again</button>
+              <button id="mfd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
+              <button id="mfd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -2766,7 +2792,7 @@
         <!-- Controls -->
         <div id="mfd-controls">
           <button id="mfd-reset-btn">↺ Reset</button>
-          <button id="mfd-hub-btn">← Hub</button>
+          <button id="mfd-hub-btn" style="display:none!important" aria-hidden="true">← Hub</button>
         </div>
 
       </div><!-- /#mfd-app -->
@@ -2782,7 +2808,7 @@
 
     <!-- HOME / SETUP PANEL -->
     <div id="cdd-home" class="game-home-panel" style="--ghp-accent:#ff9100">
-      <button class="ghp-back-hub" id="cdd-home-back">← Hub</button>
+      <button class="ghp-back-hub" id="cdd-home-back" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#ff9100">
@@ -2833,14 +2859,6 @@
               <button class="diff-btn" id="cdd-hp-extreme">Extreme</button>
             </div>
           </div>
-          <div class="ghp-setting-row">
-            <span class="diff-label-text">GRID SIZE</span>
-            <div class="diff-btn-group">
-              <button class="diff-btn cdd-grid-size-btn active" data-gridsize="3">3×3</button>
-              <button class="diff-btn cdd-grid-size-btn" data-gridsize="5">5×5</button>
-              <button class="diff-btn cdd-grid-size-btn" data-gridsize="7">7×7</button>
-            </div>
-          </div>
         </div>
         <button class="ghp-start-btn" id="cdd-hp-start" style="--ghp-accent:#ff9100">▶ START GAME</button>
       </div>
@@ -2848,16 +2866,13 @@
 
     <!-- PLAY PANEL -->
     <div id="cdd-play" class="hidden cdd-play-wrap">
-      <div class="dz-topbar">
-        <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
-        <button class="ghp-back-game" id="cdd-back-to-home">⚙ Setup</button>
-      </div>
+      <button class="ghp-back-game" id="cdd-back-to-home">⚙ Setup</button>
 
       <div id="cdd-app">
 
         <!-- Header -->
-        <div id="cdd-header">
-          <h2 id="cdd-title">Connect Dots</h2>
+        <div id="cdd-header" style="padding-top:72px;"><!-- BUG 5/6 SYNC FIX: was 54px; CSS overhaul !important wins but kept in sync -->
+          <h2 id="cdd-title">Connect Dots Duel</h2>
           <p id="cdd-mode-label">PvP</p>
         </div>
 
@@ -2895,8 +2910,10 @@
             <div id="cdd-result-title"></div>
             <div id="cdd-result-scores"></div>
             <div id="cdd-result-btns">
-              <button id="cdd-play-again">↺ Play Again</button>
-              <button id="cdd-result-hub">← Hub</button>
+              <button id="cdd-play-again" class="ghp-result-btn-primary" style="--rb-color:#ff9100;">▶ Play Again</button>
+              <button id="cdd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
+              <button id="cdd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -2904,6 +2921,7 @@
         <!-- Controls -->
         <div id="cdd-controls">
           <button id="cdd-reset-btn">↺ Reset</button>
+          <button id="cdd-hub-btn">← Hub</button>
         </div>
 
       </div><!-- /#cdd-app -->
@@ -2918,7 +2936,7 @@
 
     <!-- CHESS HOME PAGE -->
     <div id="chess-home" class="game-home-panel" style="--ghp-accent:#f5c518">
-      <button class="ghp-back-hub" id="chess-back-hub">← Hub</button>
+      <button class="ghp-back-hub" id="chess-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#f5c518">
@@ -2978,14 +2996,14 @@
 
     <!-- CHESS PLAY PANEL -->
     <div id="chess-play-panel" class="hidden chess-play-wrap">
-      <div class="dz-topbar">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" id="chess-back-hub-play">⚙ Setup</button>
       </div>
       <div id="chess-app">
 
         <!-- Header -->
-        <div id="chess-header">
+        <div id="chess-header" style="padding-top:54px;">
           <h2 id="chess-title">Chess</h2>
           <div id="chess-turn-banner">
             <span id="chess-turn-text">White's turn</span>
@@ -3032,8 +3050,10 @@
             <div id="chess-result-title"></div>
             <div id="chess-result-detail"></div>
             <div id="chess-result-btns">
-              <button id="chess-play-again">↺ Play Again</button>
-              <button id="chess-result-hub">← Hub</button>
+              <button id="chess-play-again" class="ghp-result-btn-primary" style="--rb-color:#f5c518;">▶ Play Again</button>
+              <button id="chess-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
+              <button id="chess-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -3057,12 +3077,12 @@
        SCREEN: Battleship (Sea Battle)
        ══════════════════════════════════════════════ -->
   <div id="screen-battleship" class="hidden">
-    <div class="dz-topbar">
-      <button class="ghp-back-hub" id="bs-hub-btn">← Hub</button>
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
+      <button class="ghp-back-hub" id="bs-hub-btn" style="display:none!important" aria-hidden="true">← Hub</button>
       <button class="ghp-back-game" id="bs-setup-btn-top">⚙ Setup</button>
     </div>
 
-    <div id="bs-app">
+    <div id="bs-app" style="padding-top:54px;box-sizing:border-box;">
 
       <!-- ─── Header ─────────────────────────────────────────── -->
       <div id="bs-header">
@@ -3191,7 +3211,9 @@
           <div id="bs-result-detail"></div>
           <div id="bs-result-btns">
             <button id="bs-play-again-btn" class="bs-btn">↺ Play Again</button>
-            <button id="bs-hub-btn2"       class="bs-btn bs-btn-secondary">← Hub</button>
+            <button id="bs-result-setup-btn" class="bs-btn bs-btn-secondary">⚙ Setup</button>
+            <button id="bs-hub-btn2" class="bs-btn bs-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3203,12 +3225,12 @@
        SCREEN: Checkers (Draughts)
        ══════════════════════════════════════════════ -->
   <div id="screen-checkers" class="hidden">
-    <div class="dz-topbar">
-      <button class="ghp-back-hub" id="ck-hub-btn">← Hub</button>
+    <div class="dz-topbar" style="display:none!important" aria-hidden="true">
+      <button class="ghp-back-hub" id="ck-hub-btn" style="display:none!important" aria-hidden="true">← Hub</button>
       <button class="ghp-back-game" id="ck-setup-btn-top">⚙ Setup</button>
     </div>
 
-    <div id="ck-app">
+    <div id="ck-app" style="padding-top:54px;box-sizing:border-box;">
 
       <div id="ck-header">
         <h1 id="ck-title">⬛ Checkers</h1>
@@ -3255,7 +3277,9 @@
           <div id="ck-result-detail"></div>
           <div class="ck-result-btns">
             <button id="ck-play-again-btn" class="ck-btn">↺ Play Again</button>
-            <button id="ck-hub-btn2" class="ck-btn ck-btn-secondary">← Hub</button>
+            <button id="ck-result-setup-btn" class="ck-btn ck-btn-secondary">⚙ Setup</button>
+            <button id="ck-hub-btn2" class="ck-btn ck-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3304,7 +3328,7 @@
     <div id="launch-inner">
       <!-- Animated logo -->
       <div class="launch-logo-wrap">
-        <img src="DZ__1_-Photoroom.png" alt="DuelZone" class="launch-dz-logo" />
+        <img loading="lazy" decoding="async" src="DZ__1_-Photoroom.png" alt="DuelZone" class="launch-dz-logo" />
       </div>
       <!-- Orbiting ring -->
       <div class="launch-ring-outer">
@@ -3323,7 +3347,7 @@
       <!-- VGWA credit -->
       <div class="launch-credit">
         <span>A product of</span>
-        <img src="V-Photoroom.png" alt="VGWA" class="launch-vgwa-logo" />
+        <img loading="lazy" decoding="async" src="V-Photoroom.png" alt="VGWA" class="launch-vgwa-logo" />
       </div>
     </div>
   </div>
@@ -3335,7 +3359,7 @@
 
     <!-- DARTS HOME PAGE -->
     <div id="darts-home" class="game-home-panel" style="--ghp-accent:#ff1744">
-      <button class="ghp-back-hub" id="darts-back-hub">← Hub</button>
+      <button class="ghp-back-hub" id="darts-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#ff1744">
@@ -3410,12 +3434,12 @@
 
     <!-- DARTS PLAY PANEL -->
     <div id="darts-play-panel" class="hidden">
-      <div class="dz-topbar">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" id="darts-back-setup">⚙ Setup</button>
       </div>
       <div id="darts-app">
-        <div id="darts-header">
+        <div id="darts-header" style="padding-top:54px;">
           <h2 id="darts-title">Darts Duel</h2>
           <div id="darts-timer-display" class="hidden"></div>
         </div>
@@ -3447,8 +3471,10 @@
             <div id="darts-result-title"></div>
             <div id="darts-result-detail"></div>
             <div id="darts-result-btns">
-              <button id="darts-play-again">↺ Play Again</button>
-              <button id="darts-result-hub">← Hub</button>
+              <button id="darts-play-again" class="ghp-result-btn-primary" style="--rb-color:#ff1744;">▶ Play Again</button>
+              <button id="darts-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
+              <button id="darts-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -3469,8 +3495,8 @@
   <div id="pp-wrap">
 
     <div id="pp-header">
-      <div class="dz-topbar" style="padding:6px 10px;">
-        <button class="ghp-back-hub" id="pp-hub-top-btn" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
+      <div class="dz-topbar" style="padding:6px 10px;" style="display:none!important" aria-hidden="true">
+        <button class="ghp-back-hub" id="pp-hub-top-btn" onclick="window.dzNavShowHome&&window.dzNavShowHome()" style="display:none!important" aria-hidden="true">← Hub</button>
         <div id="pp-title-bar">PING PONG</div>
         <button class="ghp-back-game" id="pp-setup-btn">⚙ Setup</button>
       </div>
@@ -3478,7 +3504,7 @@
       <button id="pp-back-btn" style="display:none;" aria-hidden="true"></button>
     </div>
 
-    <div id="pp-score-row">
+    <div id="pp-score-row" style="padding-top:54px;">
       <div class="pp-score-block">
         <div class="pp-slabel p1c" id="pp-label-p1">PLAYER 1</div>
         <div class="pp-sval p1c"   id="pp-score-p1">0</div>
@@ -3516,7 +3542,7 @@
             <b>MOVE MOUSE</b> or <b>DRAG FINGER</b> on the court to control your paddle
           </div>
           <button class="pp-ov-playbtn" id="pp-start-btn">▶ START</button>
-          <button class="pp-ov-menubtn" id="pp-hub-btn" style="margin-top:8px;">← Hub</button>
+          <button class="pp-ov-menubtn" id="pp-hub-btn" style="display:none!important" aria-hidden="true">← Hub</button>
         </div>
 
         <!-- Pause -->
@@ -3531,7 +3557,9 @@
           <div id="pp-result-title"></div>
           <div id="pp-result-sub"></div>
           <button class="pp-ov-playbtn" id="pp-again-btn">↺ PLAY AGAIN</button>
-          <button class="pp-ov-menubtn" id="pp-result-menu-btn">☰ MENU</button>
+          <button class="pp-ov-menubtn" id="pp-result-setup-btn">⚙ SETUP</button>
+          <button class="pp-ov-menubtn" id="pp-result-hub-btn">⬅ HUB</button>
+          <button class="pp-ov-sharebtn" onclick="DZShare.openModal()">📤 SHARE</button>
         </div>
 
       </div>
@@ -3554,7 +3582,7 @@
        ══════════════════════════════════════════════ -->
   <div id="screen-tetris" class="hidden">
     <div id="tetris-home" class="game-home-panel ghp-v2" style="--ghp-accent:#00e5ff">
-      <button class="ghp-back-hub ghp-back-v2" id="tetris-back-hub">← Hub</button>
+      <button class="ghp-back-hub ghp-back-v2" id="tetris-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero ghp-hero-v2">
           <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#00e5ff">🧱</div>
@@ -3593,20 +3621,20 @@
     <!-- Tetris back-play: hidden dummy kept for JS/script.js compat -->
     <button id="tetris-back-play" style="display:none;" aria-hidden="true"></button>
 
-    <div id="tetris-play" class="hidden" style="position:fixed;inset:0;background:#07080f;overflow:hidden;padding:0 12px 16px;font-family:'Rajdhani',sans-serif;box-sizing:border-box;z-index:50;">
-      <div class="dz-topbar">
+    <div id="tetris-play" class="hidden" data-dz-game-panel="tetris" style="position:fixed;inset:0;background:#07080f;overflow-y:auto;padding:0 12px 16px;font-family:'Rajdhani',sans-serif;box-sizing:border-box;z-index:50;">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" onclick="document.getElementById('tetris-play').classList.add('hidden');document.getElementById('tetris-home').style.display='';if(window.tetrisStop)window.tetrisStop();">⚙ Setup</button>
       </div>
 
       <!-- Heading -->
-      <div style="text-align:center;margin-bottom:10px;">
+      <div id="tetris-heading" style="text-align:center;margin-bottom:6px;padding-top:54px;flex-shrink:0;">
         <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:0.13em;background:linear-gradient(90deg,#00e5ff,#0088ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;">🧱 TETRIS DUEL</h1>
       </div>
 
-      <div id="tetris-boards-row" style="display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
+      <div id="tetris-players-wrap" style="display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
         <!-- P1 -->
-        <div id="tetris-p1-col" style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
           <div style="color:#00e5ff;font-weight:700;letter-spacing:0.1em;">🔵 PLAYER 1</div>
           <div style="display:flex;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.5);">
             <span>Score: <b id="tetris-score-p1" style="color:#fff;">0</b></span>
@@ -3618,7 +3646,7 @@
           <canvas id="tetris-next-p1" style="border:1px solid rgba(255,255,255,0.1);border-radius:4px;"></canvas>
         </div>
         <!-- P2 -->
-        <div id="tetris-p2-col" style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
           <div id="tetris-p2-label" style="color:#f50057;font-weight:700;letter-spacing:0.1em;">🔴 PLAYER 2</div>
           <div style="display:flex;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.5);">
             <span>Score: <b id="tetris-score-p2" style="color:#fff;">0</b></span>
@@ -3631,45 +3659,15 @@
           <div id="tetris-p2-keys" style="font-size:0.65rem;color:rgba(255,255,255,0.25);text-align:center;line-height:1.6;">W=Rotate · A/D=Move<br>S=Down · Q=Drop</div>
         </div>
       </div>
-      <!-- Mobile touch controls (hidden on desktop, shown on touch devices) -->
-      <div id="tetris-mobile-controls" style="display:none;width:100%;max-width:560px;margin:8px auto 0;box-sizing:border-box;">
-        <!-- P1 controls (left side) -->
-        <div style="display:flex;gap:8px;justify-content:space-between;padding:0 8px;">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-            <span style="font-size:0.65rem;color:rgba(0,229,255,0.5);letter-spacing:0.06em;font-family:'Rajdhani',sans-serif;">P1</span>
-            <div style="display:flex;gap:6px;">
-              <button class="dz-dpad-btn" id="t-p1-left"  ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(1,'left')"  style="background:rgba(0,229,255,0.12);border:1px solid rgba(0,229,255,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">◀</button>
-              <button class="dz-dpad-btn" id="t-p1-down"  ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(1,'down')"  style="background:rgba(0,229,255,0.12);border:1px solid rgba(0,229,255,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">▼</button>
-              <button class="dz-dpad-btn" id="t-p1-right" ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(1,'right')" style="background:rgba(0,229,255,0.12);border:1px solid rgba(0,229,255,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">▶</button>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button class="dz-action-btn" id="t-p1-rotate" ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(1,'rotate')" style="background:rgba(0,229,255,0.18);border:1px solid rgba(0,229,255,0.35);color:#00e5ff;border-radius:8px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.04em;">↻ ROT</button>
-              <button class="dz-action-btn" id="t-p1-drop"   ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(1,'drop')"   style="background:rgba(0,229,255,0.18);border:1px solid rgba(0,229,255,0.35);color:#00e5ff;border-radius:8px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.04em;">⬇ DROP</button>
-            </div>
-          </div>
-          <!-- P2 controls (right side) -->
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-            <span style="font-size:0.65rem;color:rgba(245,0,87,0.5);letter-spacing:0.06em;font-family:'Rajdhani',sans-serif;">P2</span>
-            <div style="display:flex;gap:6px;">
-              <button class="dz-dpad-btn" id="t-p2-left"  ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(2,'left')"  style="background:rgba(245,0,87,0.12);border:1px solid rgba(245,0,87,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">◀</button>
-              <button class="dz-dpad-btn" id="t-p2-down"  ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(2,'down')"  style="background:rgba(245,0,87,0.12);border:1px solid rgba(245,0,87,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">▼</button>
-              <button class="dz-dpad-btn" id="t-p2-right" ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(2,'right')" style="background:rgba(245,0,87,0.12);border:1px solid rgba(245,0,87,0.25);color:#fff;border-radius:8px;font-size:1.2rem;">▶</button>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button class="dz-action-btn" id="t-p2-rotate" ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(2,'rotate')" style="background:rgba(245,0,87,0.18);border:1px solid rgba(245,0,87,0.35);color:#f50057;border-radius:8px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.04em;">↻ ROT</button>
-              <button class="dz-action-btn" id="t-p2-drop"   ontouchstart="window.tetrisMobileKey&&window.tetrisMobileKey(2,'drop')"   style="background:rgba(245,0,87,0.18);border:1px solid rgba(245,0,87,0.35);color:#f50057;border-radius:8px;font-size:0.72rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.04em;">⬇ DROP</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div id="tetris-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
         <div style="background:#0d0f1c;border:2px solid #00e5ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
           <div id="tetris-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
           <div id="tetris-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <button id="tetris-again" class="ghp-result-btn-primary" style="--rb-color:#00e5ff;">▶ Play Again</button>
+            <button id="tetris-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
             <button id="tetris-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3681,7 +3679,7 @@
        ══════════════════════════════════════════════ -->
   <div id="screen-reaction" class="hidden">
     <div id="rd-home" class="game-home-panel ghp-v2" style="--ghp-accent:#aa00ff">
-      <button class="ghp-back-hub ghp-back-v2" id="rd-back-hub">← Hub</button>
+      <button class="ghp-back-hub ghp-back-v2" id="rd-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero ghp-hero-v2">
           <div class="ghp-icon-wrap ghp-icon-v2" style="--ghp-accent:#aa00ff">⚡</div>
@@ -3720,14 +3718,14 @@
     <!-- Reaction back-play: hidden dummy kept for JS/script.js compat -->
     <button id="rd-back-play" style="display:none;" aria-hidden="true"></button>
 
-    <div id="rd-play" class="hidden" style="position:fixed;inset:0;background:#07080f;overflow:hidden;padding:0 16px 16px;font-family:'Rajdhani',sans-serif;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;z-index:50;">
-      <div class="dz-topbar" style="width:100%;align-self:stretch;">
+    <div id="rd-play" class="hidden" data-dz-game-panel="reaction" style="position:fixed;inset:0;background:#07080f;overflow-y:auto;padding:0 16px 16px;font-family:'Rajdhani',sans-serif;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;z-index:50;">
+      <div class="dz-topbar" style="width:100%;align-self:stretch;" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" onclick="document.getElementById('rd-play').classList.add('hidden');document.getElementById('rd-home').style.display='';if(window.reactionStop)window.reactionStop();if(window.rdStop)window.rdStop();">⚙ Setup</button>
       </div>
 
       <!-- Heading -->
-      <div style="text-align:center;margin-bottom:12px;">
+      <div style="text-align:center;margin-bottom:12px;padding-top:54px;">
         <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:0.13em;background:linear-gradient(90deg,#aa00ff,#dd44ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;">⚡ REACTION DUEL</h1>
       </div>
 
@@ -3757,9 +3755,11 @@
         <div style="background:#0d0f1c;border:2px solid #aa00ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
           <div id="rd-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
           <div id="rd-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <button id="rd-again" class="ghp-result-btn-primary" style="--rb-color:#aa00ff;">▶ Play Again</button>
+            <button id="rd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
             <button id="rd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3804,6 +3804,7 @@
   <script src="ludo.js"></script>
   <script src="carrom.js"></script>
   <script src="sudoku.js"></script>
+  <script src="airhockey.js"></script>
 
   <!-- ══════════════════════════════════════════════
        SCREEN: Ludo
@@ -3812,7 +3813,7 @@
 
     <!-- HOME PANEL -->
     <div id="ludo-home" class="game-home-panel" style="--ghp-accent:#ff1744">
-      <button class="ghp-back-hub" id="ludo-back-hub">← Hub</button>
+      <button class="ghp-back-hub" id="ludo-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#ff1744">
@@ -3934,11 +3935,11 @@
 
     <!-- PLAY PANEL -->
     <div id="ludo-play" class="hidden" style="background:#07080f;height:100dvh;display:flex;flex-direction:column;align-items:center;overflow:hidden;">
-      <div class="dz-topbar" style="width:100%;align-self:stretch;">
+      <div class="dz-topbar" style="width:100%;align-self:stretch;" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" onclick="var b=document.getElementById('ludo-back-play');if(b)b.click();">⚙ Setup</button>
       </div>
-      <div id="ludo-app" style="flex:1;min-height:0;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:4px 10px 16px;box-sizing:border-box;"></div>
+      <div id="ludo-app" style="flex:1;min-height:0;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:54px 10px 16px;box-sizing:border-box;"></div>
 
       <!-- Result overlay -->
       <div id="ludo-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:99;animation:ldResIn 0.35s cubic-bezier(.34,1.56,.64,1);">
@@ -3946,9 +3947,12 @@
           <div id="ludo-result-emoji" style="font-size:3rem;margin-bottom:10px;filter:drop-shadow(0 0 16px rgba(255,23,68,0.6));">🏆</div>
           <div id="ludo-result-title" style="font-size:1.45rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;letter-spacing:0.06em;"></div>
           <div id="ludo-result-detail" style="color:rgba(255,200,200,0.65);margin-bottom:26px;font-size:0.82rem;font-family:'DM Mono',monospace;line-height:1.5;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <button id="ludo-again" class="ghp-result-btn-primary" style="--rb-color:#ff1744;">▶ Play Again</button>
+            <button id="ludo-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
             <button id="ludo-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3961,7 +3965,7 @@
   <div id="screen-carrom" class="hidden">
     <!-- Home Panel -->
     <div id="carrom-home" class="game-home-panel" style="--ghp-accent:#ff9100">
-      <button class="ghp-back-hub" id="carrom-back-hub">← Hub</button>
+      <button class="ghp-back-hub" id="carrom-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#ff9100">
@@ -4010,13 +4014,13 @@
     <!-- carrom-back-play: hidden dummy kept for JS/script.js compat -->
     <button id="carrom-back-play" style="display:none;" aria-hidden="true"></button>
 
-    <div id="carrom-play" class="hidden" style="position:fixed;inset:0;background:#07080f;display:flex;flex-direction:column;align-items:center;overflow:hidden;box-sizing:border-box;z-index:50;">
-      <div class="dz-topbar" style="width:100%;align-self:stretch;">
+    <div id="carrom-play" class="hidden" data-dz-game-panel="carrom" style="position:fixed;inset:0;background:#07080f;display:flex;flex-direction:column;align-items:center;overflow:hidden;box-sizing:border-box;z-index:50;">
+      <div class="dz-topbar" style="width:100%;align-self:stretch;" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" onclick="document.getElementById('carrom-play').classList.add('hidden');document.getElementById('carrom-home').style.display='';if(window.carromStop)window.carromStop();">⚙ Setup</button>
       </div>
       <!-- Heading -->
-      <div style="text-align:center;padding:4px 0 2px;flex-shrink:0;">
+      <div style="text-align:center;padding:54px 0 2px;flex-shrink:0;">
         <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:0.13em;background:linear-gradient(90deg,#ff9100,#ffcc00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;">🪙 CARROM DUEL</h1>
       </div>
       <!-- HUD -->
@@ -4044,9 +4048,11 @@
           <div id="carrom-result-emoji" style="font-size:3rem;margin-bottom:10px;">🏆</div>
           <div id="carrom-result-title" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:0.06em;"></div>
           <div id="carrom-result-detail" style="color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-size:0.8rem;margin-bottom:28px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <button id="carrom-again" class="ghp-result-btn-primary" style="--rb-color:#ff9100;">▶ Play Again</button>
+            <button id="carrom-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
             <button id="carrom-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -4059,7 +4065,7 @@
   <div id="screen-sudoku" class="hidden">
     <!-- Home Panel -->
     <div id="sdk-home" class="game-home-panel" style="--ghp-accent:#6c63ff">
-      <button class="ghp-back-hub" id="sdk-back-hub">← Hub</button>
+      <button class="ghp-back-hub" id="sdk-back-hub" style="display:none!important" aria-hidden="true">← Hub</button>
       <div class="ghp-wrap">
         <div class="ghp-hero">
           <div class="ghp-icon-wrap" style="--ghp-accent:#6c63ff">
@@ -4109,13 +4115,13 @@
     <button id="sdk-back-play" style="display:none;" aria-hidden="true"></button>
 
     <!-- Play Panel -->
-    <div id="sdk-play" class="hidden" style="position:fixed;inset:0;background:#07080f;display:flex;flex-direction:column;align-items:center;overflow:hidden;box-sizing:border-box;z-index:50;">
-      <div class="dz-topbar">
+    <div id="sdk-play" class="hidden" data-dz-game-panel="sudoku" style="position:fixed;inset:0;background:#07080f;display:flex;flex-direction:column;align-items:center;overflow-y:auto;box-sizing:border-box;z-index:50;">
+      <div class="dz-topbar" style="display:none!important" aria-hidden="true">
         <button class="ghp-back-hub" onclick="window.dzNavShowHome&&window.dzNavShowHome()">← Hub</button>
         <button class="ghp-back-game" onclick="document.getElementById('sdk-play').classList.add('hidden');document.getElementById('sdk-home').style.display='';if(window.sudokuStop)window.sudokuStop();">⚙ Setup</button>
       </div>
       <!-- Heading -->
-      <div style="text-align:center;padding:8px 0 6px;flex-shrink:0;">
+      <div style="text-align:center;padding:54px 0 6px;flex-shrink:0;">
         <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:0.13em;background:linear-gradient(90deg,#6c63ff,#aa88ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;">🔢 SUDOKU</h1>
       </div>
       <div id="sdk-app" style="width:100%;max-width:460px;padding:0 10px 24px;box-sizing:border-box;"></div>
@@ -4125,9 +4131,11 @@
           <div id="sdk-result-emoji" style="font-size:3rem;margin-bottom:10px;">🏆</div>
           <div id="sdk-result-title" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:0.06em;"></div>
           <div id="sdk-result-detail" style="color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-size:0.8rem;margin-bottom:28px;line-height:1.6;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <button id="sdk-again" class="ghp-result-btn-primary" style="--rb-color:#6c63ff;">▶ Play Again</button>
+            <button id="sdk-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
             <button id="sdk-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
+            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -4199,6 +4207,8 @@ window.dzToggleMenu = function() {
     drop.classList.add('open');
     if (btn)  { btn.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
     if (back) back.classList.add('active');
+    // Pause all running games while menu is open
+    if (typeof window.dzPauseAllGames === 'function') window.dzPauseAllGames();
   }
 };
 
@@ -4209,6 +4219,17 @@ window.dzCloseMenu = function() {
   if (drop) drop.classList.remove('open');
   if (btn)  { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
   if (back) back.classList.remove('active');
+  // Resume the active game when menu closes (hub guard prevents resume on hub)
+  var hub = document.getElementById('screen-hub');
+  var onHub = hub && !hub.classList.contains('hidden');
+  if (!onHub) {
+    if (typeof window.dzResumeAllGames === 'function') {
+      window.dzResumeAllGames();
+    } else {
+      window.DZ_PAUSED = false;
+      if (typeof window.dzResumeAllAudio === 'function') window.dzResumeAllAudio();
+    }
+  }
 };
 
 /* ── Screen switching ── */
@@ -4219,11 +4240,30 @@ window.dzShowScreen = function(screenId) {
   var target = document.getElementById(screenId);
   if (target) target.classList.remove('hidden');
   window.scrollTo(0, 0);
+  /* Scroll the game-home-panel and any scrollable children back to top */
+  if (target) {
+    target.scrollTop = 0;
+    var panel = target.querySelector('.game-home-panel');
+    if (panel) panel.scrollTop = 0;
+    /* Also scroll cricket-setup, bs-app, ck-app etc */
+    ['cricket-setup','cricket-app','bs-app','ck-app'].forEach(function(id){
+      var el = target.querySelector('#' + id) || document.getElementById(id);
+      if (el) el.scrollTop = 0;
+    });
+  }
+  /* Notify all listeners about screen change */
+  document.dispatchEvent(new CustomEvent('dz:screenchange', { detail: { screenId: screenId } }));
 };
 
 window.dzNavShowHome = function() {
   window.dzCloseMenu();
   window.dzClosePanels();
+  // Remove dz-in-game BEFORE showing hub
+  document.body.classList.remove('dz-in-game');
+  // Hide the floating game menu button (clear inline style set by dzShowGameMenuBtn)
+  var igBtn = document.getElementById('dz-ig-menu-btn');
+  if (igBtn) igBtn.style.removeProperty('display');
+  window._dzCurrentGame = null;
   window.dzShowScreen('screen-hub');
   // highlight home button
   document.querySelectorAll('.dropdown-item').forEach(function(el){ el.classList.remove('active'); });
@@ -4270,8 +4310,16 @@ window.dzCloseLegal = function(id) {
   var backdrop = document.getElementById('dz-legal-backdrop');
   if (modal)    modal.classList.remove('active');
   // only remove backdrop if no other modal is open
-  var anyOpen = document.querySelector('.legal-modal.active');
+  var anyOpen = document.querySelector('.lm-modal.active');
   if (!anyOpen && backdrop) backdrop.classList.remove('active');
+};
+
+window.dzCloseAllLegal = function() {
+  document.querySelectorAll('.lm-modal.active').forEach(function(m) {
+    m.classList.remove('active');
+  });
+  var backdrop = document.getElementById('dz-legal-backdrop');
+  if (backdrop) backdrop.classList.remove('active');
 };
 
 /* ── Saved games ── */
@@ -4395,8 +4443,9 @@ var GAME_ICONS = {
   ttt:'⊞', c4:'🔴', rps:'✊', chess:'♟', battleship:'⚓', checkers:'⚫',
   darts:'🎯', pingpong:'🏓',
   snake:'🐍', typing:'⌨', blackjack:'🃏', tetris:'🧱', drawguess:'🎨', pixelracer:'🏎', reaction:'⚡',
-  ludo:'🎲',
-  carrom:'🎯', sudoku:'🔢'
+  ludo:'🎲', carrom:'🪙', sudoku:'🔢',
+  airhockey:'🏒', cricket:'🏏', duel2048:'🔢', tapbattle:'👊', connectdots:'🔵',
+  memoryflip:'🃏', passbreach:'🔐'
 };
 
 function _launchGame(screenId, gameName) {
@@ -4417,7 +4466,6 @@ function _wireCards() {
     card.setAttribute('data-wired','1');
     card.addEventListener('click', function(e){
       if (e.target.closest('.card-save-btn')) return;
-      if (e.target.closest('.card-setup-btn')) return;
       var screenId = card.getAttribute('data-screen');
       var gameName = card.getAttribute('data-game') || screenId;
       if (!screenId) return;
@@ -4468,8 +4516,10 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') {
     window.dzCloseMenu();
     window.dzClosePanels();
+    // Also close the in-game hamburger menu if it's open
+    if (typeof window.dzCloseGameMenu === 'function') window.dzCloseGameMenu();
     // close topmost open legal modal
-    var modal = document.querySelector('.legal-modal.active');
+    var modal = document.querySelector('.lm-modal.active');
     if (modal) window.dzCloseLegal(modal.id);
   }
 });
@@ -4539,11 +4589,123 @@ function _wireSetupButtons() {
   }
 }
 
+function _wireResultButtons() {
+  // Helper: wire a button once
+  function wire(id, fn) {
+    var el = document.getElementById(id);
+    if (el && !el.__dz_result_wired) { el.__dz_result_wired = true; el.addEventListener('click', fn); }
+  }
+  // Hub helper
+  function goHub() { window.dzNavShowHome && window.dzNavShowHome(); }
+  // Setup helpers per game
+  function setupTTT()      { var b=document.getElementById('ttt-back-to-home');    if(b)b.click(); }
+  function setupRPS()      { var b=document.getElementById('rps-back-to-home');    if(b)b.click(); }
+  function setupTap()      { var b=document.getElementById('tap-back-to-home');    if(b)b.click(); }
+  function setup2048()     { var b=document.getElementById('d2048-back-to-home');  if(b)b.click(); }
+  function setupC4()       { var b=document.getElementById('c4-back-to-home');     if(b)b.click(); }
+  function setupCricket()  { var s=document.getElementById('cricket-setup'),p=document.getElementById('cricket-play'),r=document.getElementById('cricket-result'); if(s)s.classList.remove('hidden'); if(p)p.classList.add('hidden'); if(r)r.classList.add('hidden'); }
+  function setupPB()       { var h=document.getElementById('pb-home'),p=document.getElementById('pb-play-panel'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(p)p.classList.add('hidden'); }
+  function setupChess()    { var b=document.getElementById('chess-back-hub-play'); if(b)b.click(); }
+  function setupBS()       { var m=document.getElementById('bs-mode-panel'); if(m)m.classList.remove('bs-hidden'); }
+  function setupCK()       { var m=document.getElementById('ck-mode-panel'); if(m)m.classList.remove('ck-hidden'); }
+  function setupDarts()    { var b=document.getElementById('darts-back-setup');    if(b)b.click(); }
+  function setupPP()       { var b=document.getElementById('pp-setup-btn');        if(b)b.click(); }
+  function setupTetris()   { var h=document.getElementById('tetris-home'),p=document.getElementById('tetris-play'),r=document.getElementById('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.tetrisStop)try{tetrisStop();}catch(e){} }
+  function setupReaction() { var h=document.getElementById('rd-home'),p=document.getElementById('rd-play'),r=document.getElementById('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.rdStop)try{rdStop();}catch(e){} }
+  function setupLudo()     { var b=document.getElementById('ludo-back-play'); if(b)b.click(); var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); }
+  function setupCarrom()   { var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'),r=document.getElementById('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.carromStop)try{carromStop();}catch(e){} }
+  function setupSudoku()   { var h=document.getElementById('sdk-home'),p=document.getElementById('sdk-play'),r=document.getElementById('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.sudokuStop)try{sudokuStop();}catch(e){} }
+
+  // ── TTT ──
+  wire('ttt-result-setup', setupTTT);
+  wire('ttt-result-hub',   goHub);
+
+  // ── RPS ──
+  wire('rps-result-setup', setupRPS);
+  wire('rps-result-hub',   goHub);
+
+  // ── Tap Battle ──
+  wire('tap-result-setup', setupTap);
+  wire('tap-result-hub',   goHub);
+
+  // ── 2048 ──
+  wire('d2048-result-setup', setup2048);
+  wire('d2048-result-hub',   goHub);
+  wire('d2048-win-setup',    setup2048);
+  wire('d2048-win-hub',      goHub);
+
+  // ── Connect Four ──
+  wire('c4-result-setup', setupC4);
+  wire('c4-result-hub',   goHub);
+
+  // ── Cricket ──
+  wire('cric-result-setup', setupCricket);
+  wire('cric-result-hub',   goHub);
+
+  // ── Password Breaker ──
+  wire('pb-result-setup', setupPB);
+  // pb-back-hub wired in script.js with pb cleanup - not duplicated here
+
+  // ── Chess ──
+  wire('chess-play-again',   function(){ setupChess(); });
+  wire('chess-result-setup', setupChess);
+  wire('chess-result-hub',   goHub);
+
+  // ── Battleship ──
+  wire('bs-play-again-btn',   function(){ if(window.bsInit)bsInit(); var r=document.getElementById('bs-result-panel'); if(r)r.classList.add('bs-hidden'); });
+  wire('bs-result-setup-btn', setupBS);
+  wire('bs-hub-btn2',         goHub);
+
+  // ── Checkers ──
+  wire('ck-play-again-btn',   function(){ if(window.ckInit)ckInit(); var r=document.getElementById('ck-result-panel'); if(r)r.classList.add('ck-hidden'); });
+  wire('ck-result-setup-btn', setupCK);
+  wire('ck-hub-btn2',         goHub);
+
+  // ── Darts ──
+  wire('darts-play-again',   function(){ if(window.dartsInit)dartsInit(); var r=document.getElementById('darts-result'); if(r)r.classList.add('hidden'); });
+  wire('darts-result-setup', setupDarts);
+  wire('darts-result-hub',   goHub);
+
+  // ── Ping Pong ──
+  wire('pp-again-btn',        function(){ if(window.ppInit)ppInit(); });
+  wire('pp-result-setup-btn', setupPP);
+  wire('pp-result-hub-btn',   goHub);
+
+  // ── Tetris ──
+  // ── Tetris (play-again + hub wired by tetris.js; setup only here) ──
+  wire('tetris-result-setup', setupTetris);
+
+  // ── Reaction Duel ──
+  // ── Reaction Duel (play-again + hub wired by reaction.js; setup only here) ──
+  wire('rd-result-setup', setupReaction);
+
+  // ── Ludo ──
+  wire('ludo-again',        function(){ var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); var b=document.getElementById('ludo-back-play'); if(b)b.click(); setTimeout(function(){ var s=document.getElementById('ludo-home'); if(s){s.classList.remove('hidden');s.style.removeProperty('display');} },50); });
+  wire('ludo-result-setup', setupLudo);
+  wire('ludo-result-hub',   goHub);
+
+  // ── Carrom ──
+  wire('carrom-again',        function(){ var r=document.getElementById('carrom-result'); if(r)r.classList.add('hidden'); if(window.carromStop)try{carromStop();}catch(e){} var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(h){h.classList.remove('hidden');h.style.removeProperty('display');} });
+  wire('carrom-result-setup', setupCarrom);
+  wire('carrom-result-hub',   goHub);
+
+  // ── Sudoku ──
+  // ── Sudoku (play-again + hub wired by sudoku.js; setup only here) ──
+  wire('sdk-result-setup', setupSudoku);
+
+  // ── MFD (hub wired in script.js with cleanup; setup only here) ──
+  wire('mfd-result-setup', function(){ var b=document.getElementById('mfd-back-to-home'); if(b)b.click(); });
+
+  // ── CDD (hub wired in script.js via GameLoader; setup only here) ──
+  wire('cdd-result-setup', function(){ var b=document.getElementById('cdd-back-to-home'); if(b)b.click(); });
+}
+
 function _init() {
   _updateSavedBadge();
   _wireCards();
   _wireBackButtons();
   _wireSetupButtons();
+  _wireResultButtons();
   var muted = localStorage.getItem(MUTED_KEY) === '1';
   var label  = document.getElementById('dd-music-label');
   var toggle = document.getElementById('dd-music-toggle');
@@ -4625,81 +4787,6 @@ if (document.readyState === 'loading') {
 })();
 </script>
 
-<!-- ══════════════════════════════════════════════
-     SETUP BUTTONS — injected into every hub card
-     ══════════════════════════════════════════════ -->
-<script>
-(function(){
-  'use strict';
-
-  /* Gear icon SVG */
-  var GEAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>';
-
-  /* Map data-screen → show function (all defined globally in script.js) */
-  var SHOW_FNS = {
-    ttt:         function(){ if(window.showTTT)        showTTT(); },
-    c4:          function(){ if(window.showC4)         showC4(); },
-    rps:         function(){ if(window.showRPS)        showRPS(); },
-    tapbattle:   function(){ if(window.showTap)        showTap(); },
-    cricket:     function(){ if(window.showCricket)    showCricket(); },
-    duel2048:    function(){ if(window.show2048)       show2048(); },
-    airhockey:   function(){ if(window.showAH)         showAH(); },
-    passbreach:  function(){ if(window.showPB)         showPB(); },
-    connectdots: function(){ if(window.showCDD)        showCDD(); },
-    chess:       function(){ if(window.showChess)      showChess(); },
-    battleship:  function(){ if(window.showBattleship) showBattleship(); },
-    checkers:    function(){ if(window.showCheckers)   showCheckers(); },
-    memoryflip:  function(){ if(window.showMFD)        showMFD(); },
-    darts:       function(){ if(window.showDarts)      showDarts(); },
-    pingpong:    function(){ if(window.showPingPong)   showPingPong(); },
-    tetris:      function(){ if(window.showTetris)     showTetris(); },
-    reaction:    function(){ if(window.showReaction)   showReaction(); },
-    ludo:        function(){ if(window.showLudo)       showLudo(); },
-    carrom:      function(){ if(window.showCarrom)     showCarrom(); },
-    sudoku:      function(){ if(window.showSudoku)     showSudoku(); },
-  };
-
-  function injectSetupButtons() {
-    document.querySelectorAll('.arena-card').forEach(function(card) {
-      if (card.getAttribute('data-setup-injected')) return;
-      card.setAttribute('data-setup-injected', '1');
-
-      var screenId = card.getAttribute('data-screen');
-      var gameName = card.getAttribute('data-game') || screenId;
-      var cardBtn  = card.querySelector('.card-inner > .card-btn');
-      if (!cardBtn || !screenId) return;
-
-      /* Wrap the PLAY button in a card-actions flex row */
-      var actions = document.createElement('div');
-      actions.className = 'card-actions';
-      cardBtn.parentNode.insertBefore(actions, cardBtn);
-      actions.appendChild(cardBtn);
-
-      /* Create the ⚙ Setup button */
-      var setupBtn = document.createElement('button');
-      setupBtn.className = 'card-setup-btn';
-      setupBtn.setAttribute('aria-label', 'Setup ' + gameName);
-      setupBtn.setAttribute('title', 'Setup');
-      setupBtn.setAttribute('data-screen', screenId);
-      setupBtn.innerHTML = GEAR_SVG;
-
-      setupBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var fn = SHOW_FNS[this.getAttribute('data-screen')];
-        if (fn) fn();
-      });
-
-      actions.appendChild(setupBtn);
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectSetupButtons);
-  } else {
-    injectSetupButtons();
-  }
-})();
-</script>
 
 <!-- ══════════════════════════════════════════════
      PANEL SWITCHER — Fallback wiring for all games
@@ -4856,264 +4943,298 @@ if (document.readyState === 'loading') {
   })();
   </script>
 
-  <!-- ══ Landscape Orientation Lock + Portrait Warning ══ -->
+  <!-- ══ Orientation handler — stops game loops on landscape, no overlay/lock ══ -->
   <script>
-  (function() {
+  (function () {
     'use strict';
 
-    /* ── Games that require landscape ── */
-    var LANDSCAPE_SCREENS = {
-      'screen-pingpong':  true,
-    };
+    /* List of ALL fixed-position game play panels.
+       These are position:fixed so they escape parent display:none.
+       We must manage their .hidden class directly. */
+    var FIXED_PANELS = [
+      'tetris-play', 'rd-play', 'carrom-play', 'sdk-play'
+    ];
 
-    /* ── Games that work best in portrait — show rotate hint in landscape ── */
-    var PORTRAIT_SCREENS = {
-      'screen-tetris':      true,
-      'screen-sudoku':      true,
-      'screen-reaction':    true,
-    };
-
-    /* ── 1. Try to lock orientation to landscape ── */
-    function tryLockLandscape() {
-      if (screen.orientation && typeof screen.orientation.lock === 'function') {
-        screen.orientation.lock('landscape').catch(function() {
-          /* Silently ignore — many browsers require fullscreen first */
-        });
-      }
-    }
-
-    /* ── 2. Portrait warning overlay ── */
-    var warn    = document.getElementById('dz-portrait-warn');
-    var skipBtn = document.getElementById('dz-pw-skip');
-    var dismissed = false;
-    var portraitDismissed = false;
-
-    /* Portrait-hint overlay for portrait-first games shown in landscape */
-    var portraitHint = document.getElementById('dz-portrait-hint');
-    if (!portraitHint) {
-      portraitHint = document.createElement('div');
-      portraitHint.id = 'dz-portrait-hint';
-      portraitHint.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(4,6,18,0.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:Rajdhani,sans-serif;text-align:center;padding:24px;';
-      portraitHint.innerHTML = '<div style="font-size:2.5rem;">🔄</div><div style="font-family:Orbitron,sans-serif;font-size:1rem;font-weight:900;color:#fff;letter-spacing:0.1em;">ROTATE FOR BEST VIEW</div><div style="color:rgba(255,255,255,0.55);font-size:0.85rem;">This game plays better in portrait mode</div><button id="dz-ph-skip" style="margin-top:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:8px;padding:8px 20px;font-family:Rajdhani,sans-serif;font-size:0.85rem;cursor:pointer;">Continue in Landscape</button>';
-      document.body.appendChild(portraitHint);
-      document.getElementById('dz-ph-skip').addEventListener('click', function() {
-        portraitDismissed = true;
-        portraitHint.style.display = 'none';
+    /* ── Forcibly hide every fixed game panel by adding .hidden ──
+       Called defensively on landscape AND on portrait return.
+       This is the permanent fix for "Tetris appears during other games":
+       tetris-play loses .hidden when a game is played, but never gets
+       it back when switching games. We re-add it here every time. */
+    function hideAllFixedPanels() {
+      FIXED_PANELS.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.classList.add('hidden'); el.style.setProperty('display','none','important'); }
+      });
+      document.querySelectorAll('[data-dz-game-panel]').forEach(function(p) {
+        p.classList.add('hidden'); p.style.setProperty('display','none','important');
       });
     }
 
-    function isPhone() {
-      return Math.min(window.innerWidth, window.innerHeight) < 600;
-    }
-
-    function getActiveScreen() {
-      var screens = document.querySelectorAll('[id^="screen-"]');
-      for (var i = 0; i < screens.length; i++) {
-        if (!screens[i].classList.contains('hidden')) return screens[i].id;
-      }
-      return null;
-    }
+    /* Expose globally so showTetris / showCarrom etc. can call it
+       right before they remove .hidden from their own panel */
+    window.dzHideAllFixedPanels = hideAllFixedPanels;
 
     function checkOrientation() {
-      if (!warn) return;
+      var isLandscape = window.innerWidth > window.innerHeight;
 
-      var portrait      = window.innerHeight > window.innerWidth;
-      var activeScreen  = getActiveScreen();
-      var needsLandscape = activeScreen && LANDSCAPE_SCREENS[activeScreen];
-      var needsPortrait  = activeScreen && PORTRAIT_SCREENS[activeScreen];
-
-      /* Landscape-required games: show rotate-to-landscape warning */
-      if (!dismissed && portrait && isPhone() && needsLandscape) {
-        warn.style.display = 'flex';
-        if (portraitHint) portraitHint.style.display = 'none';
-        tryLockLandscape();
-      } else {
-        warn.style.display = 'none';
-        /* Portrait-preferred games: show rotate-to-portrait hint when in landscape */
-        if (!portraitDismissed && !portrait && isPhone() && needsPortrait) {
-          if (portraitHint) portraitHint.style.display = 'flex';
-        } else {
-          if (portraitHint) portraitHint.style.display = 'none';
+      if (isLandscape) {
+        /* ── Hide only fixed panels that aren't actively playing ──
+           Active games (screen not .hidden) continue running in landscape.
+           Only stop loops if on the hub (no active game). */
+        var activeScreen = document.querySelector('[id^="screen-"]:not(.hidden):not(#screen-hub)');
+        if (!activeScreen) {
+          /* On hub in landscape — stop any lingering game loops.
+             Do NOT set DZ_PAUSED here. That flag is owned exclusively
+             by the in-game menu system. Setting it here froze every
+             game on desktop/landscape because it was never cleared
+             before ahLoop started. */
+          if (typeof window.dzPauseAllGames === 'function') {
+            try { window.dzPauseAllGames(); } catch(e) {}
+          } else {
+            ['tetrisStop','tetrisDestroy','rdStop','reactionStop',
+             'reactionDestroy','carromStop','sudokuStop','ppStopGame',
+             'sdStopGame','bombermanDestroy','territoryDestroy'
+            ].forEach(function(fn) {
+              try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+            });
+          }
+          /* Hide all fixed panels when on hub */
+          hideAllFixedPanels();
         }
+        /* Trigger resize on active game canvases so they adapt to landscape */
+        setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
+
+      } else {
+        /* Portrait: clear DZ_PAUSED only if the in-game menu isn't open.
+           Unconditionally clearing it would resume a legitimately paused game. */
+        var menuOpen = (function(){
+          var m = document.getElementById('dz-ig-menu');
+          return m && m.classList.contains('open');
+        })();
+        if (!menuOpen) window.DZ_PAUSED = false;
       }
     }
 
-    if (skipBtn) {
-      skipBtn.addEventListener('click', function() {
-        dismissed = true;
-        warn.style.display = 'none';
-      });
-    }
-
-    /* Re-check on rotation and resize */
-    window.addEventListener('orientationchange', function() {
-      setTimeout(checkOrientation, 200);
+    window.addEventListener('orientationchange', function () {
+      setTimeout(checkOrientation, 150);
     });
     window.addEventListener('resize', checkOrientation);
-
-    /* Also hook into dzShowScreen so warning fires the moment you enter a game */
-    var _origShowScreen = window.dzShowScreen;
-    window.dzShowScreen = function(screenId) {
-      _origShowScreen && _origShowScreen(screenId);
-      /* Reset dismiss when leaving a landscape game back to hub */
-      if (screenId === 'screen-hub') { dismissed = false; portraitDismissed = false; }
-      setTimeout(checkOrientation, 50);
-    };
-
-    /* Run on load */
     checkOrientation();
-
-    window.dzLockLandscape    = tryLockLandscape;
+    document.addEventListener('DOMContentLoaded', function() {
+      checkOrientation();
+      /* On page load, ensure all fixed panels start hidden */
+      hideAllFixedPanels();
+    });
     window.dzCheckOrientation = checkOrientation;
   })();
   </script>
 
-  <!-- ══════════════════════════════════════════════
-       IN-GAME MENU CONTROLLER
-       ══════════════════════════════════════════════ -->
-  <script>
-  /* ══════════════════════════════════════════════
-     IN-GAME MENU CONTROLLER
-     ══════════════════════════════════════════════ */
-  (function() {
-    'use strict';
 
-    var _igOpen = false;
+<!-- ══ In-Game Floating Menu Button ══ -->
+<button id="dz-ig-menu-btn" class="dz-ig-menu-btn" aria-label="Game Menu" aria-expanded="false" onclick="dzToggleGameMenu()">
+  <div class="igm-lines">
+    <span class="igm-line"></span>
+    <span class="igm-line igm-line--mid"></span>
+    <span class="igm-line igm-line--bot"></span>
+  </div>
+</button>
 
-    /* ── Is the user inside a game (hub hidden)? ── */
-    function _inGame() {
-      var hub = document.getElementById('screen-hub');
-      return !!(hub && hub.classList.contains('hidden'));
-    }
+<!-- ══ In-Game Side Menu Panel ══ -->
+<div id="dz-ig-menu" class="dz-ig-menu" aria-hidden="true">
+  <div class="igm-header">
+    <div class="igm-header-logo">DZ</div>
+    <span class="igm-header-title">GAME MENU</span>
+    <button class="igm-close-x" onclick="dzCloseGameMenu()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="igm-body">
+    <button class="igm-item" id="igm-hub-btn">
+      <span class="igm-item-icon igm-icon--hub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      </span>
+      <span class="igm-item-label">Back to Hub</span>
+      <span class="igm-item-arrow">›</span>
+    </button>
+    <button class="igm-item" id="igm-setup-btn">
+      <span class="igm-item-icon igm-icon--setup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </span>
+      <span class="igm-item-label">Setup / Settings</span>
+      <span class="igm-item-arrow">›</span>
+    </button>
+    <button class="igm-item" id="igm-volume-btn">
+      <span class="igm-item-icon igm-icon--vol">
+        <svg id="igm-vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path id="igm-vol-waves" d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+        </svg>
+      </span>
+      <span class="igm-item-label" id="igm-volume-label">Sound: On</span>
+      <span class="igm-vol-toggle" id="igm-vol-toggle">ON</span>
+    </button>
+  </div>
+  <!-- Ad Placement -->
+  <div class="igm-ad-placement">
+    <script async="async" data-cfasync="false" src="https://pl28923382.effectivegatecpm.com/7d8c02a325e09bb08c913d2cdfb8d56a/invoke.js"></script>
+    <div id="container-7d8c02a325e09bb08c913d2cdfb8d56a"></div>
+  </div>
+  <div class="igm-footer">© 2025 VGWA · DuelZone</div>
+</div>
 
-    /* ── Open / close in-game dropdown ── */
-    function _openIGMenu() {
-      _igOpen = true;
-      _syncSoundUI();
-      var drop = document.getElementById('dz-ingame-dropdown');
-      var bk   = document.getElementById('dz-ingame-backdrop');
-      if (drop) { drop.classList.add('open'); drop.setAttribute('aria-hidden', 'false'); }
-      if (bk)   bk.classList.add('active');
-      /* close main menu if somehow open */
-      var mainDrop = document.getElementById('dz-dropdown');
-      var mainBtn  = document.getElementById('dz-hamburger');
-      var mainBk   = document.getElementById('dz-menu-backdrop');
-      if (mainDrop) { mainDrop.classList.remove('open'); mainDrop.setAttribute('aria-hidden','true'); }
-      if (mainBtn)  { mainBtn.classList.remove('open'); mainBtn.setAttribute('aria-expanded','false'); }
-      if (mainBk)   mainBk.classList.remove('active');
-    }
+<!-- In-game menu backdrop -->
+<div id="dz-ig-menu-backdrop" class="dz-ig-menu-backdrop" onclick="dzCloseGameMenu()"></div>
 
-    window.dzCloseIngameMenu = function() {
-      _igOpen = false;
-      var drop = document.getElementById('dz-ingame-dropdown');
-      var bk   = document.getElementById('dz-ingame-backdrop');
-      if (drop) { drop.classList.remove('open'); drop.setAttribute('aria-hidden', 'true'); }
-      if (bk)   bk.classList.remove('active');
-    };
+<!-- ══ In-Game Menu Script ══ -->
+<script>
+(function(){
+  'use strict';
+  var MUTED_KEY = 'dz_muted';
+  var SETUP_FNS = {
+    ttt:function(){fireClick('ttt-back-to-home');},
+    c4:function(){fireClick('c4-back-to-home');},
+    rps:function(){fireClick('rps-back-to-home');},
+    tapbattle:function(){fireClick('tap-back-to-home');},
+    cricket:function(){showEl('cricket-setup');hideEl('cricket-play');hideEl('cricket-result');},
+    duel2048:function(){fireClick('d2048-back-to-home');},
+    airhockey:function(){fireClick('ah-back-to-home');},
+    passbreach:function(){showEl('pb-home');hideEl('pb-play-panel');},
+    connectdots:function(){fireClick('cdd-back-to-home');},
+    memoryflip:function(){fireClick('mfd-back-to-home');},
+    chess:function(){fireClick('chess-back-hub-play');},
+    battleship:function(){var m=ge('bs-mode-panel');if(m)m.classList.remove('bs-hidden');},
+    checkers:function(){var m=ge('ck-mode-panel');if(m)m.classList.remove('ck-hidden');},
+    darts:function(){fireClick('darts-back-setup');},
+    pingpong:function(){fireClick('pp-setup-btn');},
+    tetris:function(){var p=ge('tetris-play'),h=ge('tetris-home'),r=ge('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.tetrisStop)try{tetrisStop();}catch(e){}},
+    reaction:function(){var p=ge('rd-play'),h=ge('rd-home'),r=ge('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.rdStop)try{rdStop();}catch(e){}},
+    ludo:function(){fireClick('ludo-back-play');var r=ge('ludo-result');if(r)r.classList.add('hidden');},
+    carrom:function(){var p=ge('carrom-play'),h=ge('carrom-home'),r=ge('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.carromStop)try{carromStop();}catch(e){}},
+    sudoku:function(){var p=ge('sdk-play'),h=ge('sdk-home'),r=ge('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.sudokuStop)try{sudokuStop();}catch(e){}},
+    // GameLoader games — reset to their own home/setup via GameLoader.resetCurrentGame()
+    minesweeper:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    bomberman:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    drawguess:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    territory:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    starcatcher:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    spacedodge:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+    tanks:function(){if(typeof GameLoader!=='undefined'&&GameLoader.resetCurrentGame)GameLoader.resetCurrentGame();},
+  };
+  function ge(id){return document.getElementById(id);}
+  function fireClick(id){var b=ge(id);if(b)b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));}
+  function showEl(id){var el=ge(id);if(!el)return;el.classList.remove('hidden');el.style.removeProperty('display');el.style.removeProperty('visibility');}
+  function hideEl(id){var el=ge(id);if(!el)return;el.classList.add('hidden');el.style.setProperty('display','none','important');}
 
-    /* ── Route hamburger click ── */
-    function _handleHamburgerClick() {
-      if (_inGame()) {
-        _igOpen ? window.dzCloseIngameMenu() : _openIGMenu();
-      } else {
-        /* use the main menu open/close */
-        window.dzCloseIngameMenu();
-        var mainDrop = document.getElementById('dz-dropdown');
-        var mainBtn  = document.getElementById('dz-hamburger');
-        var mainBk   = document.getElementById('dz-menu-backdrop');
-        if (!mainDrop) return;
-        var isOpen = mainDrop.classList.contains('open');
-        if (isOpen) {
-          mainDrop.classList.remove('open'); mainDrop.setAttribute('aria-hidden','true');
-          if (mainBtn) { mainBtn.classList.remove('open'); mainBtn.setAttribute('aria-expanded','false'); }
-          if (mainBk)  mainBk.classList.remove('active');
-        } else {
-          mainDrop.classList.add('open'); mainDrop.setAttribute('aria-hidden','false');
-          if (mainBtn) { mainBtn.classList.add('open'); mainBtn.setAttribute('aria-expanded','true'); }
-          if (mainBk)  mainBk.classList.add('active');
-        }
-      }
-    }
+  window._dzCurrentGame = null;
+  window.dzShowGameMenuBtn = function(gameId){
+    window._dzCurrentGame = gameId||null;
+    var btn = document.getElementById('dz-ig-menu-btn');
+    if (btn) { btn.style.setProperty('display','flex','important'); }
+  };
+  window.dzHideGameMenuBtn = function(){
+    window._dzCurrentGame = null;
+    document.body.classList.remove('dz-in-game');
+    closeMenu();
+    var btn = document.getElementById('dz-ig-menu-btn');
+    if (btn) { btn.style.removeProperty('display'); }
+  };
 
-    /* Attach on DOMContentLoaded so the button exists */
-    function _init() {
-      var ham = document.getElementById('dz-hamburger');
-      if (ham) {
-        /* Remove old inline onclick then use addEventListener */
-        ham.removeAttribute('onclick');
-        ham.addEventListener('click', function(e) {
-          e.stopPropagation();
-          _handleHamburgerClick();
-        });
-      }
-
-      /* Backdrop for in-game menu */
-      var bk = document.createElement('div');
-      bk.id = 'dz-ingame-backdrop';
-      bk.style.cssText = 'position:fixed;inset:0;z-index:1089;display:none;';
-      bk.addEventListener('click', function() { window.dzCloseIngameMenu(); });
-      document.body.appendChild(bk);
-      var st = document.createElement('style');
-      st.textContent = '#dz-ingame-backdrop.active{display:block;}';
-      document.head.appendChild(st);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', _init);
-    } else {
-      _init();
-    }
-
-    /* ── Sound sync ── */
-    function _syncSoundUI() {
-      /* Read muted state the same way dzToggleMusicFromMenu does */
-      var MUTED_KEY = 'dz_muted';
-      var muted = localStorage.getItem(MUTED_KEY) === '1';
-      var label = document.getElementById('igd-sound-label');
-      var tog   = document.getElementById('igd-sound-toggle');
-      var waves = document.getElementById('igd-sound-waves');
-      if (label) label.textContent = muted ? 'Sound: Off' : 'Sound: On';
-      if (tog)   { tog.textContent = muted ? 'OFF' : 'ON'; tog.classList.toggle('off', muted); }
-      if (waves) waves.setAttribute('d', muted ? '' : 'M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07');
-    }
-
-    window.dzIngameToggleSound = function() {
-      /* Delegate entirely to the main menu sound toggle — same logic, same storage */
-      if (window.dzToggleMusicFromMenu) {
-        window.dzToggleMusicFromMenu();
-      }
-      /* Sync in-game UI to match the new state */
-      _syncSoundUI();
-    };
-
-    /* ── Setup ── */
-    window.dzIngameSetup = function() {
-      window.dzCloseIngameMenu();
-      /* Find the active game's setup button and click it */
-      var screen = null;
-      document.querySelectorAll('[id^="screen-"]').forEach(function(s) {
-        if (s.id !== 'screen-hub' && !s.classList.contains('hidden')) screen = s;
-      });
-      var btn = null;
-      if (screen) btn = screen.querySelector('.ghp-back-game');
-      /* Fixed-position play panels (Tetris, Reaction, Ludo, Carrom, Sudoku) */
-      if (!btn) {
-        ['tetris-play','rd-play','ludo-play','carrom-play','sdk-play'].forEach(function(id) {
-          if (btn) return;
-          var el = document.getElementById(id);
-          if (el && !el.classList.contains('hidden')) btn = el.querySelector('.ghp-back-game');
-        });
-      }
-      if (btn) btn.click();
-    };
-
-    /* ── Escape key ── */
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && _igOpen) window.dzCloseIngameMenu();
+  document.addEventListener('DOMContentLoaded',function(){
+    var hubBtn=ge('igm-hub-btn'),setupBtn=ge('igm-setup-btn'),volBtn=ge('igm-volume-btn');
+    if(hubBtn)hubBtn.addEventListener('click',function(){closeMenu();window.dzNavShowHome&&window.dzNavShowHome();});
+    if(setupBtn)setupBtn.addEventListener('click',function(){closeMenu();var fn=SETUP_FNS[window._dzCurrentGame];if(fn)fn();});
+    if(volBtn)volBtn.addEventListener('click',function(){
+      var nowMuted=localStorage.getItem(MUTED_KEY)==='1';
+      nowMuted=!nowMuted;
+      localStorage.setItem(MUTED_KEY,nowMuted?'1':'0');
+      if(window.SoundManager){nowMuted?SoundManager.mute():SoundManager.unmute();}
+      var lbl=ge('dd-music-label'),tog=ge('dd-music-toggle'),btn=ge('dd-music-btn'),wav=ge('dd-music-waves');
+      if(lbl)lbl.textContent=nowMuted?'Sound: Off':'Sound: On';
+      if(tog){tog.textContent=nowMuted?'OFF':'ON';tog.classList.toggle('off',nowMuted);}
+      if(btn)btn.classList.toggle('muted',nowMuted);
+      if(wav)wav.setAttribute('d',nowMuted?'':'M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07');
+      syncVol();
     });
+    syncVol();
+  });
 
-  })();
-  </script>
+  window.dzToggleGameMenu=function(){
+    var m=ge('dz-ig-menu');if(!m)return;
+    m.classList.contains('open')?closeMenu():openMenu();
+  };
+  function openMenu(){
+    var m=ge('dz-ig-menu'),b=ge('dz-ig-menu-btn'),bk=ge('dz-ig-menu-backdrop');
+    if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
+    if(b){b.classList.add('open');b.setAttribute('aria-expanded','true');}
+    if(bk)bk.classList.add('active');
+    syncVol();
+    window.DZ_PAUSED=true;
+    if(typeof window.dzPauseAllGames==='function')window.dzPauseAllGames();
+  }
+  function closeMenu(){
+    var m=ge('dz-ig-menu'),b=ge('dz-ig-menu-btn'),bk=ge('dz-ig-menu-backdrop');
+    if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
+    if(b){b.classList.remove('open');b.setAttribute('aria-expanded','false');}
+    if(bk)bk.classList.remove('active');
+    var hub=document.getElementById('screen-hub'),onHub=hub&&!hub.classList.contains('hidden');
+    if(!onHub){
+      // Resume all games (also resumes audio internally)
+      if(typeof window.dzResumeAllGames==='function'){
+        window.dzResumeAllGames();
+      } else {
+        // Fallback if dzResumeAllGames not yet available
+        window.DZ_PAUSED=false;
+        if(typeof window.dzResumeAllAudio==='function') window.dzResumeAllAudio();
+      }
+    }
+  }
+  window.dzCloseGameMenu=closeMenu;
+  function syncVol(){
+    var muted=localStorage.getItem(MUTED_KEY)==='1';
+    if(window.SoundManager){muted?SoundManager.mute():SoundManager.unmute();}
+    var tog=ge('igm-vol-toggle'),lbl=ge('igm-volume-label'),wav=ge('igm-vol-waves');
+    if(tog){tog.textContent=muted?'OFF':'ON';tog.classList.toggle('off',muted);}
+    if(lbl)lbl.textContent=muted?'Sound: Off':'Sound: On';
+    if(wav)wav.style.display=muted?'none':'';
+  }
+})();
+</script>
+
+  <!-- ══════════════════════════════════════════════
+       SHARE MODAL
+  ══════════════════════════════════════════════ -->
+  <div id="dz-share-backdrop" class="dz-share-backdrop"></div>
+  <div id="dz-share-modal" class="dz-share-modal" role="dialog" aria-modal="true" aria-label="Share result">
+    <div class="dz-share-header">
+      <span class="dz-share-title">📤 Share Your Result</span>
+      <button id="dz-share-close" class="dz-share-close" aria-label="Close">✕</button>
+    </div>
+    <div class="dz-share-preview-wrap">
+      <div id="dz-share-preview" class="dz-share-preview">
+        <div class="dz-share-spinner"></div>
+      </div>
+      <p class="dz-share-hint">Save the image above, then share it anywhere!</p>
+    </div>
+    <div class="dz-share-actions">
+      <button id="dz-share-save-btn" class="dz-share-btn dz-share-btn--save">
+        📥 Save Image
+      </button>
+      <button id="dz-share-native-btn" class="dz-share-btn dz-share-btn--native">
+        📱 Share…
+      </button>
+      <button id="dz-share-wa-btn" class="dz-share-btn dz-share-btn--wa">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.97.554 3.81 1.516 5.374L2 22l4.709-1.489A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.395 17.605 2 12.05 2zm0 18.17a8.12 8.12 0 01-4.382-1.27l-.314-.186-3.26 1.031 1.05-3.17-.204-.325A8.13 8.13 0 013.88 11.95c0-4.51 3.66-8.17 8.17-8.17s8.17 3.66 8.17 8.17-3.66 8.22-8.17 8.22z"/></svg>
+        WhatsApp
+      </button>
+      <button id="dz-share-tw-btn" class="dz-share-btn dz-share-btn--tw">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter / X
+      </button>
+      <button id="dz-share-copy-btn" class="dz-share-btn dz-share-btn--copy">
+        🔗 Copy Link
+      </button>
+    </div>
+  </div>
 
 </body>
 </html>

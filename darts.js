@@ -129,7 +129,11 @@
   function dartsResizeCanvas() {
     var wrap = $('darts-canvas-wrap');
     if (!wrap || !DS.canvas) return;
-    var w = Math.min(wrap.clientWidth || 400, 460);
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var isLandscape = vw > vh;
+    var maxByW = Math.min(wrap.clientWidth || 400, 460);
+    var maxByH = isLandscape ? vh - 60 : 9999;
+    var w = Math.min(maxByW, maxByH);
     DS.canvas.width = w; DS.canvas.height = w;
     DS.cx = w/2; DS.cy = w/2; DS.boardR = w * 0.47;
     if (DS.ctx) dartsDraw();
@@ -146,7 +150,7 @@
     DS.turnScores = []; DS.turnStartScores = [DS.startScore, DS.startScore];
     DS.gameOver = false; DS.darts = [];
     DS.isDragging = false; DS.dragStart = null; DS.dragCurrent = null;
-    DS.inputLocked = false; DS.animDart = null;
+    DS.inputLocked = false; DS.animDart = null; DS.hasBust = false;
 
     $('darts-home').classList.add('hidden');
     $('darts-play-panel').classList.remove('hidden');
@@ -194,17 +198,21 @@
     $('darts-turn-text').textContent = names[DS.currentPlayer] + '\'s Turn';
 
     var pips = $('darts-dart-pips');
-    pips.innerHTML = '';
-    for (var i = 0; i < 3; i++) {
-      var pip = document.createElement('span');
-      pip.className = 'darts-pip' + (i < DS.dartsLeft ? ' darts-pip-active' : '');
-      pips.appendChild(pip);
+    if (pips) {
+      pips.innerHTML = '';
+      for (var i = 0; i < 3; i++) {
+        var pip = document.createElement('span');
+        pip.className = 'darts-pip' + (i < DS.dartsLeft ? ' darts-pip-active' : '');
+        pips.appendChild(pip);
+      }
     }
 
     var t1 = $('darts-p1-throws'), t2 = $('darts-p2-throws');
-    var chips = DS.turnScores.map(function(s){ return '<span class="darts-throw-chip">'+s+'</span>'; }).join('');
-    if (DS.currentPlayer === 0) { t1.innerHTML = chips; t2.innerHTML = ''; }
-    else                        { t2.innerHTML = chips; t1.innerHTML = ''; }
+    if (t1 && t2) {
+      var chips = DS.turnScores.map(function(s){ return '<span class="darts-throw-chip">'+s+'</span>'; }).join('');
+      if (DS.currentPlayer === 0) { t1.innerHTML = chips; t2.innerHTML = ''; }
+      else                        { t2.innerHTML = chips; t1.innerHTML = ''; }
+    }
 
     if (DS.mode === 'bo5') {
       $('darts-p1-name').textContent = 'P1 ['+DS.wins[0]+']';
@@ -263,9 +271,37 @@
     if (DS.inputLocked && !( DS.vsBot && DS.currentPlayer===1 )) return;
     DS.inputLocked = true;
     var hit = dartsScoreHit(tx, ty);
-    var fromX = DS.cx + (tx - DS.cx)*3.5, fromY = DS.cy + (ty - DS.cy)*3.5;
-    DS.animFrom = {x:fromX, y:fromY}; DS.animTo = {x:tx, y:ty}; DS.animProgress = 0;
+    // Project the start point 3.5× beyond the target from center, then clamp it
+    // to just outside the canvas edge.  Without the clamp, throws aimed at the
+    // board edges begin ~2× boardR off-screen, making the dart invisible for the
+    // first 2-3 frames and causing the "dart goes missing" effect users reported.
+    var rawFromX = DS.cx + (tx - DS.cx)*3.5, rawFromY = DS.cy + (ty - DS.cy)*3.5;
+    var fromPos  = dartsClampAnimStart(tx, ty, rawFromX, rawFromY);
+    DS.animFrom = fromPos; DS.animTo = {x:tx, y:ty}; DS.animProgress = 0;
     dartsFlyAnimate(hit);
+  }
+
+  // Walks the line from (tx,ty) toward (rawFromX,rawFromY) and returns the point
+  // where it first crosses the canvas boundary (plus a tiny overshoot so the dart
+  // appears to enter from just outside the edge).  If the raw start is already
+  // inside the canvas it is returned unchanged.
+  function dartsClampAnimStart(tx, ty, rawFromX, rawFromY) {
+    var W = DS.canvas.width;
+    var dx = rawFromX - tx, dy = rawFromY - ty;
+    // Already inside — no clamping needed
+    if (rawFromX >= 0 && rawFromX <= W && rawFromY >= 0 && rawFromY <= W) {
+      return {x: rawFromX, y: rawFromY};
+    }
+    // Find the t in [0,1] where the point (tx+t*dx, ty+t*dy) exits the canvas.
+    // t=0 is the target (on-board), t=1 is rawFrom (potentially off-canvas).
+    var tExit = 1.0;
+    if (dx > 0) tExit = Math.min(tExit, (W - tx) / dx);
+    else if (dx < 0) tExit = Math.min(tExit, (0 - tx) / dx);
+    if (dy > 0) tExit = Math.min(tExit, (W - ty) / dy);
+    else if (dy < 0) tExit = Math.min(tExit, (0 - ty) / dy);
+    // Step a tiny bit beyond the exit so the dart starts just outside the visible area
+    var t = Math.min(tExit + 0.02, 1.0);
+    return {x: tx + t*dx, y: ty + t*dy};
   }
 
   function dartsFlyAnimate(hit) {
@@ -302,7 +338,11 @@
     DS.turnScores.push(displayed);
     DS.dartsLeft--;
 
-    if (!bust) {
+    if (bust) {
+      // Mark turn as busted — score is locked at turn-start value for all remaining darts
+      DS.hasBust = true;
+      DS.scores[p] = DS.turnStartScores[p]; // restore immediately so further throws can't corrupt
+    } else if (!DS.hasBust) {
       if (DS.mode === 'timed') DS.scores[p] = Math.max(0, newScore);
       else DS.scores[p] = newScore;
     }
@@ -334,7 +374,7 @@
         if (DS.wins[p] >= 3) { dartsEndGame(p); }
         else {
           DS.scores = [DS.startScore, DS.startScore];
-          DS.darts = []; DS.dartsLeft = 3; DS.turnScores = [];
+          DS.darts = []; DS.dartsLeft = 3; DS.turnScores = []; DS.hasBust = false;
           DS.turnStartScores = [DS.startScore, DS.startScore];
           DS.currentPlayer = p === 0 ? 1 : 0;
           DS.inputLocked = false; dartsUpdateUI(); dartsDraw();
@@ -380,13 +420,23 @@
       148:['T20','T20','D14'], 147:['T20','T17','D18'], 146:['T20','T18','D16'],
       145:['T20','T15','D20'], 144:['T20','T20','D12'], 143:['T20','T17','D16'],
       142:['T20','T14','D20'], 141:['T20','T19','D12'], 140:['T20','T20','D10'],
-      100:['T20','D20'], 99:['T19','D21'], 98:['T20','D19'], 97:['T19','D20'],
+      100:['T20','D20'], 99:['T20','T7','D9'], 98:['T20','D19'], 97:['T19','D20'], // FIX: 99 was invalid D21
       96:['T20','D18'], 95:['T19','D19'], 94:['T18','D20'], 93:['T19','D18'],
       92:['T20','D16'], 91:['T17','D20'], 90:['T20','D15'], 89:['T19','D16'],
       88:['T20','D14'], 87:['T17','D18'], 86:['T18','D16'], 85:['T15','D20'],
       84:['T20','D12'], 83:['T17','D16'], 82:['T14','D20'], 81:['T19','D12'],
-      80:['T20','D10'], 50:['Bull'], 40:['D20'], 36:['D18'], 32:['D16'],
-      24:['D12'], 20:['D10'], 16:['D8'], 8:['D4'], 4:['D2']
+      80:['T20','D10'], 79:['T13','D20'], 78:['T18','D12'], 77:['T15','D16'],
+      76:['T20','D8'], 75:['T17','D12'], 74:['T14','D16'], 73:['T19','D8'],
+      72:['T16','D12'], 71:['T13','D16'], 70:['T10','D20'], 69:['T19','D6'],
+      68:['T20','D4'], 67:['T17','D8'], 66:['T10','D18'], 65:['T11','D16'],
+      64:['T16','D8'], 63:['T13','D12'], 62:['T10','D16'], 61:['T15','D8'],
+      60:['20','D20'], 59:['T13','D10'], 58:['T18','D2'], 57:['T17','D3'],
+      56:['T16','D4'], 55:['T15','D5'], 54:['T14','D6'], 53:['T13','D7'],
+      52:['T12','D8'], 50:['Bull'],
+      48:['8','D20'], 46:['T10','D8'], 44:['T4','D16'], 42:['T10','D6'],
+      40:['D20'], 38:['D19'], 36:['D18'], 34:['D17'], 32:['D16'], 30:['D15'],
+      28:['D14'], 26:['D13'], 24:['D12'], 22:['D11'], 20:['D10'], 18:['D9'],
+      16:['D8'], 14:['D7'], 12:['D6'], 10:['D5'], 8:['D4'], 6:['D3'], 4:['D2'], 2:['D1']
     };
     return checkouts[score] || null;
   }
@@ -403,9 +453,9 @@
 
   function dartsNextTurn(bust) {
     var p = DS.currentPlayer;
-    if (bust) DS.scores[p] = DS.turnStartScores[p];
+    if (bust || DS.hasBust) DS.scores[p] = DS.turnStartScores[p]; // restore if any bust this turn
     DS.currentPlayer = p === 0 ? 1 : 0;
-    DS.dartsLeft = 3; DS.turnScores = [];
+    DS.dartsLeft = 3; DS.turnScores = []; DS.hasBust = false;
     DS.turnStartScores = [DS.scores[0], DS.scores[1]];
     DS.darts = []; DS.inputLocked = false;
     dartsUpdateUI(); dartsDraw();
@@ -432,14 +482,22 @@
       detail = 'Exactly equal scores!';
     } else {
       title  = '🎯 ' + names[winner] + ' Wins!';
-      detail = DS.mode === 'bo5' ? 'Series: '+DS.wins[0]+' – '+DS.wins[1] : 'Reached zero!';
+      detail = DS.mode === 'bo5'   ? 'Series: '+DS.wins[0]+' – '+DS.wins[1] :
+               DS.mode === 'timed' ? 'Best score in time!' : 'Reached zero!';
     }
-    $('darts-result-title').textContent  = title;
-    $('darts-result-detail').textContent = detail;
-    $('darts-result').classList.remove('hidden');
+    var resultTitle  = $('darts-result-title');
+    var resultDetail = $('darts-result-detail');
+    var resultPanel  = $('darts-result');
+    if (resultTitle)  resultTitle.textContent  = title;
+    if (resultDetail) resultDetail.textContent = detail;
+    if (resultPanel)  resultPanel.classList.remove('hidden');
     dartsConfetti();
-    if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
-
+    if (typeof SoundManager !== 'undefined') {
+      var humanLost = DS.vsBot && winner === 1;
+      if (humanLost && SoundManager.lose) SoundManager.lose();
+      else if (SoundManager.win) SoundManager.win();
+    }
+    if (window.DZShare) DZShare.setResult({ game:'Darts Duel', slug:'darts', winner:title, detail:detail, accent:'#ff1744', icon:'🎯' });
   }
 
   // ─── Bot ──────────────────────────────────────────────────────
@@ -464,7 +522,7 @@
     // Hard/Medium: optimal checkout strategy
     // Step 1: Bullseye for 50 or 25
     if (rem === 50) return {x:cx, y:cy}; // bullseye (50)
-    if (rem === 25) return {x:cx, y:cy+RFRACS.bullseye*r*1.2}; // outer bull (25)
+    if (rem === 25) return {x:cx, y:cy+(RFRACS.bullseye+RFRACS.outerBull)/2*r}; // outer bull (25)
 
     // Step 2: Use checkout table for scores <= 170
     if (diff === 'hard' && rem <= 170) {
@@ -531,7 +589,7 @@
     var dist = Math.sqrt(dx*dx+dy*dy);
     var r = DS.boardR;
     if (dist <= RFRACS.bullseye*r)  return {score:50, label:'BULLSEYE 🎯', isDouble:true};
-    if (dist <= RFRACS.outerBull*r) return {score:25, label:'OUTER BULL', isDouble:false};
+    if (dist <= RFRACS.outerBull*r) return {score:25, label:'OUTER BULL', isDouble:true};
     if (dist > RFRACS.doubleOut*r)  return {score:0,  label:'MISS', isDouble:false};
 
     var angle = Math.atan2(dy, dx) + Math.PI/2;
@@ -553,6 +611,7 @@
   // ─── Popup ───────────────────────────────────────────────────
   function dartsShowPopup(text, color) {
     var pop = $('darts-score-popup');
+    if (!pop) return;
     pop.textContent = text;
     pop.style.color = color || '#fff';
     pop.classList.remove('hidden', 'darts-pop-anim');

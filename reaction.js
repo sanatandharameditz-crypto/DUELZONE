@@ -20,11 +20,56 @@
     _wired: false,
   };
 
-  window.reactionInit = function () {
+  window.reactionInit    = function () {
     if (!RD._wired) { rdWireUI(); RD._wired = true; }
     rdShowHome();
   };
   window.reactionDestroy = function () { rdStop(); };
+  window.rdStop          = function () { rdStop(); };  // called by dzPauseAllGames
+  window.reactionStop    = function () { rdStop(); };  // alias
+
+  // Pause: freeze all timers, remember what phase we were in
+  window.reactionPause = function () {
+    if (RD.over) return;
+    RD._pausedPhase = RD.phase;
+    if (RD.waitTimer)   { clearTimeout(RD.waitTimer);   RD.waitTimer   = null; }
+    if (RD.resultTimer) { clearTimeout(RD.resultTimer); RD.resultTimer = null; }
+    if (RD.botTimer)    { clearTimeout(RD.botTimer);    RD.botTimer    = null; }
+    // Note the time elapsed so we can resume the signal timer correctly
+    if (RD.phase === 'signal') RD._pauseSignalMs = performance.now() - RD.signalTime;
+  };
+  // Resume: restart whichever timer was running
+  window.reactionResume = function () {
+    if (RD.over) return;
+    var phase = RD._pausedPhase;
+    if (!phase || phase === 'wait' || phase === 'result' || phase === 'done') return;
+    if (phase === 'ready') {
+      // Still waiting for signal — fire a new random delay
+      var delay = 800 + Math.random() * 2200;
+      RD.waitTimer = setTimeout(function () {
+        if (RD.over || RD.phase !== 'ready') return;
+        rdShowSignal();
+      }, delay);
+    } else if (phase === 'signal') {
+      // Signal was showing — adjust signalTime for time spent paused
+      var elapsed = RD._pauseSignalMs || 0;
+      RD.signalTime = performance.now() - elapsed;
+      // Restart bot timer with remaining time
+      if (RD.mode === 'bot') {
+        var botDelay = { easy: 700, medium: 300, hard: 10 }[RD.diff] || 300;
+        botDelay += Math.random() * (RD.diff === 'hard' ? 8 : 180);
+        var remaining = Math.max(50, botDelay - elapsed);
+        RD.botTimer = setTimeout(function () {
+          if (RD.phase === 'signal') rdBotTap();
+        }, remaining);
+      }
+      // Restart auto-expire
+      var expireRemaining = Math.max(200, 3000 - elapsed);
+      RD.waitTimer = setTimeout(function () {
+        if (RD.phase === 'signal') rdRoundResult(-1, 3000);
+      }, expireRemaining);
+    }
+  };
 
   function el(id) { return document.getElementById(id); }
   function on(id, fn) { var e = el(id); if (e) e.addEventListener('click', fn); }
@@ -33,9 +78,19 @@
   function rdShowHome() {
     rdStop();
     window.scrollTo(0, 0);
-    el('rd-home').classList.remove('hidden');
-    el('rd-play').classList.add('hidden');
-    var backBtn = el('rd-back-play'); if (backBtn) backBtn.style.display = 'none';
+    var home = el('rd-home');
+    if (home) {
+      home.classList.remove('hidden');
+      home.style.removeProperty('display');
+      home.style.removeProperty('visibility');
+    }
+    var play = el('rd-play');
+    if (play) {
+      play.classList.add('hidden');
+      play.style.setProperty('display','none','important');
+    }
+    var backBtn = el('rd-back-play');
+    if (backBtn) backBtn.style.display = 'none';
   }
 
   function rdWireUI() {
@@ -92,10 +147,12 @@
     RD.phase = 'wait';
     window.scrollTo(0, 0);
 
-    el('rd-home').classList.add('hidden');
+    var homeEl = el('rd-home');
+    if (homeEl) { homeEl.classList.add('hidden'); homeEl.style.display = 'none'; }
     var playEl = el('rd-play');
-    if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
-    el('rd-result').classList.add('hidden');
+    if (playEl) { playEl.classList.remove('hidden'); playEl.style.setProperty('display','flex','important'); playEl.scrollTop = 0; }
+    var rdResultEl = el('rd-result'); // FIX BUG-1: null-guard missing — every other el() call in this function is guarded but this one wasn't; crashes game-start with TypeError if element is absent
+    if (rdResultEl) rdResultEl.classList.add('hidden');
     var backBtn = el('rd-back-play'); if (backBtn) backBtn.style.display = 'block';
 
     var p2name = RD.mode === 'bot' ? '🤖 Bot' : 'Player 2';
@@ -144,12 +201,14 @@
 
     // Auto-expire after 3 seconds
     RD.waitTimer = setTimeout(function () {
-      if (RD.phase === 'signal') rdRoundResult(-1, -1, 3000);
+      if (RD.phase === 'signal') rdRoundResult(-1, 3000);
     }, 3000);
   }
 
   function rdPlayerTap(pid) {
-    if (RD.over || el('rd-play').classList.contains('hidden')) return;
+    var _play = el('rd-play');
+    if (RD.over || !_play || _play.classList.contains('hidden')) return; // FIX BUG-2: el('rd-play') can be null; direct .classList access throws TypeError — mirrors the null-safe pattern used in the keydown handler above
+    if (RD.mode === 'bot' && pid === 1) return; // FIX RD-1: block P2 keyboard tap in bot mode
 
     if (RD.phase === 'ready') {
       // False start!
@@ -174,7 +233,7 @@
       var rt = Math.round(performance.now() - RD.signalTime);
       if (RD.waitTimer) { clearTimeout(RD.waitTimer); RD.waitTimer = null; }
       if (RD.botTimer) { clearTimeout(RD.botTimer); RD.botTimer = null; }
-      rdRoundResult(pid, 1 - pid, rt);
+      rdRoundResult(pid, rt);
     }
   }
 
@@ -182,16 +241,20 @@
     if (RD.phase === 'signal') {
       var rt = Math.round(performance.now() - RD.signalTime);
       if (RD.waitTimer) { clearTimeout(RD.waitTimer); RD.waitTimer = null; }
-      rdRoundResult(1, 0, rt);
+      rdRoundResult(1, rt);
     }
   }
 
-  function rdRoundResult(winner, loser, reactionMs) {
+  // FIX BUG-4: removed unused 'loser' parameter. It was passed at every call site
+  // (as '1-pid' or '-1') but never read inside the function — a dead parameter that
+  // implies it does something. Call sites are unchanged; JS silently ignores extras.
+  function rdRoundResult(winner, reactionMs) {
     RD.phase = 'result';
     rdSetSignal('result');
 
-    if (winner === -1) {
+    if (winner === -1 || winner === null || winner === undefined) {
       setText('rd-status', '⏰ Nobody tapped — draw!');
+      // FIX RD-2: winner==-1 means nobody tapped; do NOT touch roundsWon[-1]
     } else {
       var names = ['Player 1', RD.mode === 'bot' ? 'Bot' : 'Player 2'];
       RD.roundsWon[winner]++;
@@ -210,19 +273,25 @@
   }
 
   function rdShowFinal() {
-    RD.over = true;
-    var names = ['Player 1', RD.mode === 'bot' ? 'Bot' : 'Player 2'];
-    // BUG 5 FIX: the old code was `RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1`
-    // which always picked Player 2 on a tie. Handle tie explicitly.
+    rdStop(); // FIX BUG-3: was only setting RD.over=true; rdStop() is the single source of
+             // truth for clearing all three timers and nulling their handles. Without this,
+             // timer handles remain non-null after the game ends (especially in the
+             // auto-expire path where botTimer/waitTimer are not cleared before reaching here).
+    var names    = ['Player 1', RD.mode === 'bot' ? 'Bot' : 'Player 2'];
+    var rdTitle  = el('rd-result-title');
+    var rdDetail = el('rd-result-detail');
+    var rdResult = el('rd-result');
     if (RD.roundsWon[0] === RD.roundsWon[1]) {
-      el('rd-result-title').textContent  = '🤝 Draw!';
-      el('rd-result-detail').textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds (tied)';
+      if (rdTitle)  rdTitle.textContent  = '🤝 Draw!';
+      if (rdDetail) rdDetail.textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds (tied)';
+      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:"It's a Draw!", detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds (tied)', accent:'#aa00ff', icon:'⚡' });
     } else {
       var winner = RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1;
-      el('rd-result-title').textContent  = '🏆 ' + names[winner] + ' Wins!';
-      el('rd-result-detail').textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds';
+      if (rdTitle)  rdTitle.textContent  = '🏆 ' + names[winner] + ' Wins!';
+      if (rdDetail) rdDetail.textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds';
+      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:names[winner]+' Wins! 🏆', detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds', accent:'#aa00ff', icon:'⚡' });
     }
-    el('rd-result').classList.remove('hidden');
+    if (rdResult) rdResult.classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
   }
 

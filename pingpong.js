@@ -7,20 +7,28 @@
 (function () {
   'use strict';
 
-  /* ── Bot difficulty ─────────────────────────────────────────── */
+  /* ── Bot difficulty (speeds in px/s as fraction of H) ──────── */
   var BOT = {
-    easy : { spd:0.026, err:0.24, react:440 },
-    med  : { spd:0.050, err:0.09, react:160 },
-    hard : { spd:0.085, err:0.02, react: 50 }
+    easy : { spd:2.00, err:0.24, react:440 },
+    med  : { spd:3.90, err:0.09, react:160 },
+    hard : { spd:6.60, err:0.02, react: 50 }
   };
 
-  /* ── Design constants (fractions of canvas H) ───────────────── */
+  /* ── Design constants (fractions of canvas H, as px/SECOND) ────── */
+  // Delta-time based — speed is frame-rate independent.
+  // Values tuned ~30% above the raw *60 conversion so the ball feels snappy
+  // on modern high-refresh displays without being physics-dependent on fps.
   var WIN=7, FPW=0.028, FPH=0.22, FPE=0.045, FBR=0.022;
-  var FIS=0.0125, FMS=0.031, FIN=0.0008;
+  var FIS=0.98,  // initial ball speed  px/s (fraction of H)
+      FMS=2.40,  // max ball speed      px/s
+      FIN=0.060; // speed increment per paddle hit px/s
 
   /* ── Runtime ────────────────────────────────────────────────── */
   var canvas, ctx, W, H, raf=null;
   var gameState='idle'; // idle|playing|serving|paused|over
+  var serveTimer=null;  // serve-delay timeout — cleared on pause/stop
+  var _ppServeDir=null; // saved serve direction for pause/resume
+  var lastTime=0;       // timestamp of previous frame for delta-time calculation
   var mode='bot', diff='med';
 
   var p1, p2, ball;
@@ -76,13 +84,12 @@
   /* ── Resize ─────────────────────────────────────────────────── */
   function resize() {
     var vw=window.innerWidth, vh=window.innerHeight;
-    var isLandscape = vw > vh && vh < 520;
+    var isLandscape = vw > vh;
     var avW, avH;
     if (isLandscape) {
-      // Landscape phone: height drives the canvas size
-      // Reserve ~80px for header + score row
+      // Landscape: height drives canvas, keep 16:9 width
       avH = vh - 80;
-      avW = Math.min(vw - 16, Math.round(avH / 0.5625)); // keep 16:9
+      avW = Math.min(vw - 16, Math.round(avH / 0.5625));
     } else {
       avW = Math.min(vw - 24, 740);
       var asp = vw < 480 ? 0.80 : vw < 680 ? 0.68 : 0.5625;
@@ -100,8 +107,8 @@
   function wireResize() {
     if (_resizeWired) return; _resizeWired=true;
     window.addEventListener('resize', function(){
-      if (gameState==='playing'||gameState==='serving') return;
-      resize(); drawIdle();
+      resize();
+      if (gameState==='idle') drawIdle();
     });
   }
 
@@ -259,10 +266,15 @@
   }
 
   function startGame(){
-    resize(); resetScores(); updateLabels(); buildObjects();
-    botTick=0; calcBotTarget();
+    resize(); resetScores(); updateLabels();
+    // Build paddles only — ball launched via serve() for consistent delay
+    p1={x:pEdge,      y:H/2-pH/2, w:pW, h:pH};
+    p2={x:W-pEdge-pW, y:H/2-pH/2, w:pW, h:pH};
+    botTick=0;
     pointerY={p1:null,p2:null}; touchSide={};
-    showPanel('none'); gameState='playing'; startLoop();
+    showPanel('none');
+    // FIX PP-2: use serve() so first serve has same "GET READY" delay as subsequent ones
+    serve(Math.random()<0.5?1:-1);
   }
 
   function playAgain(){ startGame(); }
@@ -286,7 +298,10 @@
     showPanel('none'); gameState='playing'; startLoop();
   }
 
-  function stopLoop(){ if(raf){cancelAnimationFrame(raf);raf=null;} }
+  function stopLoop(){
+    if(raf){cancelAnimationFrame(raf);raf=null;}
+    if(serveTimer){clearTimeout(serveTimer);serveTimer=null;} // FIX PP-1: clear orphaned serve timeout
+  }
   function startLoop(){ if(!raf) raf=requestAnimationFrame(tick); }
 
   /* ── Score / Labels ─────────────────────────────────────────── */
@@ -302,6 +317,7 @@
   }
 
   /* ── Objects ────────────────────────────────────────────────── */
+  // buildObjects kept for reference — paddle init now inlined in startGame
   function buildObjects(){
     p1={x:pEdge,      y:H/2-pH/2, w:pW, h:pH};
     p2={x:W-pEdge-pW, y:H/2-pH/2, w:pW, h:pH};
@@ -316,24 +332,29 @@
   /* ── Tick ───────────────────────────────────────────────────── */
   function tick(now){
     if(gameState==='playing'||gameState==='serving'){
-      movePaddles(now);
-      if(gameState==='playing'){ moveBall(); if(flash>0)flash--; }
+      // Delta-time: clamp to 50ms max to prevent physics explosion after tab-switch or menu pause
+      var dt = lastTime ? Math.min(now - lastTime, 50) : 16.67;
+      lastTime = now;
+      movePaddles(now, dt);
+      if(flash>0)flash--;
+      if(gameState==='playing'){ moveBall(dt); }
       draw();
       raf=requestAnimationFrame(tick);
     } else {
+      lastTime=0; // reset so next resume gets a clean first frame
       raf=null;
     }
   }
 
   /* ── Paddle movement — pure pointer tracking ────────────────── */
-  function movePaddles(now){
-    // P1: snap center to pointer Y
+  function movePaddles(now, dt){
+    // P1: snap center to pointer Y (instant — no speed limit needed)
     if(pointerY.p1!==null){
       p1.y=clamp(pointerY.p1 - pH/2, 0, H-pH);
     }
     // P2: bot or player
     if(mode==='bot'){
-      moveBot(now);
+      moveBot(now, dt);
     } else {
       if(pointerY.p2!==null){
         p2.y=clamp(pointerY.p2 - pH/2, 0, H-pH);
@@ -342,11 +363,13 @@
   }
 
   /* ── Bot AI ─────────────────────────────────────────────────── */
-  function moveBot(now){
-    var cfg=BOT[diff], spd=cfg.spd*H;
+  function moveBot(now, dt){
+    var cfg=BOT[diff], spd=cfg.spd*H; // spd is px/s (BOT configs use per-second values)
     if(now-botTick>cfg.react){ botTick=now; calcBotTarget(); }
     var centre=p2.y+pH/2, delta=botY-centre;
-    p2.y=clamp(p2.y + Math.sign(delta)*Math.min(Math.abs(delta),spd), 0, H-pH);
+    // Move by spd * dt/1000 px this frame
+    var step = spd * (dt/1000);
+    p2.y=clamp(p2.y + Math.sign(delta)*Math.min(Math.abs(delta),step), 0, H-pH);
   }
 
   function calcBotTarget(){
@@ -357,7 +380,9 @@
   }
 
   function predictBallY(tx){
-    var sx=ball.x,sy=ball.y,svx=ball.vx,svy=ball.vy;
+    var sx=ball.x,sy=ball.y;
+    // vx/vy are px/s — simulate at 60fps steps (1/60 s per iteration)
+    var svx=ball.vx/60, svy=ball.vy/60;
     for(var i=0;i<600;i++){
       sx+=svx; sy+=svy;
       if(sy-bR<0){sy=bR;   svy= Math.abs(svy);}
@@ -367,27 +392,32 @@
     return sy;
   }
 
-  /* ── Ball — sub-stepped ─────────────────────────────────────── */
-  function moveBall(){
+  /* ── Ball — sub-stepped, delta-time based ───────────────────── */
+  function moveBall(dt){
     ball.trail.push({x:ball.x,y:ball.y});
     if(ball.trail.length>10) ball.trail.shift();
 
-    var steps=Math.min(16,Math.max(1,Math.ceil(Math.abs(ball.vx)/(pW*0.55))));
-    var dx=ball.vx/steps, dy=ball.vy/steps;
+    // Scale velocity to this frame's time slice (vx/vy are now px/second)
+    var fvx = ball.vx * (dt/1000);
+    var fvy = ball.vy * (dt/1000);
+
+    // Sub-step based on how far the ball moves relative to paddle width
+    var steps=Math.min(16,Math.max(1,Math.ceil(Math.abs(fvx)/(pW*0.55))));
+    var dx=fvx/steps, dy=fvy/steps;
 
     for(var s=0;s<steps;s++){
       ball.x+=dx; ball.y+=dy;
 
-      if(ball.y-bR<0){ ball.y=bR; ball.vy=Math.abs(ball.vy); dy=ball.vy/steps; sfx('wall'); }
-      if(ball.y+bR>H){ ball.y=H-bR; ball.vy=-Math.abs(ball.vy); dy=ball.vy/steps; sfx('wall'); }
+      if(ball.y-bR<0){ ball.y=bR; ball.vy=Math.abs(ball.vy); dy=ball.vy*(dt/1000)/steps; sfx('wall'); }
+      if(ball.y+bR>H){ ball.y=H-bR; ball.vy=-Math.abs(ball.vy); dy=ball.vy*(dt/1000)/steps; sfx('wall'); }
 
       // P1 paddle
       if(ball.vx<0 && ball.x-bR<p1.x+p1.w+1 && ball.x+bR>p1.x && ball.y+bR>p1.y && ball.y-bR<p1.y+p1.h){
-        ball.x=p1.x+p1.w+bR+1; bounce(p1,1); dx=ball.vx/steps; dy=ball.vy/steps; sfx('paddle'); break;
+        ball.x=p1.x+p1.w+bR+1; bounce(p1,1); dx=ball.vx*(dt/1000)/steps; dy=ball.vy*(dt/1000)/steps; sfx('paddle'); break;
       }
       // P2 paddle
       if(ball.vx>0 && ball.x+bR>p2.x-1 && ball.x-bR<p2.x+p2.w && ball.y+bR>p2.y && ball.y-bR<p2.y+p2.h){
-        ball.x=p2.x-bR-1; bounce(p2,-1); dx=ball.vx/steps; dy=ball.vy/steps; sfx('paddle');
+        ball.x=p2.x-bR-1; bounce(p2,-1); dx=ball.vx*(dt/1000)/steps; dy=ball.vy*(dt/1000)/steps; sfx('paddle');
         if(mode==='bot') botTick=0;
         break;
       }
@@ -406,8 +436,11 @@
   }
 
   function serve(dir){
+    _ppServeDir = dir; // save direction so ppPause can restart it correctly
     gameState='serving'; startLoop();
-    setTimeout(function(){
+    serveTimer=setTimeout(function(){
+      serveTimer=null;
+      _ppServeDir = null;
       if(gameState==='serving'){ launchBall(dir); gameState='playing'; botTick=0; calcBotTarget(); }
     },700);
   }
@@ -420,6 +453,7 @@
         if($resTitle) $resTitle.textContent=w+' WINS!';
         if($resSub)   $resSub.textContent=s1+' – '+s2;
         showPanel('result'); stopLoop();
+        if(window.DZShare) DZShare.setResult({ game:'Ping Pong', slug:'ping-pong', winner:w+' WINS!', detail:'Final score: '+s1+' – '+s2, accent:'#00e5ff', icon:'🏓' });
       },700);
       return true;
     }
@@ -576,4 +610,30 @@
 
   window.ppInit=ppInit;
   window.ppStop=function(){ stopLoop(); gameState='idle'; pointerY={p1:null,p2:null}; touchSide={}; };
+
+  // Pause/resume hooks — called by dzOpenMenu (pause) and dzCloseMenu (resume)
+  var _ppPausedState = null;   // 'playing' | 'serving' | null
+
+  window.ppPause = function() {
+    if (gameState !== 'playing' && gameState !== 'serving') return;
+    _ppPausedState = gameState;
+    stopLoop(); // cancels RAF + cancels serveTimer
+    gameState = 'paused';
+  };
+
+  window.ppResume = function() {
+    if (gameState !== 'paused' || !_ppPausedState) return;
+    var prev = _ppPausedState;
+    _ppPausedState = null;
+    lastTime = 0; // reset so first frame after resume gets a safe default dt
+
+    if (prev === 'serving') {
+      var dir = _ppServeDir !== null ? _ppServeDir : (Math.random() < 0.5 ? 1 : -1);
+      _ppServeDir = null;
+      serve(dir);
+    } else {
+      gameState = 'playing';
+      startLoop();
+    }
+  };
 })();

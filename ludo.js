@@ -283,34 +283,41 @@
     c.quadraticCurveTo(x,y,x+r,y); c.closePath();
   }
 
-  function updateChips() {
-    for(let p=0;p<4;p++) {
-      const chip=$id(`lchip-${p}`), sc=$id(`lchip-sc-${p}`);
-      if(!chip||!sc) continue;
-      chip.classList.toggle('active', p===curPlayer && phase!=='done');
-      sc.textContent=`${tokens[p].filter(t=>t.finished).length}/4`;
-    }
-  }
+  // ── updateSideBtns: replaces updateChips() + updateRollBtn() ─
+  function updateSideBtns() {
+    [0,1,2,3].forEach(p=>{
+      const btn=$id(`ludo-sbtn-${p}`);
+      const sc=$id(`lsb-sc-${p}`);
+      if (!btn) return;
+      const finished=tokens[p].filter(t=>t.finished).length;
+      if (sc) sc.textContent=`${finished}/4`;
 
-  function updateRollBtn() {
-    const btn=$id('ludo-roll-btn'); if (!btn) return;
-    const isHuman=humanSet.has(curPlayer);
-    const canRoll=isHuman && phase==='idle';
+      const isActive   = p===curPlayer && phase!=='done';
+      const isHuman    = humanSet.has(p);
+      const canRoll    = isActive && isHuman && phase==='idle';
+      const isRolling  = isActive && (phase==='rolling'||phase==='bot'||
+                                      phase==='moving'||phase==='waiting');
 
-    btn.classList.remove('lrb-green','lrb-yellow','lrb-blue','lrb-pulse');
-    btn.disabled=!canRoll;
+      btn.classList.toggle('lsb-active',   isActive);
+      btn.classList.toggle('lsb-canroll',  canRoll);
+      btn.classList.toggle('lsb-rolling',  isRolling);
+      btn.classList.toggle('lsb-done',     tokens[p].every(t=>t.finished));
+      btn.disabled = !canRoll;
 
-    if (!isHuman||phase==='bot'||phase==='waiting'||phase==='moving'||phase==='rolling') {
-      btn.textContent = (phase==='done'||phase==='idle')
-        ? `⏳ ${CN[curPlayer]} (Bot)…`
-        : `⏳ ${CN[curPlayer]} (Bot) rolling…`;
-    } else {
-      btn.textContent=`${CE[curPlayer]} ${playerLabel(curPlayer)} — ROLL`;
-      if (RBCL[curPlayer]) btn.classList.add(RBCL[curPlayer]);
-      if (canRoll) btn.classList.add('lrb-pulse');
-    }
+      // Update label
+      const nameEl=btn.querySelector('.lsb-name');
+      if (nameEl) {
+        if (!isHuman && isActive) nameEl.textContent='Bot thinking…';
+        else if (canRoll)         nameEl.textContent='TAP TO ROLL!';
+        else                      nameEl.textContent=playerLabel(p);
+      }
+    });
     drawDie(diceVal);
   }
+
+  // Keep old function names as aliases so existing call-sites still work
+  function updateChips()   { updateSideBtns(); }
+  function updateRollBtn() { updateSideBtns(); }
 
   /* ═══════════════════════════════════════════════════════
      NAVIGATION
@@ -563,89 +570,78 @@
   function buildUI() {
     const app=$id('ludo-app'); app.innerHTML='';
 
-    // Banner
-    const banner=makeEl('div','','ludo-banner');
-    banner.innerHTML=`<span id="ludo-banner-ava">🎲</span><span id="ludo-banner-txt">Game on! ${CN[curPlayer]} goes first.</span>`;
-    app.appendChild(banner);
+    // ── Outer wrapper holds the 3-column/3-row grid ──────────
+    const layout=makeEl('div','','ludo-layout');
 
-    // Status chips
-    const sb=makeEl('div','','ludo-sbar');
-    [0,1,2,3].forEach(p=>{
-      const chip=makeEl('div','lchip');
-      chip.id=`lchip-${p}`;
-      chip.style.setProperty('--lc',CH[p]);
-      chip.innerHTML=`
-        <div class="lchip-dot"></div>
-        <span class="lchip-label">${CE[p]} ${playerLabel(p)}</span>
-        <span class="lchip-score" id="lchip-sc-${p}">0/4</span>`;
-      sb.appendChild(chip);
+    // Player → position:  Red=top, Green=right, Yellow=bottom, Blue=left
+    const POS=['top','right','bottom','left'];
+    POS.forEach((pos,p)=>{
+      const isHuman=humanSet.has(p);
+      const btn=makeEl('button','ludo-side-btn',`ludo-sbtn-${p}`);
+      btn.dataset.pos=pos; btn.dataset.player=p;
+      btn.style.setProperty('--lsb-color',CH[p]);
+      btn.style.setProperty('--lsb-dark',CDK[p]);
+      btn.innerHTML=
+        `<span class="lsb-emoji">${CE[p]}</span>`+
+        `<span class="lsb-name">${playerLabel(p)}</span>`+
+        `<span class="lsb-score" id="lsb-sc-${p}">0/4</span>`;
+      btn.addEventListener('click',()=>{
+        if (p!==curPlayer||!humanSet.has(p)||phase!=='idle') return;
+        onRoll();
+      });
+      layout.appendChild(btn);
     });
-    app.appendChild(sb);
 
-    // Board canvas
+    // Centre board canvas
     const bw=makeEl('div','','ludo-bwrap');
     canvas=document.createElement('canvas');
     canvas.id='ludo-cv';
     canvas.addEventListener('pointerdown',onBoardClick);
-    bw.appendChild(canvas); app.appendChild(bw);
+    bw.appendChild(canvas);
+    layout.appendChild(bw);
 
-    // Message box
+    app.appendChild(layout);
+
+    // Message bar below grid
     const msg=makeEl('div','','ludo-msg');
     msg.innerHTML=`<span id="ludo-msg-icon">🎲</span><span id="ludo-msg-txt">Preparing game…</span>`;
     app.appendChild(msg);
 
-    // Dice row
-    const dr=makeEl('div','','ludo-drow');
-    const dw=makeEl('div','','ludo-die-wrap');
-    const dieCV=document.createElement('canvas');
-    dieCV.id='ludo-die-cv'; dieCV.width=dieCV.height=120;
-    dw.appendChild(dieCV);
-
-    const rb=document.createElement('button');
-    rb.id='ludo-roll-btn'; rb.addEventListener('click',onRoll);
-
+    // Music toggle (small, sits below message)
     const mb=document.createElement('button');
     mb.id='ludo-music-btn'; mb.title='Toggle Music';
     mb.textContent=musicOn?'🎵':'🔇';
     if (musicOn) mb.classList.add('on');
+    app.appendChild(mb);
 
-    dr.appendChild(dw); dr.appendChild(rb); dr.appendChild(mb);
-    app.appendChild(dr);
-
-    // FIX: remove previous resize listener before adding new one
+    // Resize plumbing
     if (_resizeHandler) window.removeEventListener('resize',_resizeHandler);
-    _resizeHandler = function() { setLudoBoardSize(); resizeCanvas(); };
+    _resizeHandler=function(){ setLudoBoardSize(); resizeCanvas(); };
     window.addEventListener('resize',_resizeHandler);
 
-    // Defer resize to ensure play panel is visible and has dimensions
-    setTimeout(function() {
-      setLudoBoardSize();
-      resizeCanvas();
-      updateChips();
-      drawDie(0);
-    }, 50);
-    // Note: updateRollBtn called after setTimeout in startGame
+    setTimeout(function(){
+      setLudoBoardSize(); resizeCanvas(); updateSideBtns();
+    },50);
   }
 
+    // Banner
   /**
    * Calculates max board size so the whole Ludo UI fits without scrolling.
-   * Fixed heights consumed by non-board elements (approximate):
-   *   topbar:  42px
-   *   banner:  58px
-   *   sbar:    54px
-   *   msg:     54px
-   *   drow:    72px
-   *   padding: 32px
-   *   ──────────────
-   *   total:  312px
+   * New layout: only msg (~48px) + side btns (~56px each) + padding (~24px)
    */
   function setLudoBoardSize() {
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    const reserved = 312;
-    const boardMax = Math.max(200, vh - reserved);
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const isLandscape = vw > vh;
+    // New layout: side buttons are ~56px each (top+bottom = 112px),
+    // msg bar ~48px, padding ~24px, topbar ~54px → ~238px total
+    const reserved = isLandscape ? 100 : 238;
+    const boardMax = Math.max(180, vh - reserved);
     const app = $id('ludo-app');
-    const containerW = app ? (app.clientWidth || window.innerWidth) - 20 : window.innerWidth - 20;
-    const size = Math.min(boardMax, containerW);
+    // Side buttons are outside the board, so available width = full container
+    const containerW = app ? (app.clientWidth || vw) - 20 : vw - 20;
+    // Subtract side button widths (~56px * 2) from width available for the board
+    const boardW = Math.max(180, containerW - 112);
+    const size = Math.min(boardMax, boardW);
     document.documentElement.style.setProperty('--ludo-board-size', size + 'px');
   }
 
@@ -712,15 +708,15 @@
       captureMsg=tryCapture(p,ti);
     } else if (tok.homeStep>0) {
       tok.homeStep+=dice;
-      if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; }
+      if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; bonusTurn=true; } // bonus roll on home
     } else {
       const d=distToEntry(p,tok.pos);
       if (d===0) {
         tok.homeStep=Math.min(dice,6);
-        if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; }
+        if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; bonusTurn=true; } // bonus roll on home
       } else if (d<dice) {
         tok.homeStep=Math.min(dice-d,6);
-        if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; }
+        if (tok.homeStep>=6) { tok.homeStep=6; tok.finished=true; bonusTurn=true; } // bonus roll on home
       } else {
         tok.pos=(tok.pos+dice)%52;
         const cm=tryCapture(p,ti);
@@ -728,7 +724,7 @@
       }
     }
 
-    if      (tok.finished)  { sfxHome(); showBanner('🏠',`${CE[p]} Token reached HOME! 🎉`); }
+    if      (tok.finished)  { sfxHome(); showBanner('🏠',`${CE[p]} Token HOME! 🎉 Roll again!`); }
     else if (captureMsg)    { sfxCapture(); showBanner('💥',captureMsg); captureBanner={text:captureMsg,alpha:1.0}; }
     else if (dice===6)      { sfxSix(); showBanner(CE[p],`Rolled 6! ${playerLabel(p)==='BOT'?CN[p]+' rolls again!':'Go again!'}`); }
     else                    { sfxMove(); }
@@ -792,8 +788,11 @@
     }
 
     // One move: auto-execute
+    // Set phase='moving' immediately (not 'pick') so onBoardClick is blocked
+    // during the 420ms delay — otherwise a tap during the window calls pick()
+    // a second time and the token moves twice.
     if (moves.length===1) {
-      movable=moves; phase='pick';
+      movable=[]; phase='moving';
       setMsg('✅',`Rolled ${diceVal}!`);
       setTimeout(()=>pick(curPlayer,moves[0].ti), 420);
       return;
@@ -837,9 +836,10 @@
 
     const nextIsHuman=humanSet.has(curPlayer);
 
-    // PvP pass-device: in pure-pvp always show; in bots mode show when multiple humans share device
+    // Pass-device: only in bots mode when multiple humans share one device.
+    // In pure PvP mode each player has their own colour button — no popup needed.
     const needPass = !samePlayer && nextIsHuman && curPlayer!==prevPlayer &&
-                     (gameMode==='pvp' || humanCount>1);
+                     gameMode !== 'pvp' && humanCount > 1;
     if (needPass) {
       // Show pass overlay — the overlay's button sets phase='idle' and unblocks
       phase='pass';
@@ -996,6 +996,7 @@
     $id('ludo-result-title').textContent  = title;
     $id('ludo-result-detail').textContent = detail;
     $id('ludo-result').classList.remove('hidden');
+    if (window.DZShare) DZShare.setResult({ game:'Ludo', slug:'ludo', winner:title, detail:detail.replace(/[🎉💀🏆]/g,'').trim(), accent:'#ff1744', icon:'🎲' });
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -1048,70 +1049,83 @@
     bg.addColorStop(0,'#0b0d20'); bg.addColorStop(1,'#0e1018');
     ctx.fillStyle=bg; rrect(ctx,0,0,S,S,10); ctx.fill();
 
-    // Yard fills (radial gradient per color)
-    YARD_ZONE.forEach(([r,c],p)=>{
-      const g=ctx.createRadialGradient((c+3)*cs,(r+3)*cs,0,(c+3)*cs,(r+3)*cs,3.2*cs);
-      g.addColorStop(0,CH[p]+'2c'); g.addColorStop(1,CH[p]+'08');
-      ctx.fillStyle=g;
-      rrect(ctx,c*cs+1,r*cs+1,6*cs-2,6*cs-2,cs*0.45); ctx.fill();
+    // ── Step 1: Draw every PATH cell as a clearly visible box ──
+    // Solid light fill + crisp border on every cell pieces can land on
+    PATH.forEach(([r,c])=>{
+      const x=c*cs, y=r*cs, pad=cs*0.05;
+      ctx.fillStyle='rgba(210,225,255,0.22)';
+      ctx.fillRect(x+pad,y+pad,cs-pad*2,cs-pad*2);
+      ctx.strokeStyle='rgba(180,205,255,0.65)';
+      ctx.lineWidth=1.2;
+      ctx.strokeRect(x+pad,y+pad,cs-pad*2,cs-pad*2);
     });
 
-    // Cross cells + home columns
-    for (let r=0;r<15;r++) for (let c=0;c<15;c++) {
-      const inCross=(r>=6&&r<=8)||(c>=6&&c<=8); if (!inCross) continue;
-      const x=c*cs, y=r*cs;
-      ctx.fillStyle='rgba(255,255,255,0.028)'; ctx.fillRect(x,y,cs,cs);
-      if      (r===7&&c>=1&&c<=6)  drawHomeCell(x,y,cs,0,c-1);
-      else if (c===7&&r>=1&&r<=6)  drawHomeCell(x,y,cs,1,r-1);
-      else if (r===7&&c>=8&&c<=13) drawHomeCell(x,y,cs,2,13-c);
-      else if (c===7&&r>=8&&r<=13) drawHomeCell(x,y,cs,3,13-r);
-      else if (r===7&&c===7)        drawCenterStar(x,y,cs);
+    // ── Step 2: Cross corridor non-path cells (visual continuity) ──
+    for (let r=6;r<=8;r++) for (let c=6;c<=8;c++) {
+      const onPath=PATH.some(([pr,pc])=>pr===r&&pc===c);
+      if (onPath||( r===7&&c===7)) continue;
+      const x=c*cs, y=r*cs, pad=cs*0.05;
+      ctx.fillStyle='rgba(255,255,255,0.07)';
+      ctx.fillRect(x+pad,y+pad,cs-pad*2,cs-pad*2);
+      ctx.strokeStyle='rgba(255,255,255,0.22)';
+      ctx.lineWidth=0.8;
+      ctx.strokeRect(x+pad,y+pad,cs-pad*2,cs-pad*2);
     }
 
-    // Fine grid lines (whole board, subtle)
-    ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=0.5;
+    // ── Step 3: Light overall grid to frame the board ──
+    ctx.strokeStyle='rgba(180,200,255,0.25)'; ctx.lineWidth=0.5;
     for (let i=0;i<=15;i++) {
       ctx.beginPath(); ctx.moveTo(i*cs,0); ctx.lineTo(i*cs,S); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,i*cs); ctx.lineTo(S,i*cs); ctx.stroke();
     }
-
-    // Bold grid lines on cross area columns & rows 6-9
-    ctx.strokeStyle='rgba(255,255,255,0.30)'; ctx.lineWidth=1.2;
-    for (let i=6;i<=9;i++) {
+    // Bold cross corridor boundary
+    ctx.strokeStyle='rgba(200,220,255,0.55)'; ctx.lineWidth=1.8;
+    [6,9].forEach(i=>{
       ctx.beginPath(); ctx.moveTo(i*cs,0); ctx.lineTo(i*cs,S); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,i*cs); ctx.lineTo(S,i*cs); ctx.stroke();
+    });
+
+    // Yard fills (radial gradient per color) — drawn OVER grid lines
+    YARD_ZONE.forEach(([r,c],p)=>{
+      const g=ctx.createRadialGradient((c+3)*cs,(r+3)*cs,0,(c+3)*cs,(r+3)*cs,3.2*cs);
+      g.addColorStop(0,CH[p]+'60'); g.addColorStop(1,CH[p]+'20');
+      ctx.fillStyle=g;
+      rrect(ctx,c*cs+1,r*cs+1,6*cs-2,6*cs-2,cs*0.45); ctx.fill();
+    });
+
+    // Home column cells
+    for (let r=0;r<15;r++) for (let c=0;c<15;c++) {
+      const inCross=(r>=6&&r<=8)||(c>=6&&c<=8); if (!inCross) continue;
+      const x=c*cs, y=r*cs;
+      if      (r===7&&c>=1&&c<=6)  drawHomeCell(x,y,cs,0,c-1);
+      else if (c===7&&r>=1&&r<=6)  drawHomeCell(x,y,cs,1,r-1);
+      else if (r===7&&c>=8&&c<=13) drawHomeCell(x,y,cs,2,13-c);
+      else if (c===7&&r>=8&&r<=13) drawHomeCell(x,y,cs,3,13-r);
+      else if (r===7&&c===7)        drawDieOnBoard(cs);
     }
 
     // Yard zone borders + inner ring + label
     YARD_ZONE.forEach(([r,c],p)=>{
-      ctx.strokeStyle=CH[p]+'cc'; ctx.lineWidth=2;
+      ctx.strokeStyle=CH[p]+'ee'; ctx.lineWidth=2.5;
       rrect(ctx,c*cs+1,r*cs+1,6*cs-2,6*cs-2,cs*0.45); ctx.stroke();
 
-      ctx.fillStyle='rgba(7,9,20,0.82)';
+      ctx.fillStyle='rgba(7,9,20,0.75)';
       rrect(ctx,(c+1)*cs+3,(r+1)*cs+3,4*cs-6,4*cs-6,cs*0.28); ctx.fill();
-      ctx.strokeStyle=CH[p]+'44'; ctx.lineWidth=1;
+      ctx.strokeStyle=CH[p]+'66'; ctx.lineWidth=1.5;
       rrect(ctx,(c+1)*cs+3,(r+1)*cs+3,4*cs-6,4*cs-6,cs*0.28); ctx.stroke();
 
-      ctx.fillStyle=CH[p]+'72'; ctx.font=`bold ${cs*0.52}px 'Orbitron',sans-serif`;
+      ctx.fillStyle=CH[p]+'99'; ctx.font=`bold ${cs*0.52}px 'Orbitron',sans-serif`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(CN[p][0],(c+3)*cs,(r+0.62)*cs);
     });
 
-    // Path track tint
-    PATH.forEach(([r,c])=>{
-      if ((r>=6&&r<=8)||(c>=6&&c<=8)) {
-        ctx.fillStyle='rgba(255,255,255,0.038)';
-        ctx.fillRect(c*cs+0.5,r*cs+0.5,cs-1,cs-1);
-      }
-    });
-
-    // Start squares
+    // Start squares — solid colour fill so they pop
     START.forEach((idx,p)=>{
       const [r,c]=PATH[idx]; const x=c*cs,y=r*cs;
-      ctx.fillStyle=CH[p]+'55'; ctx.fillRect(x+1,y+1,cs-2,cs-2);
-      ctx.strokeStyle=CH[p]+'cc'; ctx.lineWidth=1.5;
-      ctx.strokeRect(x+1.5,y+1.5,cs-3,cs-3);
-      ctx.fillStyle=CH[p]; ctx.font=`bold ${cs*0.38}px 'DM Mono',monospace`;
+      ctx.fillStyle=CH[p]+'88'; ctx.fillRect(x+2,y+2,cs-4,cs-4);
+      ctx.strokeStyle=CH[p]; ctx.lineWidth=2;
+      ctx.strokeRect(x+2,y+2,cs-4,cs-4);
+      ctx.fillStyle='#fff'; ctx.font=`bold ${cs*0.42}px 'DM Mono',monospace`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('S',x+cs/2,y+cs/2);
     });
@@ -1164,9 +1178,9 @@
   }
 
   function drawHomeCell(x,y,cs,p,step) {
-    const a=Math.round(((step+1)/6)*170+35).toString(16).padStart(2,'0');
-    ctx.fillStyle=CH[p]+a; ctx.fillRect(x,y,cs,cs);
-    ctx.strokeStyle=CH[p]+'55'; ctx.lineWidth=0.5; ctx.strokeRect(x,y,cs,cs);
+    const a=Math.round(((step+1)/6)*110+90).toString(16).padStart(2,'0');
+    ctx.fillStyle=CH[p]+a; ctx.fillRect(x+0.5,y+0.5,cs-1,cs-1);
+    ctx.strokeStyle=CH[p]+'99'; ctx.lineWidth=1; ctx.strokeRect(x+0.5,y+0.5,cs-1,cs-1);
   }
 
   function drawCenterStar(x,y,cs) {
@@ -1197,47 +1211,161 @@
   /* ═══════════════════════════════════════════════════════
      DICE
   ═══════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════
+     DICE — drawn at board center [7,7]
+  ═══════════════════════════════════════════════════════ */
   function drawDie(val) {
-    const dieCV=$id('ludo-die-cv'); if (!dieCV) return;
-    const dc=dieCV.getContext('2d'); const W=120,rr=18;
-    dc.clearRect(0,0,W,W);
-    dc.shadowColor='rgba(0,0,0,0.6)'; dc.shadowBlur=12; dc.shadowOffsetY=3;
-    const g=dc.createLinearGradient(0,0,W,W);
-    g.addColorStop(0,'#1b1f3a'); g.addColorStop(1,'#10121f');
-    dc.fillStyle=g; rrect(dc,4,4,W-8,W-8,rr); dc.fill();
-    dc.shadowBlur=0; dc.shadowOffsetY=0;
-    dc.strokeStyle='rgba(255,255,255,0.16)'; dc.lineWidth=1.5;
-    rrect(dc,4,4,W-8,W-8,rr); dc.stroke();
+    // Legacy: also draw on separate canvas if it still exists (transition safety)
+    const dieCV=$id('ludo-die-cv');
+    if (dieCV) {
+      const dc=dieCV.getContext('2d'); const W=120,rr=18;
+      dc.clearRect(0,0,W,W);
+      const g=dc.createLinearGradient(0,0,W,W);
+      g.addColorStop(0,'#1b1f3a'); g.addColorStop(1,'#10121f');
+      dc.fillStyle=g; rrect(dc,4,4,W-8,W-8,rr); dc.fill();
+      dc.strokeStyle='rgba(255,255,255,0.16)'; dc.lineWidth=1.5;
+      rrect(dc,4,4,W-8,W-8,rr); dc.stroke();
+      if (val>0) {
+        const col=humanSet.has(curPlayer)?CH[curPlayer]:'#dde4ff';
+        DOTS[val].forEach(([cx,cy])=>{
+          dc.beginPath(); dc.arc(4+(W-8)*cx,4+(W-8)*cy,9.5,0,Math.PI*2);
+          dc.fillStyle=col; dc.shadowColor=col+'99'; dc.shadowBlur=7;
+          dc.fill(); dc.shadowBlur=0;
+        });
+      }
+    }
+    // Main dice drawn by drawDieOnBoard() during board loop — no extra work needed here
+  }
 
-    if (val>0) {
-      const col=humanSet.has(curPlayer)?CH[curPlayer]:'#dde4ff';
-      DOTS[val].forEach(([cx,cy])=>{
-        dc.beginPath(); dc.arc(4+(W-8)*cx,4+(W-8)*cy,9.5,0,Math.PI*2);
-        dc.fillStyle=col; dc.shadowColor=col+'99'; dc.shadowBlur=7;
-        dc.fill(); dc.shadowBlur=0;
+  // Draw the dice at the board's center (called from drawBoard)
+  function drawDieOnBoard(cs) {
+    if (!ctx) return;
+
+    // ── Center cell [7,7] geometry ────────────────────────────────────
+    const cellX = 7 * cs;
+    const cellY = 7 * cs;
+    const cx    = cellX + cs / 2;
+    const cy    = cellY + cs / 2;
+
+    // ── 1. Large decorative background — fills the full center cell ───
+    //    Slightly larger rounded rect with a dark gradient + subtle ring
+    const bgSz = cs * 0.96;
+    const bgX  = cx - bgSz / 2;
+    const bgY  = cy - bgSz / 2;
+    const bgR  = bgSz * 0.22;
+
+    // Dark base
+    ctx.fillStyle = '#08091a';
+    rrect(ctx, bgX, bgY, bgSz, bgSz, bgR);
+    ctx.fill();
+
+    // Faint rainbow ring (all 4 player colours as gradient)
+    const ring = ctx.createLinearGradient(bgX, bgY, bgX + bgSz, bgY + bgSz);
+    ring.addColorStop(0,    '#f4433688');  // red
+    ring.addColorStop(0.33, '#4caf5088');  // green
+    ring.addColorStop(0.66, '#ffc10788');  // yellow
+    ring.addColorStop(1,    '#2196f388');  // blue
+    ctx.strokeStyle = ring;
+    ctx.lineWidth   = 2;
+    rrect(ctx, bgX, bgY, bgSz, bgSz, bgR);
+    ctx.stroke();
+
+    // ── 2. Dice — sits neatly inside the center cell ──────────────────
+    const col = humanSet.has(curPlayer) ? CH[curPlayer] : '#dde4ff';
+    const sz  = cs * 0.72;   // fits comfortably within the cell
+    const r   = sz * 0.18;
+    const x   = cx - sz / 2;
+    const y   = cy - sz / 2;
+
+    // Shadow
+    ctx.shadowColor   = 'rgba(0,0,0,0.85)';
+    ctx.shadowBlur    = 10;
+    ctx.shadowOffsetY = 3;
+
+    // Body gradient
+    const bg = ctx.createLinearGradient(x, y, x + sz, y + sz);
+    bg.addColorStop(0, '#252850');
+    bg.addColorStop(1, '#0d0f22');
+    ctx.fillStyle = bg;
+    rrect(ctx, x, y, sz, sz, r);
+    ctx.fill();
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+    // Border — current player colour
+    ctx.strokeStyle = col + 'cc';
+    ctx.lineWidth   = 1.6;
+    rrect(ctx, x, y, sz, sz, r);
+    ctx.stroke();
+
+    // ── 3. Dots or ? ──────────────────────────────────────────────────
+    if (diceVal > 0) {
+      const dotR = sz * 0.1;
+      DOTS[diceVal].forEach(([fx, fy]) => {
+        const dx = x + sz * fx;
+        const dy = y + sz * fy;
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fillStyle   = col;
+        ctx.shadowColor = col + 'bb';
+        ctx.shadowBlur  = 6;
+        ctx.fill();
+        ctx.shadowBlur  = 0;
       });
     } else {
-      dc.fillStyle='rgba(255,255,255,0.18)';
-      dc.font=`bold 36px 'Orbitron',sans-serif`;
-      dc.textAlign='center'; dc.textBaseline='middle';
-      dc.fillText('?',W/2,W/2);
+      ctx.fillStyle    = 'rgba(255,255,255,0.30)';
+      ctx.font         = `bold ${sz * 0.48}px 'Orbitron',sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('?', cx, cy);
+    }
+
+    // ── 4. Rolling pulse ring around dice ─────────────────────────────
+    if (phase === 'rolling' || phase === 'bot') {
+      ctx.strokeStyle = col;
+      ctx.lineWidth   = 2;
+      ctx.globalAlpha = 0.3 + Math.sin(pulseT * 14) * 0.3;
+      rrect(ctx, x - 3, y - 3, sz + 6, sz + 6, r + 3);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
     }
   }
 
   function animateRoll(cb) {
-    const dieCV=$id('ludo-die-cv'); const rb=$id('ludo-roll-btn');
-    if (rb) rb.disabled=true;
-    if (dieCV) dieCV.classList.add('rolling');
+    // The dice is drawn on the main board canvas via drawDieOnBoard(),
+    // so animation is driven by the RAF loop automatically.
+    // We just need to tick diceVal rapidly then settle.
+    const btn0=$id('ludo-sbtn-0'),btn1=$id('ludo-sbtn-1'),
+          btn2=$id('ludo-sbtn-2'),btn3=$id('ludo-sbtn-3');
+    [btn0,btn1,btn2,btn3].forEach(b=>{ if(b) b.disabled=true; });
     let ticks=0;
     const iv=setInterval(()=>{
-      diceVal=1+Math.floor(Math.random()*6); drawDie(diceVal);
+      diceVal=1+Math.floor(Math.random()*6);
       if (++ticks>=9) {
         clearInterval(iv);
-        if (dieCV) dieCV.classList.remove('rolling');
+        [btn0,btn1,btn2,btn3].forEach(b=>{ if(b) b.disabled=false; });
         cb();
       }
     },55);
   }
+
+  /* ═══════════════════════════════════════════════════════
+     PUBLIC STOP / RESUME — called by dzPauseAllGames / dzResumeAllGames
+  ═══════════════════════════════════════════════════════ */
+  window.ludomStop = function () {
+    stopMusic();
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+  };
+
+  window.ludomResume = function () {
+    // Only restart if a game is in progress (ludo-play panel visible, not done)
+    var playEl = document.getElementById('ludo-play');
+    if (!playEl || playEl.classList.contains('hidden')) return;
+    if (phase === 'done') return;
+    // Restart RAF loop if it was cancelled
+    if (!animId) animId = requestAnimationFrame(loop);
+    // Restart background music (only if it was on before pause)
+    if (!musicOn) startMusic();
+  };
 
   /* ═══════════════════════════════════════════════════════
      INIT SETUP PREVIEW  (called once at script load)

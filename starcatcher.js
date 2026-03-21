@@ -733,14 +733,12 @@
     }
 
     document.querySelectorAll('.sc-diff-btn').forEach(function(b){
-      if(b.__scDiffWired) return; b.__scDiffWired=true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.sc-diff-btn').forEach(function(x){x.classList.remove('active');});
         b.classList.add('active');botDiff=b.getAttribute('data-diff');
       });
     });
     document.querySelectorAll('.sc-time-btn').forEach(function(b){
-      if(b.__scTimeWired) return; b.__scTimeWired=true;
       b.addEventListener('click',function(){
         document.querySelectorAll('.sc-time-btn').forEach(function(x){x.classList.remove('active');});
         b.classList.add('active');matchTime=+b.getAttribute('data-sec');

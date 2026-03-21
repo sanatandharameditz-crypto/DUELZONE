@@ -143,7 +143,6 @@ var ck = (function () {
       // Simulate board after this capture
       var nb = ckCloneBoard(board);
       nb[r][c] = EMPTY;
-      var pieceVal = nb[mr][mc]; // save before clearing
       nb[mr][mc] = EMPTY;
       // Promote if needed before continuing (kings can capture backward in continuation)
       var newIsKing = isKing || ckShouldPromote(player, lr);
@@ -164,11 +163,8 @@ var ck = (function () {
       }
     });
 
-    if (!found && capturedSoFar.length === 0) return [];
-    if (!found) {
-      // No further captures — return self as terminal (shouldn't reach here in top call)
-      return [];
-    }
+    // If no captures found at all (top-level call with no jumps, or continuation exhausted), return empty.
+    if (!found) return [];
     return chains;
   }
 
@@ -272,6 +268,15 @@ var ck = (function () {
     var fr = move.from[0], fc = move.from[1];
     var tr = move.to[0],   tc = move.to[1];
     var piece = state.board[fr][fc];
+
+    // FIX: If the chain pre-computed a finalBoard (from ckGetCaptureChains), use the
+    // piece value from it at the landing square. This correctly handles mid-chain
+    // promotions where a pawn passes through the king row and continues capturing —
+    // without this the piece would arrive as a pawn instead of a king.
+    if (move.finalBoard) {
+      var finalPiece = move.finalBoard[tr][tc];
+      if (finalPiece !== EMPTY) piece = finalPiece;
+    }
 
     state.board[fr][fc] = EMPTY;
     state.board[tr][tc] = piece;
@@ -394,7 +399,6 @@ var ck = (function () {
 
     // Clicking a destination
     if (state.selected) {
-      var sr = state.selected[0], sc = state.selected[1];
       // Find matching move
       var move = null;
       state.validMoves.forEach(function(m) {
@@ -428,20 +432,8 @@ var ck = (function () {
       if (typeof SoundManager !== 'undefined' && SoundManager.click) SoundManager.click();
     }
 
-    // Check for multi-jump (capture with further captures available from same piece)
-    if (move.captures.length > 0) {
-      var furtherCaptures = ckGetAllMoves(state.board, state.currentTurn).captures.filter(function(m) {
-        return m.from[0] === tr && m.from[1] === tc;
-      });
-      // But only if piece wasn't just promoted (kings can continue, normals too in standard rules)
-      if (furtherCaptures.length > 0) {
-        state.multiJumpPiece = [tr, tc];
-        state.selected = [tr, tc];
-        state.validMoves = furtherCaptures;
-        ckRender();
-        return;
-      }
-    }
+    // The full capture chain is already encoded in move.captures / move.finalBoard
+    // from ckGetCaptureChains — no mid-move continuation check needed.
 
     // End of move / turn
     state.multiJumpPiece = null;
@@ -525,14 +517,14 @@ var ck = (function () {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 12 = essentially unbeatable)
+  // PUBLIC: ckAIMoveHard — full minimax with alpha-beta pruning (depth 7, strong & fast)
   // ─────────────────────────────────────────────────────────────
   function ckAIMoveHard() {
     var all = ckGetAllMoves(state.board, 2);
     var pool = all.captures.length > 0 ? all.captures : all.moves;
     if (!pool.length) return null;
-    // Use depth 12 for near-perfect play — captures searched deeper via quiescence
-    var result = ckMinimax(state.board, 12, -Infinity, Infinity, true, 2);
+    // Depth 7 with alpha-beta — strong play, runs in <1s
+    var result = ckMinimax(state.board, 7, -Infinity, Infinity, true, 2); // FIX: 12 was browser-freezing; 7 is strong & fast
     return result.move || pool[0];
   }
 
@@ -600,7 +592,7 @@ var ck = (function () {
           // P1 moves toward lower rows (row 0 = king row). Lower row = more advanced.
           score -= (7 - r) * 5;
           if (c >= 2 && c <= 5 && r >= 3 && r <= 4) score -= 15;
-          if (c === 0 || c === 7) score += 8;
+          if (c === 0 || c === 7) score -= 8; // FIX: was += 8 (wrong sign — edge is bad for all)
           p1pieces++;
         } else if (v === K1) {
           score -= 300;
@@ -669,6 +661,14 @@ var ck = (function () {
   function ckApplyMoveToBoard(board, move) {
     var fr = move.from[0], fc = move.from[1];
     var tr = move.to[0],   tc = move.to[1];
+    // Use pre-computed finalBoard when available — it correctly handles mid-chain promotions
+    if (move.finalBoard) {
+      var fb = move.finalBoard;
+      for (var r = 0; r < SIZE; r++)
+        for (var c = 0; c < SIZE; c++)
+          board[r][c] = fb[r][c];
+      return;
+    }
     var piece = board[fr][fc];
     board[fr][fc] = EMPTY;
     board[tr][tc] = piece;
@@ -692,19 +692,28 @@ var ck = (function () {
     var panel  = ckDom('ck-result-panel');
     var title  = ckDom('ck-result-title');
     var detail = ckDom('ck-result-detail');
-    if (!panel) return;
+    if (!panel || !title || !detail) return;
 
     var isP1Win = winner === 1;
+    // FIX: determine if win was by captures or by blocking (no legal moves)
+    var p1Count = 0, p2Count = 0;
+    for (var wr = 0; wr < SIZE; wr++) for (var wc = 0; wc < SIZE; wc++) {
+      var wv = state.board[wr][wc];
+      if (wv === P1 || wv === K1) p1Count++;
+      if (wv === P2 || wv === K2) p2Count++;
+    }
+    var winByCapture = isP1Win ? (p2Count === 0) : (p1Count === 0);
+    var winReason = winByCapture ? 'captured all opponent pieces!' : 'blocked all opponent moves!';
     if (state.gameMode === 'pvp') {
       title.textContent  = isP1Win ? '🏆 Player 1 Wins!' : '🏆 Player 2 Wins!';
-      detail.textContent = isP1Win ? 'Player 1 captured all pieces!' : 'Player 2 captured all pieces!';
+      detail.textContent = (isP1Win ? 'Player 1 ' : 'Player 2 ') + winReason;
     } else {
       if (isP1Win) {
         title.textContent  = '🏆 Victory!';
-        detail.textContent = 'You defeated the AI!';
+        detail.textContent = 'You ' + winReason;
       } else {
         title.textContent  = '💀 Defeated!';
-        detail.textContent = 'The AI won this round.';
+        detail.textContent = 'The AI ' + winReason;
       }
     }
 
@@ -715,6 +724,7 @@ var ck = (function () {
         SoundManager.lose && SoundManager.lose();
       }
     }
+    if (window.DZShare) DZShare.setResult({ game:'Checkers', slug:'checkers', winner:title.textContent, detail:detail.textContent, accent:'#e85d04', icon:'⚫' });
 
     panel.classList.remove('ck-hidden');
     ckAnimateResult(isP1Win || state.gameMode === 'pvp');
@@ -727,7 +737,8 @@ var ck = (function () {
   function ckResetGame() {
     ckResetState();
     ckHideAllPanels();
-    ckDom('ck-mode-panel').classList.remove('ck-hidden');
+    var modePanel = ckDom('ck-mode-panel');
+    if (modePanel) modePanel.classList.remove('ck-hidden');
     ckSetMsg('');
     ckUpdateTurnUI();
     ckRender();
@@ -738,9 +749,11 @@ var ck = (function () {
   // ─────────────────────────────────────────────────────────────
   function ckSelectMode(mode) {
     state.gameMode = mode;
-    ckDom('ck-mode-panel').classList.add('ck-hidden');
+    var selModePanel = ckDom('ck-mode-panel');
+    if (selModePanel) selModePanel.classList.add('ck-hidden');
     if (mode === 'bot') {
-      ckDom('ck-diff-panel').classList.remove('ck-hidden');
+      var diffPanelSel = ckDom('ck-diff-panel');
+      if (diffPanelSel) diffPanelSel.classList.remove('ck-hidden');
     } else {
       ckBeginGame();
     }
@@ -751,7 +764,8 @@ var ck = (function () {
   // ─────────────────────────────────────────────────────────────
   function ckSetDifficulty(diff) {
     state.difficulty = diff;
-    ckDom('ck-diff-panel').classList.add('ck-hidden');
+    var diffPanel = ckDom('ck-diff-panel');
+    if (diffPanel) diffPanel.classList.add('ck-hidden');
     ckBeginGame();
   }
 

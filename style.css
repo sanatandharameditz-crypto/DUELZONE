@@ -5,6 +5,23 @@
 /* ── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── GLOBAL SCROLLBAR REMOVAL ──────────────────────────── */
+/* Hide all scrollbars globally — webkit, firefox, IE/Edge */
+* {
+  scrollbar-width: none !important;      /* Firefox */
+  -ms-overflow-style: none !important;   /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  display: none !important;              /* Chrome/Safari/Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-corner {
+  display: none !important;
+}
+
 /* ── Design tokens ─────────────────────────────────────── */
 :root {
   --bg:          #07080f;
@@ -82,6 +99,21 @@ html, body {
 /* ── Utility ─────────────────────────────────────────────── */
 /* Single source of truth for hiding screens and elements */
 .hidden { display: none !important; }
+
+/* ── Performance: skip rendering of off-screen game screens ────────────
+   content-visibility:auto tells the browser to skip layout+paint for any
+   screen not currently visible — eliminating the cost of compositing 30+
+   game screens simultaneously. contain:layout style paint stops each
+   screen's internals from causing global layout recalculations. */
+[id^="screen-"] {
+  contain: layout style paint;
+}
+/* FIX 4: 'auto' is for scroll-offscreen visibility skipping — it does nothing on
+   display:none elements. 'hidden' is the correct value: it preserves the rendering
+   state in memory so switching back is instant, while still skipping all layout/paint. */
+[id^="screen-"].hidden {
+  content-visibility: hidden;
+}
 
 /* ── Screen layout ───────────────────────────────────────── */
 /*
@@ -850,8 +882,21 @@ html, body {
   width: 100%;
 }
 
-/* mode-btn — canonical definition lives in the UNIFIED BUTTON SYSTEM below */
-.mode-btn { flex: 1; }
+.mode-btn {
+  flex: 1;
+  padding: 11px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  background: var(--ttt-surface);
+  color: var(--ttt-muted);
+  border: 1px solid var(--ttt-border);
+  border-radius: var(--ttt-radius);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.mode-btn:hover { color: var(--ttt-text); border-color: #444; }
+.mode-btn.active { background: var(--ttt-accent); color: #000; border-color: var(--ttt-accent); font-weight: 500; }
 
 /* Difficulty selector */
 #difficulty-selector {
@@ -867,7 +912,22 @@ html, body {
 }
 #diff-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--ttt-muted); flex-shrink: 0; }
 #diff-buttons { display: flex; gap: 8px; }
-/* diff-btn — canonical definition lives in the UNIFIED BUTTON SYSTEM below */
+.diff-btn {
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--ttt-muted);
+  border: 1px solid var(--ttt-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.diff-btn:hover { color: var(--ttt-text); border-color: #444; }
+.diff-btn.active#btn-easy   { background: #2a9d2a; border-color: #2a9d2a; color: #fff; }
+.diff-btn.active#btn-medium { background: #e08c00; border-color: #e08c00; color: #fff; }
+.diff-btn.active#btn-hard   { background: #cc2222; border-color: #cc2222; color: #fff; }
 
 /* Scorecards — prefixed .ttt-* to avoid hub class name collisions */
 #scorecards { display: flex; align-items: center; gap: 12px; width: 100%; }
@@ -1037,7 +1097,22 @@ html, body {
 }
 .diff-btn-group { display: flex; gap: 8px; }
 
-/* restart-btn — canonical definition lives in the UNIFIED BUTTON SYSTEM below */
+/* Shared restart button */
+.restart-btn {
+  width: 100%;
+  max-width: 480px;
+  padding: 15px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  background: transparent;
+  color: #e8e8f0;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.restart-btn:hover { background: #f8f800; border-color: #f8f800; color: #000; }
 
 
 /* ════════════════════════════════════════════════════════════
@@ -2203,12 +2278,17 @@ html, body {
   position: relative;
   z-index: 10;
   min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 64px 16px 48px;
+  justify-content: flex-start;   /* always start from top */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  padding: 70px 16px 48px;       /* top pad clears the menu button */
   animation: ghpSlideIn 0.35s cubic-bezier(0.23,1,0.32,1) both;
+  box-sizing: border-box;
 }
 @keyframes ghpSlideIn {
   from { opacity: 0; transform: translateY(24px); }
@@ -2385,7 +2465,31 @@ html, body {
   gap: 8px;
 }
 
-/* ghp-start-btn — canonical definition lives in the UNIFIED BUTTON SYSTEM below */
+/* Big start button */
+.ghp-start-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg,
+    var(--ghp-accent, #00e5ff),
+    color-mix(in srgb, var(--ghp-accent, #00e5ff) 70%, #fff));
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
+  box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 60%, transparent);
+}
+.ghp-start-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 32px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 70%, transparent);
+}
+.ghp-start-btn:active {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 0.08s;
+}
 
 /* Game play panel animation */
 .game-play-panel {
@@ -2420,7 +2524,7 @@ html, body {
 
 /* Game play panels get padding */
 #ttt-play-panel,
-#rps-play-panel,
+#rps-play-panel:not(.hidden),
 #tap-play-panel,
 #d2048-play-panel {
   display: flex;
@@ -2453,12 +2557,10 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════════════════
-   ██  UNIFIED BUTTON SYSTEM — Single source of truth  ██
-   All game setup + hub buttons defined here once.
-   Do NOT redefine these classes elsewhere.
+   ENHANCED BUTTON COLORS & VISUAL UPGRADES
    ═══════════════════════════════════════════════════════ */
 
-/* ── Hub PLAY buttons (card-btn) ── */
+/* ── Hub PLAY buttons — per-card accent colors ── */
 .arena-card .card-btn {
   position: relative;
   overflow: hidden;
@@ -2471,7 +2573,7 @@ html, body {
   border: 1.5px solid var(--accent);
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--accent) 18%, transparent),
-    color-mix(in srgb, var(--accent)  6%, transparent));
+    color-mix(in srgb, var(--accent) 6%, transparent));
   color: var(--accent);
   cursor: pointer;
   display: flex;
@@ -2500,9 +2602,9 @@ html, body {
   transition-duration: 0.08s;
 }
 
-/* ── diff-btn — setup option selector pill ── */
+/* ── diff-btn / mode-btn colorful upgrade ── */
 .diff-btn {
-  background: var(--surface-2, rgba(255,255,255,0.04));
+  background: var(--surface-2);
   border: 1.5px solid rgba(255,255,255,0.12);
   color: #8899cc;
   font-family: 'Rajdhani', sans-serif;
@@ -2510,7 +2612,6 @@ html, body {
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   padding: 8px 18px;
-  min-height: 38px;
   border-radius: 24px;
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.23,1,0.32,1);
@@ -2527,51 +2628,35 @@ html, body {
     color-mix(in srgb, var(--ghp-accent,#00e5ff) 25%, #0d0f1c),
     color-mix(in srgb, var(--ghp-accent,#00e5ff) 12%, #0d0f1c));
   border-color: var(--ghp-accent,#00e5ff);
-  color: var(--ghp-accent,#00e5ff) !important; /* override any inline color attr */
+  color: var(--ghp-accent,#00e5ff);
   box-shadow:
     0 0 14px -4px color-mix(in srgb, var(--ghp-accent,#00e5ff) 55%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--ghp-accent,#00e5ff) 18%, transparent);
 }
-/* Difficulty active colours */
-.diff-btn.active[data-diff="easy"]   { --ghp-accent: #00e676; }
-.diff-btn.active[data-diff="medium"] { --ghp-accent: #ffab00; }
-.diff-btn.active[data-diff="hard"]   { --ghp-accent: #ff1744; }
-/* Legacy TTT IDs */
-.diff-btn.active#btn-easy   { --ghp-accent: #00e676; }
-.diff-btn.active#btn-medium { --ghp-accent: #ffab00; }
-.diff-btn.active#btn-hard   { --ghp-accent: #ff1744; }
 
-/* ── mode-btn — game mode toggle ── */
+/* ── mode-btn inside game screen ── */
 .mode-btn {
-  flex: 1;
-  background: var(--surface-2, rgba(255,255,255,0.04));
+  background: var(--surface-2);
   border: 1.5px solid rgba(255,255,255,0.10);
   color: #7788bb;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   letter-spacing: 0.06em;
-  padding: 9px 16px;
-  min-height: 38px;
-  border-radius: 24px;
+  padding: 7px 16px;
+  border-radius: 22px;
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.23,1,0.32,1);
 }
-.mode-btn:hover {
-  border-color: rgba(255,255,255,0.24);
-  color: #ccd6ff;
-  background: rgba(255,255,255,0.06);
-}
+.mode-btn:hover { border-color: rgba(255,255,255,0.24); color: #ccd6ff; background: rgba(255,255,255,0.06); }
 .mode-btn.active {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--ghp-accent,#00e5ff) 22%, #0d0f1c),
-    color-mix(in srgb, var(--ghp-accent,#00e5ff)  9%, #0d0f1c));
-  border-color: var(--ghp-accent,#00e5ff);
-  color: var(--ghp-accent,#00e5ff);
-  box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ghp-accent,#00e5ff) 45%, transparent);
+  background: linear-gradient(135deg, rgba(0,229,255,0.22), rgba(0,229,255,0.08));
+  border-color: #00e5ff;
+  color: #00e5ff;
+  box-shadow: 0 0 14px -4px rgba(0,229,255,0.45);
 }
 
-/* ── restart-btn / play-again / reset — full-width action pill ── */
+/* ── restart / action buttons ── */
 .restart-btn,
 #restart,
 #c4-btn-reset,
@@ -2587,99 +2672,32 @@ html, body {
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.12em;
-  padding: 13px 28px;
+  padding: 11px 28px;
   border-radius: 30px;
-  min-height: 48px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
   display: block;
-  width: 100%;
-  max-width: 480px;
   margin: 16px auto 0;
-  text-align: center;
 }
 .restart-btn:hover,
 #restart:hover,
-#c4-btn-reset:hover,
-#rps-restart:hover,
-#tap-restart:hover,
-#d2048-restart:hover,
-#cric-play-again:hover,
-#d2048-win-restart:hover {
+#c4-btn-reset:hover {
   background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.06));
   border-color: rgba(255,255,255,0.35);
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px -4px rgba(255,255,255,0.15);
 }
-.restart-btn:active,
-#restart:active,
-#c4-btn-reset:active {
-  transform: translateY(0) scale(0.97);
-  transition-duration: 0.08s;
-}
 
-/* ── ghp-start-btn — big START GAME button on every setup screen ── */
-.ghp-start-btn,
-.ah-start-btn,
-.pb-start-btn {
-  width: 100%;
-  max-width: 480px;
-  padding: 16px 24px;
-  min-height: 52px;
-  border-radius: 14px;
-  border: none;
+/* ── ghp-start-btn colors ── */
+.ghp-start-btn {
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--ghp-accent,#00e5ff) 90%, #000) 0%,
-    color-mix(in srgb, var(--ghp-accent,#00e5ff) 68%, #000) 100%);
+    color-mix(in srgb, var(--ghp-accent,#00e5ff) 70%, #000) 100%);
   color: #000;
+  border: none;
   font-family: 'Orbitron', sans-serif;
   font-weight: 900;
-  font-size: clamp(0.85rem, 3vw, 1rem);
-  letter-spacing: 0.14em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
-  box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--ghp-accent,#00e5ff) 55%, transparent);
-  position: relative;
-  overflow: hidden;
-  margin: 8px auto 0;
-}
-/* Shimmer sweep on hover */
-.ghp-start-btn::before,
-.ah-start-btn::before,
-.pb-start-btn::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.5s;
-  pointer-events: none;
-}
-.ghp-start-btn:hover::before,
-.ah-start-btn:hover::before,
-.pb-start-btn:hover::before { transform: translateX(100%); }
-.ghp-start-btn:hover,
-.ah-start-btn:hover,
-.pb-start-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 32px -4px color-mix(in srgb, var(--ghp-accent,#00e5ff) 70%, transparent);
-  filter: brightness(1.08);
-}
-.ghp-start-btn:active,
-.ah-start-btn:active,
-.pb-start-btn:active {
-  transform: translateY(0) scale(0.97);
-  transition-duration: 0.08s;
-}
-/* bot-mode variant (darts) */
-.ghp-start-btn[data-mode="bot"] {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--ghp-accent,#00e5ff) 75%, #000) 0%,
-    color-mix(in srgb, var(--ghp-accent,#00e5ff) 50%, #000) 100%);
 }
 
 /* ── Back buttons ── */
@@ -2747,7 +2765,7 @@ html, body {
 
 /* Play panels inside each game screen */
 #ttt-play-panel,
-#rps-play-panel,
+#rps-play-panel:not(.hidden),
 #tap-play-panel,
 #d2048-play-panel,
 #c4-play-panel,
@@ -3024,7 +3042,7 @@ html, body {
 /* ── Win overlay ── */
 #d2048-win-overlay, #tap-win-overlay {
   background: radial-gradient(ellipse at 50% 40%, rgba(13,15,28,0.97), rgba(7,8,15,0.99));
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
 }
 
 /* ── Status text colors ── */
@@ -3282,7 +3300,46 @@ html, body {
   color: rgba(0,229,255,0.7);
 }
 
-/* ah-start-btn — uses canonical .ghp-start-btn / .ah-start-btn rule above */
+/* Start button */
+.ah-start-btn {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.07));
+  border: 1px solid rgba(0,229,255,0.45);
+  border-radius: 14px;
+  color: #00e5ff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
+  box-shadow: 0 4px 20px rgba(0,229,255,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.ah-start-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.14), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+.ah-start-btn:hover::before { transform: translateX(100%); }
+.ah-start-btn:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(0,229,255,0.12));
+  border-color: #00e5ff;
+  box-shadow: 0 4px 30px rgba(0,229,255,0.3), 0 0 0 1px rgba(0,229,255,0.15);
+  transform: translateY(-2px);
+}
+.ah-start-btn:active { transform: scale(0.97); }
 .ah-start-arrow { margin-left: auto; opacity: 0.5; }
 
 /* ── PLAY PANEL ────────────────────────────────────────────────── */
@@ -3301,7 +3358,7 @@ html, body {
   padding: 10px 12px;
   background: rgba(0,0,0,0.6);
   border-bottom: 1px solid rgba(0,229,255,0.12);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
   flex-shrink: 0;
 }
 .ah-back-btn {
@@ -3451,7 +3508,7 @@ html, body {
   justify-content: center;
   gap: 12px;
   background: rgba(2,12,24,0.88);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(8px);
   z-index: 50;
   padding: 32px;
   animation: ahOverlayIn 0.4s cubic-bezier(0.23,1,0.32,1) both;
@@ -3547,7 +3604,7 @@ html, body {
 .canvas-field { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 12px 8px 16px; }
 .canvas-field canvas { display: block; max-width: 100%; max-height: 100%; border-radius: 16px; border: 2px solid rgba(255,255,255,0.08); touch-action: none; box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04); }
 .pp-theme .canvas-field canvas { box-shadow: 0 0 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,214,0,0.08), 0 0 0 1px rgba(255,214,0,0.1); }
-.canvas-overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(4,12,28,0.88); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.14); border-radius: 20px; padding: 22px 40px; font-size: 1.65rem; font-weight: 900; color: #fff; text-align: center; letter-spacing: 0.04em; z-index: 99; pointer-events: auto; min-width: 200px; animation: overlayPop 0.2s cubic-bezier(0.34,1.56,0.64,1) both; }
+.canvas-overlay-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(4,12,28,0.88); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.14); border-radius: 20px; padding: 22px 40px; font-size: 1.65rem; font-weight: 900; color: #fff; text-align: center; letter-spacing: 0.04em; z-index: 99; pointer-events: auto; min-width: 200px; animation: overlayPop 0.2s cubic-bezier(0.34,1.56,0.64,1) both; }
 @keyframes overlayPop { from { transform: translate(-50%,-50%) scale(0.8); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
 
 /* Hub card accents */
@@ -3762,7 +3819,47 @@ html, body {
   font-size: 0.62em;
 }
 
-/* pb-start-btn — uses canonical .ghp-start-btn / .pb-start-btn rule above */
+/* Start button */
+.pb-start-btn {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.08));
+  border: 1px solid rgba(0,255,136,0.5);
+  border-radius: 14px;
+  color: var(--pb-green);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
+  box-shadow: 0 4px 20px rgba(0,255,136,0.1);
+  position: relative;
+  overflow: hidden;
+}
+.pb-start-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,255,136,0.12), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+.pb-start-btn:hover::before { transform: translateX(100%); }
+.pb-start-btn:hover {
+  background: linear-gradient(135deg, rgba(0,255,136,0.32), rgba(0,255,136,0.15));
+  border-color: var(--pb-green);
+  box-shadow: 0 4px 30px rgba(0,255,136,0.3), 0 0 0 1px rgba(0,255,136,0.2);
+  transform: translateY(-2px);
+}
+.pb-start-btn:active { transform: scale(0.97); }
 .pb-start-icon { font-size: 1.1rem; }
 .pb-start-arrow { margin-left: auto; opacity: 0.6; }
 
@@ -3803,7 +3900,7 @@ html, body {
   padding: 14px 16px;
   background: rgba(0,0,0,0.5);
   border-bottom: 1px solid rgba(0,255,136,0.1);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
 }
 .pb-topbar-back {
   background: none;
@@ -4125,7 +4222,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
   position: relative;
   z-index: 2;
   animation: pbPhaseIn 0.4s cubic-bezier(0.23,1,0.32,1) both;
@@ -4734,7 +4831,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   background: linear-gradient(160deg, #060818 0%, #0d0f1c 60%, #080d1a 100%);
-  padding: 0 16px 24px;
+  padding: 0 16px 32px;
   box-sizing: border-box;
 }
 
@@ -4744,14 +4841,12 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding-top: 8px;
 }
 
 /* Header */
-#cdd-header {
-  text-align: center;
-}
+#cdd-header { text-align: center; }
 #cdd-title {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1rem, 4.5vw, 1.4rem);
@@ -4764,7 +4859,7 @@ html, body {
 }
 #cdd-mode-label {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   letter-spacing: 0.12em;
   color: var(--cdd-accent);
   margin: 0;
@@ -4776,20 +4871,19 @@ html, body {
 #cdd-scoreboard {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
-
 .cdd-score-card {
   flex: 1;
   background: #131630;
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: var(--cdd-radius);
-  padding: 10px 12px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .cdd-score-card.cdd-active-p1 {
@@ -4802,7 +4896,7 @@ html, body {
 }
 .cdd-player-label {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -4817,12 +4911,10 @@ html, body {
   color: #f1f5f9;
   line-height: 1;
 }
-#cdd-vs-wrap {
-  flex-shrink: 0;
-}
+#cdd-vs-wrap { flex-shrink: 0; }
 .cdd-vs {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 900;
   color: rgba(255,255,255,0.3);
   letter-spacing: 0.1em;
@@ -4835,12 +4927,12 @@ html, body {
   justify-content: center;
 }
 #cdd-turn-indicator {
-  padding: 7px 20px;
+  padding: 8px 22px;
   border-radius: 30px;
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.03);
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   color: #94a3b8;
@@ -4871,200 +4963,178 @@ html, body {
   50% { opacity: 0.6; }
 }
 
-/* ── Grid wrap ── */
+/* Grid wrap */
 #cdd-grid-wrap {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 8px 0;
-  /* Allow scroll only if a very large grid overflows anyway */
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* The dot/line grid — columns/rows set dynamically by JS */
+/* ── CDD Grid — columns/rows set by JS gridTemplateColumns/Rows ── */
 #cdd-grid {
   display: grid;
   gap: 0;
   user-select: none;
-  /* touch-action on the grid avoids accidental page scroll while tapping lines */
-  touch-action: none;
+  /* No overflow, no transform — plain grid */
 }
 
-/* ── Dots ── */
+/* ── Dot cells (even row & col) ── */
 .cdd-dot {
-  /* Size matches the JS DOT constant (12px); use var if set */
-  width:  var(--cdd-dot-sz, 12px);
-  height: var(--cdd-dot-sz, 12px);
-  border-radius: 50%;
-  background: var(--cdd-dot);
-  box-shadow: 0 0 8px rgba(226,232,240,0.7), 0 0 3px rgba(255,255,255,0.9);
-  z-index: 2;
-  position: relative;
-  align-self: center;
-  justify-self: center;
-}
-
-/* ── Lines ── */
-.cdd-line {
-  cursor: pointer;
-  position: relative;
+  width:  100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
-  /* Eliminate 300 ms tap delay on iOS/Android */
-  touch-action: manipulation;
-}
-.cdd-line.h-line {
-  /* fills the DOT-height row; width comes from CELL column */
-  width:  100%;
-  height: 100%;
-  align-self: stretch;
-  justify-self: stretch;
-}
-.cdd-line.v-line {
-  /* fills the DOT-width column; height comes from CELL row */
-  width:  100%;
-  height: 100%;
-  align-self: stretch;
-  justify-self: stretch;
-}
-
-/* ── Expanded invisible touch-target (::before) ──
-   Extends tap area 12px beyond the thin dimension so fingers don't miss.
-   ::after is still used for the visual bar below. */
-.cdd-line::before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-}
-.cdd-line.h-line::before {
-  /* expand vertically — the thin dimension for h-lines */
-  top: -12px; bottom: -12px;
-  left: 0;    right: 0;
-}
-.cdd-line.v-line::before {
-  /* expand horizontally — the thin dimension for v-lines */
-  left: -12px; right: -12px;
-  top: 0;      bottom: 0;
-}
-
-/* ── Visual bar (::after) ── */
-.cdd-line::after {
-  content: '';
-  display: block;
-  border-radius: 5px;
-  background: var(--cdd-line-empty);
-  transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-  position: relative;
-  z-index: 1;
-}
-.cdd-line.h-line::after {
-  width: calc(100% - 4px);
-  height: 7px;
-}
-.cdd-line.v-line::after {
-  width: 7px;
-  height: calc(100% - 4px);
-}
-.cdd-line:not(.drawn):hover::after,
-.cdd-line:not(.drawn):focus::after {
-  background: var(--cdd-line-hover);
-  box-shadow: 0 0 14px rgba(255,255,255,0.28);
-}
-.cdd-line.drawn {
-  cursor: default;
   pointer-events: none;
 }
-.cdd-line.drawn-p1::after {
-  background: var(--cdd-p1);
-  box-shadow: 0 0 10px var(--cdd-p1-glow), 0 0 4px var(--cdd-p1);
-}
-.cdd-line.drawn-p2::after {
-  background: var(--cdd-p2);
-  box-shadow: 0 0 10px var(--cdd-p2-glow), 0 0 4px var(--cdd-p2);
-}
-.cdd-line.line-just-drawn::after {
-  animation: cdd-line-pop 0.3s ease-out;
-}
-@keyframes cdd-line-pop {
-  0%   { transform: scale(0.6); opacity: 0.5; }
-  60%  { transform: scale(1.12); }
-  100% { transform: scale(1);   opacity: 1; }
+.cdd-dot::after {
+  content: '';
+  width:  12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cdd-dot);
+  box-shadow: 0 0 5px rgba(226,232,240,0.5);
+  flex-shrink: 0;
 }
 
-/* ── Box cells ── */
-.cdd-box {
-  position: relative;
-  border-radius: 4px;
-  transition: background 0.35s ease;
+/* ── Horizontal line cells (even row, odd col) ── */
+.cdd-cell-hline {
+  width:  100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  min-width: 0;
-  min-height: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* Entire cell area is tappable */
 }
-.cdd-box.completed-p1 {
-  background: rgba(96, 165, 250, 0.20);
-  box-shadow: inset 0 0 18px rgba(96,165,250,0.12);
+.cdd-cell-hline:not(.drawn):hover .cdd-bar-h,
+.cdd-cell-hline:not(.drawn):active .cdd-bar-h {
+  background: rgba(255,255,255,0.4);
 }
-.cdd-box.completed-p2 {
-  background: rgba(251, 113, 133, 0.20);
-  box-shadow: inset 0 0 18px rgba(251,113,133,0.12);
+.cdd-bar-h {
+  width:  calc(100% - 6px);
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.15s;
+  pointer-events: none; /* bar is visual only — cell handles clicks */
+  flex-shrink: 0;
+}
+
+/* ── Vertical line cells (odd row, even col) ── */
+.cdd-cell-vline {
+  width:  100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cdd-cell-vline:not(.drawn):hover .cdd-bar-v,
+.cdd-cell-vline:not(.drawn):active .cdd-bar-v {
+  background: rgba(255,255,255,0.4);
+}
+.cdd-bar-v {
+  width:  10px;
+  height: calc(100% - 6px);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.15s;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* ── Drawn line states ── */
+.cdd-cell-hline.drawn,
+.cdd-cell-vline.drawn {
+  cursor: default;
+  pointer-events: none; /* drawn lines cannot be re-clicked */
+}
+.cdd-bar-h.bar-drawn.drawn-p1,
+.cdd-bar-v.bar-drawn.drawn-p1 {
+  background: var(--cdd-p1);
+  box-shadow: 0 0 8px var(--cdd-p1-glow);
+}
+.cdd-bar-h.bar-drawn.drawn-p2,
+.cdd-bar-v.bar-drawn.drawn-p2 {
+  background: var(--cdd-p2);
+  box-shadow: 0 0 8px var(--cdd-p2-glow);
+}
+
+/* ── Box cells (odd row, odd col) ── */
+.cdd-cell-box {
+  width:  100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: background 0.35s ease;
+  pointer-events: none; /* boxes are not interactive */
+}
+.cdd-cell-box.completed-p1 {
+  background: rgba(96,165,250,0.22);
+  box-shadow: inset 0 0 14px rgba(96,165,250,0.12);
+}
+.cdd-cell-box.completed-p2 {
+  background: rgba(251,113,133,0.22);
+  box-shadow: inset 0 0 14px rgba(251,113,133,0.12);
 }
 .cdd-box-label {
   font-family: 'Orbitron', sans-serif;
-  font-size: clamp(0.42rem, 1.2vw, 0.6rem);
+  font-size: clamp(0.4rem, 1.2vw, 0.65rem);
   font-weight: 900;
   letter-spacing: 0.05em;
   opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.4);
+  transition: opacity 0.3s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
-.cdd-box.completed-p1 .cdd-box-label {
-  color: var(--cdd-p1);
-  opacity: 0.9;
-  transform: scale(1);
+.cdd-cell-box.completed-p1 .cdd-box-label {
+  color: var(--cdd-p1); opacity: 0.9; transform: scale(1);
 }
-.cdd-box.completed-p2 .cdd-box-label {
-  color: var(--cdd-p2);
-  opacity: 0.9;
-  transform: scale(1);
+.cdd-cell-box.completed-p2 .cdd-box-label {
+  color: var(--cdd-p2); opacity: 0.9; transform: scale(1);
 }
-.cdd-box-just-claimed {
-  animation: cdd-box-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+.cdd-box-just-claimed { animation: cdd-box-pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
 @keyframes cdd-box-pop {
   0%   { transform: scale(0.7); }
-  60%  { transform: scale(1.12); }
+  60%  { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
 
-/* ── Locked grid state ── */
-#cdd-grid.locked .cdd-line:not(.drawn) {
+/* ── Locked grid (bot thinking) ── */
+#cdd-grid.locked .cdd-cell-hline,
+#cdd-grid.locked .cdd-cell-vline {
   cursor: not-allowed;
   pointer-events: none;
 }
-#cdd-grid.locked .cdd-line:not(.drawn)::after {
-  background: rgba(255,255,255,0.04);
-}
+#cdd-grid.locked .cdd-line:not(.drawn)::after { background: rgba(255,255,255,0.04); }
 
-/* ── Game over overlay ── */
+/* Game over overlay */
 #cdd-result {
   position: fixed;
   inset: 0;
   background: rgba(6,8,24,0.88);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  /* z-index must beat #dz-universal-topbar (200) and wrapper (5) stacking contexts */
+  z-index: 9999;
+  pointer-events: all;
   animation: cdd-fade-in 0.35s ease;
+  /* Ensure it renders above everything on mobile WebKit */
+  isolation: isolate;
 }
-#cdd-result.hidden { display: none !important; }
+#cdd-result.hidden { display: none !important; pointer-events: none; }
 @keyframes cdd-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -5073,51 +5143,53 @@ html, body {
   background: #0d1029;
   border: 1px solid rgba(255,145,0,0.25);
   border-radius: 20px;
-  padding: 28px 28px;
+  padding: 36px 40px;
   text-align: center;
-  max-width: 320px;
-  width: 88%;
+  max-width: 340px;
+  width: 90%;
   box-shadow: 0 0 60px -12px rgba(255,145,0,0.3);
   animation: cdd-slide-up 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  z-index: 1;
+  pointer-events: all;
 }
 @keyframes cdd-slide-up {
   from { transform: translateY(30px) scale(0.95); opacity: 0; }
-  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
-#cdd-result-icon {
-  font-size: 2.6rem;
-  margin-bottom: 8px;
-  line-height: 1;
-}
+#cdd-result-icon { font-size: 3rem; margin-bottom: 8px; line-height: 1; }
 #cdd-result-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 900;
   color: #f1f5f9;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 #cdd-result-scores {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: #94a3b8;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
-#cdd-result-btns {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
+#cdd-result-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 #cdd-result-btns button {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 10px 18px;
+  padding: 12px 24px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
   transition: transform 0.15s, box-shadow 0.15s;
+  min-height: 48px;
+  min-width: 120px;
+  position: relative;
+  z-index: 1;
+  pointer-events: all;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 #cdd-result-btns button:active { transform: scale(0.95); }
 #cdd-play-again {
@@ -5131,24 +5203,22 @@ html, body {
   border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
-/* ── Controls ── */
-#cdd-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 2px;
-  justify-content: center;
-}
+/* Controls */
+#cdd-controls { display: flex; gap: 10px; margin-top: 4px; justify-content: center; flex-wrap: wrap; }
 #cdd-controls button {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 9px 22px;
+  padding: 10px 20px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
   transition: transform 0.15s, opacity 0.15s;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 #cdd-controls button:active { transform: scale(0.95); }
 #cdd-reset-btn {
@@ -5157,6 +5227,12 @@ html, body {
   color: var(--cdd-accent);
 }
 #cdd-reset-btn:hover { background: rgba(255,145,0,0.2); }
+#cdd-hub-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #64748b;
+}
+#cdd-hub-btn:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }
 
 /* ══════════════════════════════════════════════════════════
    CHESS DUEL STYLES
@@ -5962,9 +6038,25 @@ html, body {
   border-color: #c4b4ff !important; color: #c4b4ff !important;
 }
 
-/* ── Start buttons — use canonical .ghp-start-btn above ── */
+/* ── Start buttons ── */
 .ghp-start-btns { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
-.ghp-start-btns .ghp-start-btn { flex: 1; min-width: 160px; }
+
+.ghp-start-btn {
+  flex: 1; min-width: 160px;
+  background: transparent;
+  border: 2px solid var(--ghp-accent, #f5c518);
+  border-radius: 10px;
+  color: var(--ghp-accent, #f5c518);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem; font-weight: 700;
+  padding: 14px 20px; cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.ghp-start-btn:hover {
+  background: var(--ghp-accent, #f5c518);
+  color: #000; transform: scale(1.02);
+}
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
@@ -7821,7 +7913,7 @@ html, body {
   position: absolute;
   inset: 0;
   background: rgba(7,8,15,0.90);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8505,7 +8597,42 @@ body.light-mode {
   font-weight: 700;
 }
 
-/* ghp-start-btn — uses canonical definition above */
+/* Big start button */
+.ghp-start-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: var(--ghp-accent, #00e676);
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.ghp-start-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.ghp-start-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+}
+.ghp-start-btn:active {
+  transform: translateY(0);
+}
+.ghp-start-btn[data-mode="bot"] {
+  background: linear-gradient(135deg, var(--ghp-accent, #00e676), rgba(var(--ghp-rgb,0,230,118),0.75));
+}
 
 /* Result overlay buttons */
 .ghp-result-btn-primary {
@@ -8559,8 +8686,6 @@ body.light-mode {
    Pixel Racer, Reaction Duel
    ═══════════════════════════════════════════════════ */
 
-
-}
 
 /* Draw & Guess color button active state */
 .dg-color.active { outline: 3px solid #fff; outline-offset: 2px; }
@@ -9411,7 +9536,7 @@ select {
 .hamburger-btn {
   position: fixed;
   top: 16px;
-  left: 16px;
+  right: 16px;
   z-index: 9999;
   width: 44px;
   height: 44px;
@@ -9425,8 +9550,8 @@ select {
   justify-content: center;
   gap: 5px;
   padding: 0;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   transition: background 0.22s, border-color 0.22s, box-shadow 0.22s;
 }
@@ -9490,29 +9615,12 @@ select {
 }
 
 /* ── Dropdown Menu ── */
-.dz-dropdown {
-  position: fixed;
-  top: 72px;
-  left: 16px;
-  width: 252px;
-  background: rgba(8,10,20,0.98);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.06);
-  z-index: 1090;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px) scale(0.97);
-  transform-origin: top left;
-  transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.23,1,0.32,1), visibility 0.26s;
-  pointer-events: none;
-}
+
 
 .dz-dropdown.open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0) scale(1);
+  transform: translateX(0);
   pointer-events: auto;
 }
 
@@ -9635,8 +9743,8 @@ select {
   height: 100vh;
   background: linear-gradient(180deg, rgba(10,12,25,0.99) 0%, rgba(6,8,18,0.99) 100%);
   border-right: 1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 1050;
   display: flex;
   flex-direction: column;
@@ -10035,8 +10143,8 @@ select {
   inset: 0;
   z-index: 1990;
   background: rgba(0,0,0,0.82);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -10279,7 +10387,7 @@ select {
     right: 0;
     margin: 0 auto;
   }
-  .dz-dropdown { left: 10px; right: auto; width: calc(100vw - 20px); }
+  
   .contact-cards { grid-template-columns: 1fr; }
   .footer-brand { flex-direction: column; text-align: center; }
   .footer-inner { padding: 20px 16px; }
@@ -10408,7 +10516,7 @@ select {
 .hamburger-btn {
   position: fixed;
   top: 16px;
-  left: 16px;
+  right: 16px;
   z-index: 9999;
   width: 46px;
   height: 46px;
@@ -10420,8 +10528,8 @@ select {
   align-items: center;
   justify-content: center;
   padding: 0;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 0 0 0 rgba(0,229,255,0), 0 6px 28px rgba(0,0,0,0.55);
   transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
   overflow: visible;
@@ -10500,33 +10608,11 @@ select {
 }
 
 /* ── Dropdown panel ── */
-.dz-dropdown {
-  position: fixed;
-  top: 74px;
-  left: 16px;
-  width: 272px;
-  background: rgba(6,7,14,0.97);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  box-shadow:
-    0 32px 80px rgba(0,0,0,0.85),
-    0 0 0 1px rgba(0,229,255,0.06) inset,
-    0 1px 0 rgba(255,255,255,0.07) inset;
-  z-index: 1090;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px) scale(0.96);
-  transform-origin: top left;
-  transition: opacity 0.28s cubic-bezier(0.23,1,0.32,1), transform 0.28s cubic-bezier(0.23,1,0.32,1), visibility 0.28s;
-  pointer-events: none;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
+
 .dz-dropdown.open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0) scale(1);
+  transform: translateX(0);
   pointer-events: auto;
 }
 
@@ -10826,8 +10912,8 @@ select {
   inset: 0;
   z-index: 1990;
   background: rgba(0,0,0,0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -11285,7 +11371,7 @@ select {
   .lm-sidebar { display: none; }
   .lm-shell { max-height: 95vh; border-radius: 20px; }
   .lm-contact-grid { grid-template-columns: 1fr; }
-  .dz-dropdown { width: calc(100vw - 32px); }
+  
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -11609,7 +11695,22 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ghp-start-btn, diff-btn — use canonical definitions above */
+.ghp-start-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: clamp(0.85rem, 3.5vw, 1rem);
+}
+
+.ghp-pill {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: clamp(0.75rem, 3vw, 0.9rem);
+}
+
+.diff-btn {
+  min-height: 38px;
+  padding: 7px 12px;
+}
 
 /* ─── Arena hub grid — always 2 columns ─── */
 #arena-grid {
@@ -11682,6 +11783,9 @@ canvas {
   height: auto;
   display: block;
   touch-action: none;
+  /* Promote canvas to its own GPU compositor layer so RAF drawing
+     doesn't trigger a full-page repaint on every frame. */
+  will-change: transform;
 }
 
 /* ─── Darts board: responsive sizing ─── */
@@ -11749,10 +11853,7 @@ canvas {
 
 /* ─── Hamburger/dropdown ─── */
 @media (max-width: 420px) {
-  .dz-dropdown {
-    width: min(320px, 96vw) !important;
-    right: 4px !important;
-  }
+  
 }
 
 /* ─── Hub title ─── */
@@ -11775,9 +11876,10 @@ canvas {
 
 /* ─── Cricket / long game screens ─── */
 #cricket-app,
-#cricket-setup,
+#cricket-setup:not(.hidden),
 #cricket-game {
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   max-width: 100%;
   padding: 0 12px;
 }
@@ -11785,12 +11887,13 @@ canvas {
 /* ─── 2048 Duel ─── */
 #d2048-play-panel,
 #d2048-grid-wrap {
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ─── Password Breaker ─── */
 #pb-play-panel {
-  overflow: hidden;
+  overflow-y: auto;
   padding: 0 12px;
 }
 
@@ -11818,8 +11921,9 @@ canvas {
 .game-scroll-wrap,
 [id$="-play"],
 [id$="-play-panel"] {
-  overflow: hidden;
+  overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   min-height: 100dvh;
 }
 
@@ -11915,11 +12019,7 @@ canvas {
   }
 
   /* ── Dropdown: slightly wider on phone ── */
-  .dz-dropdown {
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-  }
+  
 }
 
 /* ── Extra-small phones ── */
@@ -11992,36 +12092,23 @@ canvas {
 /* ── Base landscape reset for all canvas-heavy game screens ── */
 @media screen and (orientation: landscape) and (max-height: 520px) {
 
-  /* Force every landscape-game screen to fill the viewport with no scroll */
-  #screen-tanks, #screen-spacedodge, #screen-starcatcher,
-  #screen-bomberman, #screen-tetris, #screen-pingpong,
+  /* NOTE: screen-* selectors removed from this group — they were causing
+     #screen-tetris etc. to inherit display:flex and appear below the hub.
+     Game screens are now hidden in landscape via the rules at end of file. */
 
   /* ── Play panels: column layout fills full height ── */
   #tanks-play-panel,
   #sd-play-panel,
   #sc-play-panel,
   #bm-play,
-  #pp-wrap,
-
-
-
-
-
-  /* Tetris play area: row layout with both boards side by side */
-  #tetris-play {
+  #pp-wrap {
     display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-    height: 100dvh !important;
-    min-height: 100dvh !important;
-    overflow: hidden !important;
-    padding: 4px 6px !important;
-    gap: 10px !important;
+    flex-direction: column;
   }
-  #tetris-play > div {
-    flex: none;
-  }
+
+  /* tetris-play landscape auto-show rule REMOVED — it caused Tetris to appear
+     randomly during other games whenever tetris-play lacked the .hidden class.
+     Tetris layout in landscape is now handled only when explicitly active. */
 
   /* ── HUD bars: ultra-compact single row ── */
   #tanks-hud, #sd-hud, #sc-hud {
@@ -12263,7 +12350,7 @@ canvas {
 .dz-topbar .ghp-back-hub {
   position: static !important;
   top: auto !important;
-  right: auto !important;
+  left: auto !important;
   width: fit-content !important;
   width: -moz-fit-content !important;
   max-width: fit-content !important;
@@ -12494,7 +12581,9 @@ canvas {
   align-items: stretch;
   justify-content: flex-start;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   position: relative;
   min-height: 0;
 }
@@ -13222,13 +13311,23 @@ canvas {
 #dz-hamburger, .hamburger-btn {
   position: fixed !important;
   top: 16px !important;
-  left: 16px !important;
-  right: auto !important;
+  right: 16px !important;
+  left: auto !important;
   z-index: 9999 !important;
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
+}
+/* In a game: show ☰ game btn, hide hub hamburger */
+body.dz-in-game #dz-ig-menu-btn {
+  display: flex !important;
+}
+body.dz-in-game #dz-hamburger,
+body.dz-in-game .hamburger-btn {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* Dropdown opens from top-right */
@@ -13404,150 +13503,217 @@ canvas {
 @keyframes dzSpin { 0%,100% { transform: rotate(0deg) } 35% { transform: rotate(90deg) } 65% { transform: rotate(90deg) } }
 
 /* ═══════════════════════════════════════════════════════════
-   LUDO — Scoped styles (from ludo.js injection)
+   LUDO — Scoped styles (new side-button layout)
    ═══════════════════════════════════════════════════════════ */
-  #ludo-app { font-family:'Rajdhani',sans-serif; }
 
-  /* ── Status chips ───────────────────────────────────── */
-  #ludo-sbar { width:100%; display:flex; gap:5px; padding:4px 0 10px; flex-shrink:0; }
-  .lchip {
-    flex:1; display:flex; flex-direction:column; align-items:center;
-    gap:3px; padding:8px 4px; border-radius:10px;
-    border:1.5px solid rgba(255,255,255,0.07);
-    background:rgba(255,255,255,0.03);
-    transition:all 0.28s ease; min-width:0;
+  /* ── App container ─────────────────────────────────── */
+  #ludo-app {
+    font-family: 'Rajdhani', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 4px 12px;
+    box-sizing: border-box;
+    gap: 0;
   }
-  .lchip.active {
-    border-color:var(--lc);
-    background:color-mix(in srgb,var(--lc) 12%,transparent);
-    box-shadow:0 0 20px color-mix(in srgb,var(--lc) 38%,transparent);
-    transform:translateY(-2px) scale(1.04);
-  }
-  .lchip-dot {
-    width:10px; height:10px; border-radius:50%;
-    background:var(--lc); box-shadow:0 0 6px var(--lc);
-    transition:box-shadow 0.28s;
-  }
-  .lchip.active .lchip-dot {
-    box-shadow:0 0 14px var(--lc), 0 0 4px #fff;
-    animation:ldDotPulse 1s ease-in-out infinite;
-  }
-  @keyframes ldDotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
-  .lchip-label {
-    font-family:'Orbitron',sans-serif; font-size:0.42rem;
-    letter-spacing:0.1em; color:rgba(255,255,255,0.4);
-    text-transform:uppercase; white-space:nowrap; transition:color 0.28s;
-  }
-  .lchip.active .lchip-label { color:var(--lc); }
-  .lchip-score {
-    font-family:'DM Mono',monospace; font-size:0.66rem;
-    color:rgba(255,255,255,0.28); transition:color 0.28s;
-  }
-  .lchip.active .lchip-score { color:rgba(255,255,255,0.85); }
 
-  /* ── Board wrap ─────────────────────────────────────── */
-  #ludo-bwrap {
-    width:100%;
-    max-width: min(100%, var(--ludo-board-size, 420px));
+  /* ── Main layout: 3-column CSS grid
+        col 1 = left button  (56px)
+        col 2 = board canvas (flexible)
+        col 3 = right button (56px)
+        row 1 = top button   (56px)
+        row 2 = board        (auto)
+        row 3 = bottom button(56px)
+  ─────────────────────────────────────────────── */
+  #ludo-layout {
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    grid-template-rows: 56px 1fr 56px;
+    gap: 6px;
+    width: 100%;
+    max-width: calc(var(--ludo-board-size, 380px) + 124px);
     align-self: center;
-    position:relative; flex-shrink:0;
-    border-radius:14px; overflow:hidden;
-    box-shadow:0 8px 48px rgba(0,0,0,0.7),0 0 0 1.5px rgba(255,255,255,0.09);
-    margin-bottom:10px;
   }
-  #ludo-bwrap::before { content:''; display:block; padding-top:100%; }
-  #ludo-cv { position:absolute; inset:0; cursor:pointer; touch-action:none; border-radius:14px; }
 
-  /* ── Info banner ────────────────────────────────────── */
-  #ludo-banner {
-    width:100%; display:flex; align-items:center; gap:10px;
-    padding:8px 14px; margin-bottom:10px;
-    background:linear-gradient(135deg,rgba(255,23,68,0.1),rgba(255,23,68,0.03));
-    border:1px solid rgba(255,23,68,0.22);
-    border-radius:12px; flex-shrink:0;
-    animation:ldBanIn 0.35s ease;
-    transition:background 0.4s, border-color 0.4s;
+  /* Board wrap: grid row 2 / col 2 center cell */
+  #ludo-bwrap {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.7),
+                0 0 0 1.5px rgba(255,255,255,0.09);
+    width: 100%;
+    max-width: var(--ludo-board-size, 380px);
+    justify-self: center;
+    align-self: center;
   }
-  @keyframes ldBanIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none} }
-  #ludo-banner-ava { font-size:1.3rem; flex-shrink:0; }
-  #ludo-banner-txt { font-family:'Rajdhani',sans-serif; font-size:0.84rem; color:rgba(255,215,215,0.88); line-height:1.35; flex:1; }
+  #ludo-bwrap::before { content: ''; display: block; padding-top: 100%; }
+  #ludo-cv {
+    position: absolute; inset: 0;
+    cursor: pointer; touch-action: none;
+    border-radius: 14px;
+    width: 100%; height: 100%;
+  }
 
-  /* ── Message ────────────────────────────────────────── */
+  /* ── Side tap buttons ─────────────────────────────── */
+  .ludo-side-btn {
+    --lsb-color: #fff;
+    --lsb-dark:  #aaa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: 2px solid var(--lsb-color);
+    background: color-mix(in srgb, var(--lsb-color) 10%, transparent);
+    border-radius: 14px;
+    padding: 4px 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.18s, transform 0.12s,
+                box-shadow 0.18s, opacity 0.22s;
+    overflow: hidden;
+  }
+
+  /* Top button: grid row 1 / col 2 */
+  .ludo-side-btn[data-pos="top"]    { grid-column:2; grid-row:1; flex-direction:row; padding:0 8px; gap:6px; border-radius:16px; }
+  /* Bottom button: grid row 3 / col 2 */
+  .ludo-side-btn[data-pos="bottom"] { grid-column:2; grid-row:3; flex-direction:row; padding:0 8px; gap:6px; border-radius:16px; }
+  /* Left button: grid row 2 / col 1 */
+  .ludo-side-btn[data-pos="left"]   { grid-column:1; grid-row:2; border-radius:14px; }
+  /* Right button: grid row 2 / col 3 */
+  .ludo-side-btn[data-pos="right"]  { grid-column:3; grid-row:2; border-radius:14px; }
+
+  /* Disabled / inactive = dim */
+  .ludo-side-btn:disabled {
+    opacity: 0.28;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Active player — highlighted border + glow */
+  .ludo-side-btn.lsb-active {
+    background: color-mix(in srgb, var(--lsb-color) 22%, transparent);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--lsb-color) 55%, transparent),
+                inset 0 0 8px color-mix(in srgb, var(--lsb-color) 18%, transparent);
+    border-color: var(--lsb-color);
+  }
+
+  /* Can-roll state — pulsing call-to-action */
+  .ludo-side-btn.lsb-canroll {
+    animation: lsbPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes lsbPulse {
+    0%,100% {
+      transform: scale(1);
+      box-shadow: 0 0 14px color-mix(in srgb, var(--lsb-color) 40%, transparent);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 28px color-mix(in srgb, var(--lsb-color) 70%, transparent),
+                  0 0 0 4px color-mix(in srgb, var(--lsb-color) 18%, transparent);
+    }
+  }
+
+  /* Bot / rolling state — subtle shimmer */
+  .ludo-side-btn.lsb-rolling {
+    animation: lsbShimmer 0.6s linear infinite;
+    opacity: 0.7;
+  }
+  @keyframes lsbShimmer {
+    0%,100% { opacity:0.7; }
+    50%      { opacity:1;   }
+  }
+
+  /* Finished player — faded out */
+  .ludo-side-btn.lsb-done {
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  /* Button internal text elements */
+  .lsb-emoji {
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .lsb-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.45rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lsb-color);
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+    max-width: 52px;
+  }
+  /* Horizontal buttons (top/bottom) get bigger name text */
+  .ludo-side-btn[data-pos="top"]    .lsb-name,
+  .ludo-side-btn[data-pos="bottom"] .lsb-name {
+    font-size: 0.55rem;
+    max-width: none;
+  }
+  .lsb-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1;
+  }
+
+  /* ── Message bar ──────────────────────────────────── */
   #ludo-msg {
-    width:100%; display:flex; align-items:center; gap:10px;
-    padding:10px 14px; margin-bottom:10px;
-    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; flex-shrink:0;
-    font-size:0.88rem; color:rgba(220,230,255,0.85);
-    min-height:44px; transition:border-color 0.3s, background 0.3s;
+    width: 100%;
+    max-width: calc(var(--ludo-board-size, 380px) + 124px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    margin-top: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: rgba(220,230,255,0.85);
+    min-height: 40px;
+    box-sizing: border-box;
+    transition: border-color 0.3s, background 0.3s;
+    flex-shrink: 0;
   }
-  #ludo-msg-icon { font-size:1.15rem; flex-shrink:0; }
-  #ludo-msg-txt  { flex:1; }
+  #ludo-msg-icon { font-size:1.1rem; flex-shrink:0; }
+  #ludo-msg-txt  { flex:1; line-height:1.35; }
 
-  /* ── Dice row ───────────────────────────────────────── */
-  #ludo-drow {
-    width:100%; display:flex; align-items:center;
-    justify-content:center; gap:10px;
-    flex-shrink:0; margin-bottom:4px;
-  }
-  #ludo-die-wrap { width:60px; height:60px; position:relative; flex-shrink:0; }
-  #ludo-die-cv   { width:60px; height:60px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.55); }
-  #ludo-die-cv.rolling { animation:ldDiceAnim 0.52s ease; }
-  @keyframes ldDiceAnim {
-    0%  { transform:rotate(0deg) scale(1); }
-    18% { transform:rotate(-26deg) scale(1.24); }
-    46% { transform:rotate(17deg) scale(0.83); }
-    72% { transform:rotate(-10deg) scale(1.13); }
-    100%{ transform:rotate(0deg) scale(1); }
-  }
-
-  /* ── Roll button ────────────────────────────────────── */
-  #ludo-roll-btn {
-    flex:1; max-width:210px; padding:13px 0;
-    border:none; border-radius:30px;
-    background:linear-gradient(135deg,#ff1744,#c62828);
-    color:#fff; font-family:'Orbitron',sans-serif;
-    font-size:0.72rem; font-weight:700; letter-spacing:0.09em;
-    cursor:pointer; text-transform:uppercase;
-    transition:transform 0.12s, box-shadow 0.18s, opacity 0.25s, background 0.3s;
-    box-shadow:0 4px 22px rgba(255,23,68,0.42);
-    -webkit-tap-highlight-color:transparent; position:relative; overflow:hidden;
-  }
-  #ludo-roll-btn::after { content:''; position:absolute; inset:0; border-radius:30px; background:rgba(255,255,255,0); transition:background 0.15s; }
-  #ludo-roll-btn:hover:not(:disabled)  { box-shadow:0 7px 32px rgba(255,23,68,0.65); transform:translateY(-2px); }
-  #ludo-roll-btn:hover:not(:disabled)::after { background:rgba(255,255,255,0.09); }
-  #ludo-roll-btn:active:not(:disabled) { transform:scale(0.93); }
-  #ludo-roll-btn:disabled { opacity:0.22; pointer-events:none; cursor:not-allowed; }
-  #ludo-roll-btn.lrb-green  { background:linear-gradient(135deg,#4caf50,#1b5e20); box-shadow:0 4px 22px rgba(76,175,80,0.45); }
-  #ludo-roll-btn.lrb-yellow { background:linear-gradient(135deg,#ffc107,#e65100); box-shadow:0 4px 22px rgba(255,193,7,0.45); color:#1a0800; }
-  #ludo-roll-btn.lrb-blue   { background:linear-gradient(135deg,#2196f3,#0d47a1); box-shadow:0 4px 22px rgba(33,150,243,0.45); }
-  #ludo-roll-btn.lrb-pulse  { animation:ldRBPulse 1.3s ease-in-out infinite; }
-  @keyframes ldRBPulse {
-    0%,100%{ transform:translateY(0); box-shadow:0 4px 22px rgba(255,23,68,0.42); }
-    50%    { transform:translateY(-2px); box-shadow:0 6px 36px rgba(255,23,68,0.7), 0 0 0 5px rgba(255,23,68,0.14); }
-  }
-
-  /* ── Music btn ──────────────────────────────────────── */
+  /* ── Music btn ──────────────────────────────────── */
   #ludo-music-btn {
-    width:42px; height:42px; border-radius:10px;
-    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
-    color:rgba(255,255,255,0.4); font-size:1.1rem;
-    cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-    transition:background 0.2s, color 0.2s, border-color 0.2s;
-    -webkit-tap-highlight-color:transparent;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 6px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    -webkit-tap-highlight-color: transparent;
   }
   #ludo-music-btn.on {
-    background:rgba(255,23,68,0.14); border-color:rgba(255,23,68,0.38);
-    color:#ff6b81; animation:ldMusicGlow 2.2s ease-in-out infinite;
+    background: rgba(255,23,68,0.14);
+    border-color: rgba(255,23,68,0.38);
+    color: #ff6b81;
+    animation: ldMusicGlow 2.2s ease-in-out infinite;
   }
   @keyframes ldMusicGlow { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
-  /* ── Pass-device overlay ────────────────────────────── */
+  /* ── Pass-device overlay (bots multi-human mode only) */
   #ludo-pass-overlay {
     position:fixed; inset:0; z-index:120;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background:rgba(4,5,16,0.96);
-    backdrop-filter:blur(16px);
+    backdrop-filter:blur(8px);
     animation:ldPassIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
     padding:20px;
   }
@@ -13560,36 +13726,29 @@ canvas {
     border:2px solid var(--po-color,rgba(255,255,255,0.15));
     box-shadow:0 0 60px color-mix(in srgb,var(--po-color,#fff) 20%,transparent);
   }
-  #ludo-pass-emoji { font-size:2.8rem; margin-bottom:12px; }
-  #ludo-pass-title {
-    font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900;
-    color:var(--po-color,#fff); letter-spacing:0.04em; margin-bottom:6px;
-  }
-  #ludo-pass-sub {
-    font-family:'Rajdhani',sans-serif; font-size:0.92rem;
-    color:rgba(200,210,255,0.65); margin-bottom:26px; line-height:1.4;
-  }
+  #ludo-pass-emoji  { font-size:2.8rem; margin-bottom:12px; }
+  #ludo-pass-title  { font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; color:var(--po-color,#fff); letter-spacing:0.04em; margin-bottom:6px; }
+  #ludo-pass-sub    { font-family:'Rajdhani',sans-serif; font-size:0.92rem; color:rgba(200,210,255,0.65); margin-bottom:26px; line-height:1.4; }
   #ludo-pass-btn {
     padding:14px 40px; border:none; border-radius:28px;
     background:var(--po-color,#ff1744); color:#fff;
     font-family:'Orbitron',sans-serif; font-size:0.75rem;
-    font-weight:700; letter-spacing:0.12em; cursor:pointer;
-    text-transform:uppercase;
+    font-weight:700; letter-spacing:0.12em; cursor:pointer; text-transform:uppercase;
     box-shadow:0 4px 24px color-mix(in srgb,var(--po-color,#ff1744) 45%,transparent);
     transition:transform 0.1s, box-shadow 0.15s;
     -webkit-tap-highlight-color:transparent;
   }
-  #ludo-pass-btn:hover { transform:translateY(-2px); }
+  #ludo-pass-btn:hover  { transform:translateY(-2px); }
   #ludo-pass-btn:active { transform:scale(0.94); }
 
-  /* ── setup preview pills ────────────────────────────── */
+  /* ── Setup preview pills ──────────────────────────── */
   .lsetup-pill {
     display:inline-flex; align-items:center; gap:5px;
     padding:3px 10px; border-radius:20px;
     font-family:'DM Mono',monospace; font-size:0.63rem;
   }
 
-  /* ── PvP name inputs ────────────────────────────────── */
+  /* ── PvP name inputs ─────────────────────────────── */
   .lpvp-name-field {
     display:flex; align-items:center; gap:8px;
     background:rgba(255,255,255,0.04);
@@ -13602,17 +13761,27 @@ canvas {
     background:rgba(255,255,255,0.06);
   }
   .lpvp-name-dot {
-    width:9px;height:9px;border-radius:50%;
-    background:var(--lnf-color,#888);flex-shrink:0;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--lnf-color,#888); flex-shrink:0;
     box-shadow:0 0 6px var(--lnf-color,#888);
   }
   .lpvp-name-input {
-    flex:1;background:none;border:none;outline:none;
-    color:#fff;font-family:'Rajdhani',sans-serif;
-    font-size:0.88rem;font-weight:600;
-    placeholder-color:rgba(255,255,255,0.25);
+    flex:1; background:none; border:none; outline:none;
+    color:#fff; font-family:'Rajdhani',sans-serif;
+    font-size:0.88rem; font-weight:600;
   }
   .lpvp-name-input::placeholder { color:rgba(255,255,255,0.22); }
+
+  /* ── Responsive: very small screens ─────────────── */
+  @media (max-width: 360px) {
+    #ludo-layout {
+      grid-template-columns: 44px 1fr 44px;
+      grid-template-rows:    44px 1fr 44px;
+      gap: 4px;
+    }
+    .lsb-name  { font-size: 0.38rem; }
+    .lsb-emoji { font-size: 1rem; }
+  }
 
 /* ═══════════════════════════════════════════════════════════
    SUDOKU — Scoped styles (from sudoku.js injection)
@@ -13908,26 +14077,24 @@ body.dz-game-landscape-required #dz-portrait-warn {
 
 /* Nuclear override — hamburger is ALWAYS on top, no exceptions */
 #dz-hamburger {
-  position: fixed !important;
-  top: 16px !important;
-  left: 16px !important;
-  right: auto !important;
-  z-index: 99999 !important;
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  transform: none !important;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  background: rgba(13,15,28,0.92);
+  border: 1.5px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 /* Dropdown opens from top-right */
 #dz-dropdown {
   position: fixed !important;
   top: 74px !important;
-  left: 16px !important;
-  right: auto !important;
+  right: 16px !important;
+  left: auto !important;
   z-index: 99998 !important;
-  transform-origin: top left !important;
+  transform-origin: top right !important;
 }
 
 /* Give game panel headings right padding so title never hides behind hamburger */
@@ -13966,28 +14133,13 @@ body.dz-game-landscape-required #dz-portrait-warn {
 
 /* ── Dropdown: full-width bottom sheet on phones ── */
 @media (max-width: 540px) {
-  .dz-dropdown {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-height: 88vh !important;
-    overflow-y: auto !important;
-    border-radius: 24px 24px 0 0 !important;
-    transform: translateY(100%) scale(1) !important;
-    transform-origin: bottom center !important;
-    transition: transform 0.32s cubic-bezier(0.23,1,0.32,1), opacity 0.28s ease, visibility 0.28s !important;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: env(safe-area-inset-bottom, 12px);
-  }
+  
   .dz-dropdown.open {
-    transform: translateY(0) scale(1) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: auto;
+}
   /* drag handle indicator */
   .dd-header::before {
     content: '';
@@ -14211,835 +14363,2885 @@ body.dz-game-landscape-required #dz-portrait-warn {
   .footer-link { font-size: 0.75rem !important; padding: 6px 14px !important; }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   IN-GAME MENU DROPDOWN
-   ═══════════════════════════════════════════════════════════ */
 
-/* Hide in-game topbar — buttons moved to in-game menu */
-.dz-topbar { display: none !important; }
+/* ═══════════════════════════════════════════════════════════════════════════
+   DUELZONE — UNIFIED BUTTON SYSTEM v2
+   Single source of truth for every button across hub + all game setups.
+   Placed at the end so it always wins specificity cleanly.
+   ═══════════════════════════════════════════════════════════════════════════
 
-.dz-ingame-dropdown {
-  position: fixed;
-  top: 72px;
-  left: 14px;
-  width: 228px;
-  background: rgba(6,8,18,0.97);
-  border: 1px solid rgba(0,229,255,0.18);
-  border-radius: 14px;
-  box-shadow: 0 20px 56px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,229,255,0.06), inset 0 1px 0 rgba(255,255,255,0.05);
-  z-index: 1090;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px) scale(0.96);
-  transform-origin: top left;
-  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.23,1,0.32,1), visibility 0.22s;
-  pointer-events: none;
+   DESIGN TOKENS
+   ─────────────
+   --btn-radius-pill  : pill shape — hub PLAY cards, back navigation
+   --btn-radius-base  : chip shape — diff / mode selectors
+   --btn-radius-block : rectangular — start / CTA blocks
+   --btn-height       : universal minimum touch target
+   --btn-font-main    : Orbitron  (headings / CTA)
+   --btn-font-alt     : Rajdhani  (labels / secondary)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --btn-radius-pill  : 30px;
+  --btn-radius-base  : 10px;
+  --btn-radius-block : 14px;
+  --btn-height       : 44px;
+  --btn-font-main    : 'Orbitron', sans-serif;
+  --btn-font-alt     : 'Rajdhani', sans-serif;
+  --btn-transition   : all 0.22s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.dz-ingame-dropdown.open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
 
-/* Header */
-.igd-header {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid rgba(0,229,255,0.1);
-}
-.igd-logo {
-  width: 28px; height: 28px;
-  background: rgba(0,229,255,0.1);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: #00e5ff;
-  flex-shrink: 0;
-}
-.igd-logo svg { width: 15px; height: 15px; }
-.igd-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #00e5ff;
-  flex: 1;
-}
-.igd-close-x {
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,0.35);
-  padding: 4px; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  transition: color 0.18s, background 0.18s;
-  flex-shrink: 0;
-}
-.igd-close-x svg { width: 14px; height: 14px; }
-.igd-close-x:hover { color: #fff; background: rgba(255,255,255,0.08); }
+/* ── § A  HUB PLAY BUTTONS  (.card-btn on arena-card) ─────────────────────
+   Pill shape, accent-coloured border + subtle gradient fill.
+   Consistent across all hub cards via --accent CSS variable.
+   ────────────────────────────────────────────────────────────────────────── */
 
-
-
-/* Nav items */
-.igd-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 10px 14px;
-  background: none;
-  border: none;
+.arena-card .card-btn {
+  /* Shape */
+  border-radius: var(--btn-radius-pill) !important;
+  /* Sizing */
+  min-height: var(--btn-height);
+  padding: 10px 22px !important;
+  /* Typography */
+  font-family: var(--btn-font-main) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  white-space: nowrap;
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  /* Interaction */
   cursor: pointer;
-  color: rgba(255,255,255,0.75);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-align: left;
-  transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+  /* Colour — inherits from .card-btn which already uses --accent */
 }
-.igd-item:last-child { padding-bottom: 12px; }
-.igd-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-.igd-item-icon {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+.arena-card .card-btn:active {
+  transform: scale(0.96) !important;
+  transition-duration: 0.08s !important;
+}
+
+
+/* ── § B  SETUP OPTION CHIPS  (.diff-btn, inside .diff-btn-group) ──────────
+   Pill chips used for difficulty, mode, player-count, colour selectors.
+   Every game's setup screen uses these — they must all look identical.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.diff-btn {
+  /* Shape */
+  border-radius: var(--btn-radius-pill) !important;
+  /* Sizing */
+  min-height: var(--btn-height);
+  padding: 9px 20px !important;
+  /* Typography */
+  font-family: var(--btn-font-alt) !important;
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  white-space: nowrap;
+  /* Appearance — inactive */
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.13) !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Active / selected chip — uses the per-game accent */
+.diff-btn.active {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ghp-accent, #00e5ff) 22%, transparent),
+    color-mix(in srgb, var(--ghp-accent, #00e5ff)  9%, transparent)) !important;
+  border-color: var(--ghp-accent, #00e5ff) !important;
+  color: var(--ghp-accent, #00e5ff) !important;
+  box-shadow:
+    0 0 16px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 50%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--ghp-accent, #00e5ff) 18%, transparent) !important;
+}
+
+@media (hover: hover) {
+  .diff-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(255, 255, 255, 0.26) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.diff-btn:active {
+  transform: scale(0.96) !important;
+  transition-duration: 0.07s !important;
+}
+
+/* The group container: wraps chips with consistent spacing */
+.diff-btn-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+/* The label above a diff-btn-group */
+.diff-label-text {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.28em !important;
+  color: var(--muted, #4a5080) !important;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Setting row = label + group */
+.ghp-setting-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  width: 100%;
+}
+
+
+/* ── § C  MODE SELECTOR CARDS  (.ghp-mode-btn) ─────────────────────────────
+   Larger icon+label cards used by Tetris, Carrom, Reaction Duel, etc.
+   Standardised size and feel while keeping the icon-card aesthetic.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ghp-mode-btn {
+  /* Shape */
+  border-radius: var(--btn-radius-base) !important;
+  /* Sizing */
+  min-height: 72px !important;
+  padding: 14px 12px !important;
+  /* Layout */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  flex: 1 !important;
+  /* Appearance — inactive */
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 2px solid rgba(255, 255, 255, 0.10) !important;
+  /* Interaction */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+}
+
+.ghp-mode-btn.active {
+  border-color: var(--ghp-accent, #00e5ff) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 0 20px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 40%, transparent),
+    inset 0 0 20px -8px color-mix(in srgb, var(--ghp-accent, #00e5ff) 12%, transparent) !important;
+}
+
+.ghp-mode-btn.active .mode-label {
+  color: var(--ghp-accent, #00e5ff) !important;
+}
+
+@media (hover: hover) {
+  .ghp-mode-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+  }
+}
+
+
+/* ── § D  CTA START BUTTON  (.ghp-start-btn) ───────────────────────────────
+   The big "▶ START GAME" block button. Full-width, solid accent fill.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ghp-start-btn {
+  /* Shape */
+  border-radius: var(--btn-radius-block) !important;
+  /* Sizing */
+  width: 100% !important;
+  min-height: 56px !important;
+  padding: 15px 20px !important;
+  /* Typography */
+  font-family: var(--btn-font-main) !important;
+  font-size: 0.9rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.18em !important;
+  color: #000 !important;
+  /* Appearance */
+  border: none !important;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ghp-accent, #00e5ff) 92%, #fff),
+    color-mix(in srgb, var(--ghp-accent, #00e5ff) 72%, #000)) !important;
+  box-shadow:
+    0 4px 24px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 55%, transparent),
+    0 1px 0 color-mix(in srgb, var(--ghp-accent, #00e5ff) 30%, transparent) inset !important;
+  /* Layout */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  /* Interaction */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+  margin-top: 4px;
+}
+
+@media (hover: hover) {
+  .ghp-start-btn:hover {
+    transform: translateY(-2px) scale(1.01) !important;
+    box-shadow:
+      0 8px 32px -4px color-mix(in srgb, var(--ghp-accent, #00e5ff) 65%, transparent),
+      0 1px 0 color-mix(in srgb, var(--ghp-accent, #00e5ff) 30%, transparent) inset !important;
+  }
+}
+
+.ghp-start-btn:active {
+  transform: scale(0.98) !important;
+  transition-duration: 0.07s !important;
+}
+
+/* When two start buttons appear side by side (Chess, Darts) */
+.ghp-start-btns {
+  display: flex !important;
+  gap: 10px !important;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.ghp-start-btns .ghp-start-btn {
+  flex: 1 !important;
+  min-width: 120px;
+}
+
+
+/* ── § E  BACK / NAVIGATION BUTTONS ────────────────────────────────────────
+   Used at top-left of every game screen. Ghost pill style.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ghp-back-hub,
+.ghp-back-game,
+.ghp-back-v2,
+.dz-back-btn,
+#cricket-back-btn,
+#ttt-home-back,   #ttt-back-to-home,
+#rps-home-back,   #rps-back-to-home,
+#tap-home-back,   #tap-back-to-home,
+#d2048-home-back, #d2048-back-to-home,
+#c4-home-back,    #c4-back-to-home,
+#pb-main-back,
+#ah-main-back,
+#sdk-back-hub {
+  /* Shape */
+  border-radius: var(--btn-radius-pill) !important;
+  /* Sizing */
+  min-height: 38px !important;
+  padding: 7px 16px !important;
+  /* Typography */
+  font-family: var(--btn-font-alt) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  /* Appearance */
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: rgba(200, 212, 255, 0.75) !important;
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: fit-content !important;
+  width: -moz-fit-content !important;
   flex-shrink: 0;
-  transition: transform 0.15s, box-shadow 0.15s;
+  /* Interaction */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+  /* Position — keep absolute for standalone panels, see ludo override below */
+  position: absolute !important;
+  top: 72px !important;
+  left: 16px !important;
+  z-index: 20 !important;
 }
-.igd-item-icon svg { width: 15px; height: 15px; }
-.igd-item:hover .igd-item-icon { transform: scale(1.08); }
 
-.igd-cyan   { background: rgba(0,229,255,0.12);  color: #00e5ff; }
-.igd-violet { background: rgba(170,0,255,0.12);  color: #aa00ff; }
-.igd-green  { background: rgba(0,230,118,0.12);  color: #00e676; }
-.igd-item:hover .igd-cyan   { box-shadow: 0 0 10px rgba(0,229,255,0.3); }
-.igd-item:hover .igd-violet { box-shadow: 0 0 10px rgba(170,0,255,0.3); }
-.igd-item:hover .igd-green  { box-shadow: 0 0 10px rgba(0,230,118,0.3); }
+@media (hover: hover) {
+  .ghp-back-hub:hover,
+  .ghp-back-game:hover,
+  .ghp-back-v2:hover,
+  .dz-back-btn:hover,
+  #cricket-back-btn:hover, #ttt-home-back:hover, #ttt-back-to-home:hover,
+  #rps-home-back:hover, #rps-back-to-home:hover,
+  #tap-home-back:hover, #tap-back-to-home:hover,
+  #d2048-home-back:hover, #d2048-back-to-home:hover,
+  #c4-home-back:hover, #c4-back-to-home:hover,
+  #pb-main-back:hover, #ah-main-back:hover, #sdk-back-hub:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+    color: #fff !important;
+    transform: translateX(-2px);
+  }
+}
 
-.igd-item-label { flex: 1; }
-.igd-item-arrow { color: rgba(255,255,255,0.2); font-size: 1rem; }
 
-/* Sound toggle badge */
-.igd-sound-toggle {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(0,230,118,0.15);
+/* ═══════════════════════════════════════════════════════════════════════════
+   LUDO TOPBAR FIX
+   The #ludo-play topbar uses .dz-topbar (display:flex, space-between).
+   .ghp-back-hub and .ghp-back-game are globally position:absolute which
+   removes them from the flex flow, causing them to float over the canvas
+   and the topbar to appear visually empty.
+   Override: inside that specific topbar, restore them to normal flex items.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#ludo-play .dz-topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 8px 14px !important;
+  background: rgba(7, 8, 15, 0.95) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;  /* prevent sticky from breaking overflow:hidden */
+  top: auto !important;
+  z-index: 10 !important;
+}
+
+/* Re-anchor the back buttons to normal flex items inside ludo topbar */
+#ludo-play .dz-topbar .ghp-back-hub,
+#ludo-play .dz-topbar .ghp-back-game {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  align-self: center !important;
+}
+
+/* Hub button in ludo topbar — slightly muted, left side */
+#ludo-play .dz-topbar .ghp-back-hub {
+  color: rgba(255, 100, 100, 0.75) !important;
+  border-color: rgba(255, 100, 100, 0.2) !important;
+}
+
+#ludo-play .dz-topbar .ghp-back-hub:hover {
+  background: rgba(255, 23, 68, 0.12) !important;
+  border-color: rgba(255, 23, 68, 0.4) !important;
+  color: #ff5252 !important;
+  transform: none !important;
+}
+
+/* Setup button in ludo topbar — right side */
+#ludo-play .dz-topbar .ghp-back-game {
+  color: rgba(200, 212, 255, 0.65) !important;
+}
+
+#ludo-play .dz-topbar .ghp-back-game:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  color: #fff !important;
+  transform: none !important;
+}
+
+
+/* ── § F  RESULT OVERLAY BUTTONS  (.ghp-result-btn-primary / secondary) ────
+   Shown in the win/lose overlay after a game. Consistent pill sizing.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ghp-result-btn-primary {
+  /* Shape */
+  border-radius: var(--btn-radius-pill) !important;
+  /* Sizing */
+  min-height: var(--btn-height) !important;
+  padding: 11px 28px !important;
+  /* Typography */
+  font-family: var(--btn-font-main) !important;
+  font-size: 0.8rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+  color: #000 !important;
+  /* Appearance */
+  background: var(--rb-color, #00e676) !important;
+  border: none !important;
+  box-shadow: 0 4px 20px -4px color-mix(in srgb, var(--rb-color, #00e676) 50%, transparent) !important;
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+}
+
+.ghp-result-btn-primary:active {
+  transform: scale(0.96) !important;
+  transition-duration: 0.07s !important;
+}
+
+.ghp-result-btn-secondary {
+  /* Shape */
+  border-radius: var(--btn-radius-pill) !important;
+  /* Sizing */
+  min-height: var(--btn-height) !important;
+  padding: 11px 28px !important;
+  /* Typography */
+  font-family: var(--btn-font-main) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  /* Appearance */
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--btn-transition) !important;
+}
+
+@media (hover: hover) {
+  .ghp-result-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.13) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+    color: #fff !important;
+  }
+}
+
+.ghp-result-btn-secondary:active {
+  transform: scale(0.96) !important;
+  transition-duration: 0.07s !important;
+}
+
+
+/* ── § G  MOBILE RESPONSIVE OVERRIDES ──────────────────────────────────────
+   Ensure everything stays consistent and touch-friendly on small screens.
+   ────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+  /* Diff chips: slightly more compact padding */
+  .diff-btn {
+    padding: 8px 16px !important;
+    font-size: 0.82rem !important;
+    min-height: 42px !important;
+  }
+
+  /* Start button: always full-width, easy to tap */
+  .ghp-start-btn {
+    min-height: 52px !important;
+    font-size: 0.84rem !important;
+  }
+
+  /* Mode cards: shorter on mobile */
+  .ghp-mode-btn {
+    min-height: 60px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Result buttons: symmetrical sizing on phone */
+  .ghp-result-btn-primary,
+  .ghp-result-btn-secondary {
+    padding: 12px 22px !important;
+    font-size: 0.78rem !important;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .diff-btn {
+    padding: 7px 14px !important;
+    font-size: 0.78rem !important;
+    min-height: 40px !important;
+  }
+
+  .ghp-start-btn {
+    min-height: 50px !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.14em !important;
+  }
+
+  .ghp-mode-btn {
+    min-height: 56px !important;
+  }
+
+  .ghp-mode-btn .mode-label {
+    font-size: 0.66rem !important;
+  }
+
+  .ghp-mode-btn .mode-sub {
+    font-size: 0.66rem !important;
+  }
+
+  /* Hub card play button */
+  .arena-card .card-btn {
+    padding: 8px 14px !important;
+    font-size: 0.6rem !important;
+  }
+
+}
+
+/* ── END UNIFIED BUTTON SYSTEM v2 ────────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GAME UI FIXES  — Reaction Duel · Rock Paper Scissors · Connect Dots
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ══════════════════════════════════════════════════════════
+   § 1  REACTION DUEL — Full mobile overhaul
+   All critical layout was inline; these rules override/fix.
+   ══════════════════════════════════════════════════════════ */
+
+/* Play panel — replace the inline position:fixed layout with
+   a proper flex column that respects the topbar */
+#rd-play {
+  position: fixed !important;
+  inset: 0 !important;
+  background: #07080f !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+  z-index: 50 !important;
+  padding: 0 !important; /* topbar handles its own padding */
+  font-family: 'Rajdhani', sans-serif !important;
+}
+
+/* Topbar inside rd-play — same sticky strip as other games */
+#rd-play .dz-topbar {
+  width: 100% !important;
+  align-self: stretch !important;
+  flex-shrink: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: rgba(7, 8, 15, 0.96) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  padding: 8px 14px !important;
+}
+
+/* Scroll content area below the topbar */
+#rd-play > *:not(.dz-topbar) {
+  flex-shrink: 0;
+}
+
+/* Title */
+#rd-play > div[style*="text-align:center"] {
+  margin-top: 12px !important;
+  margin-bottom: 8px !important;
+  padding: 0 16px;
+}
+
+/* Scores row */
+#rd-play > div[style*="gap:40px"] {
+  gap: clamp(16px, 6vw, 40px) !important;
+  margin-bottom: 12px !important;
+  font-size: clamp(0.85rem, 3vw, 1rem) !important;
+  padding: 0 16px;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+/* Signal circle — was 260px fixed; make it responsive */
+#rd-signal-bg {
+  width:  min(220px, 60vw) !important;
+  height: min(220px, 60vw) !important;
+  margin-bottom: 14px !important;
+  flex-shrink: 0;
+}
+
+#rd-signal-emoji {
+  font-size: clamp(2.4rem, 10vw, 4rem) !important;
+}
+
+#rd-signal-text {
+  font-size: clamp(1rem, 4vw, 1.4rem) !important;
+  margin-top: 6px !important;
+}
+
+/* Status message */
+#rd-status {
+  font-size: clamp(0.85rem, 3.5vw, 1rem) !important;
+  margin-bottom: 14px !important;
+  padding: 0 16px;
+  text-align: center;
+}
+
+/* TAP buttons — larger, full-width on mobile */
+#rd-play > div[style*="gap:24px"] {
+  display: flex !important;
+  gap: clamp(10px, 3vw, 24px) !important;
+  width: 100% !important;
+  max-width: 440px !important;
+  padding: 0 16px !important;
+  box-sizing: border-box !important;
+}
+
+#rd-tap-p1,
+#rd-tap-p2 {
+  flex: 1 !important;
+  width: auto !important;
+  height: clamp(60px, 16vw, 80px) !important;
+  font-size: clamp(0.82rem, 3vw, 1rem) !important;
+  border-radius: 14px !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
+  letter-spacing: 0.06em !important;
+}
+
+#rd-tap-p1:active { transform: scale(0.94) !important; }
+#rd-tap-p2:active { transform: scale(0.94) !important; }
+
+/* Keyboard hint */
+#rd-play > div[style*="0.7rem"] {
+  font-size: 0.65rem !important;
+  margin-top: 8px !important;
+  padding-bottom: 20px;
+}
+
+/* Result overlay — centred in viewport */
+#rd-result {
+  padding: 16px !important;
+}
+
+#rd-result > div {
+  padding: 28px 24px !important;
+  max-width: min(340px, 94vw) !important;
+  width: 100% !important;
+}
+
+#rd-result-title {
+  font-size: clamp(1.2rem, 5vw, 1.7rem) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   § 2  ROCK PAPER SCISSORS — Fix text overlap + logic UX
+   ══════════════════════════════════════════════════════════ */
+
+/* P2 win result — positive colour (green), NOT red "lose" */
+#rps-result-text.p2win {
   color: #00e676;
-  border: 1px solid rgba(0,230,118,0.3);
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
-}
-.igd-sound-toggle.off {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.3);
-  border-color: rgba(255,255,255,0.1);
 }
 
+/* In-game mode/bestof/diff controls — hide during active game.
+   JS adds .rps-game-active to #rps-app when a round is in progress. */
+#rps-app.rps-game-active .game-mode-selector,
+#rps-app.rps-game-active #rps-bestof-selector,
+#rps-app.rps-game-active #rps-difficulty-selector,
+#rps-app.rps-game-active .game-header {
+  display: none !important;
+}
+
+/* Play panel — full-height scrollable column */
+/* FIX: use :not(.hidden) so the ID selector never overrides .hidden {display:none} */
+#rps-play-panel:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 100dvh !important;
+  padding: 0 !important;
+}
+
+#rps-app {
+  width: 100% !important;
+  max-width: 480px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+  /* BUG 3 FIX: was 12px — scorecards were hidden under the fixed hamburger button
+     (top:16px + height:44px = 60px bottom edge, +12px gap = 72px clearance needed).
+     Also overrides the inline style="padding-top:54px" on #rps-app in HTML which
+     was itself insufficient (54px < 60px hamburger bottom edge). */
+  padding: 72px 16px 32px !important;
+  box-sizing: border-box !important;
+}
+
+/* ── RPS pick buttons — fix label overflow ── */
+.rps-btn-row {
+  display: flex !important;
+  gap: clamp(6px, 2.5vw, 12px) !important;
+  width: 100% !important;
+}
+
+.rps-btn {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: clamp(12px, 4vw, 20px) clamp(4px, 1.5vw, 8px) !important;
+  border-radius: 14px !important;
+  min-width: 0 !important;   /* allow flex shrink */
+  overflow: hidden !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s !important;
+}
+
+/* Emoji: responsive size */
+.rps-btn > span:first-child,
+.rps-btn .rps-btn-emoji {
+  font-size: clamp(1.6rem, 6vw, 2.4rem) !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+/* Text label under emoji — NEVER overflow/wrap oddly */
+.rps-btn span:not(:first-child),
+.rps-btn span:last-child {
+  font-size: clamp(0.52rem, 1.8vw, 0.72rem) !important;
+  letter-spacing: 0.08em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+.rps-btn:active {
+  transform: scale(0.96) !important;
+  transition-duration: 0.07s !important;
+}
+
+/* Choices display area */
+#rps-choices-display {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 14px 12px !important;
+  min-height: 90px !important;
+  box-sizing: border-box !important;
+}
+
+.rps-choice-box {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.rps-choice-emoji {
+  font-size: clamp(1.8rem, 7vw, 2.8rem) !important;
+}
+
+#rps-result-text {
+  flex-shrink: 0 !important;
+  font-size: clamp(1rem, 4vw, 1.4rem) !important;
+  min-width: clamp(52px, 15vw, 80px) !important;
+  text-align: center !important;
+}
+
+/* Scorecards */
+#rps-scorecards {
+  width: 100% !important;
+  gap: 8px !important;
+}
+
+.rps-scorecard {
+  padding: 12px 8px !important;
+}
+
+/* Pick prompt text */
+.rps-pick-prompt {
+  font-size: clamp(0.68rem, 2.5vw, 0.8rem) !important;
+  letter-spacing: 0.08em !important;
+}
 
 
-/* topbar spacing — see comprehensive fix block below */
+/* ══════════════════════════════════════════════════════════
+   § 3  CONNECT DOTS DUEL — Complete UI overhaul
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Whole play wrapper ── */
+/* FIX: use :not(.hidden) so .hidden { display:none !important } is never
+   overridden. Both rules are !important with equal specificity (one class
+   each); the last declaration wins in CSS — scoping to :not(.hidden) means
+   this display:flex only applies when the panel is actually visible. */
+.cdd-play-wrap:not(.hidden) {
+  display: flex !important;
+}
+.cdd-play-wrap {
+  min-height: 100dvh !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  background: linear-gradient(160deg, #05071a 0%, #0a0d20 60%, #070b18 100%) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+/* ── App column ── */
+#cdd-app {
+  width: 100% !important;
+  max-width: 560px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 14px 24px !important;
+  box-sizing: border-box !important;
+  flex: 1 !important;
+}
+
+/* ── Header: title + mode label, single row ── */
+#cdd-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  /* BUG 5 FIX: was padding: 4px 2px 0 which overrode the inline padding-top:54px.
+     Hamburger is top:16px + height:44px = 60px bottom edge; +12px gap = 72px needed. */
+  padding: 72px 2px 0 !important;
+}
+
+#cdd-title {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(0.9rem, 3.5vw, 1.2rem) !important;
+  font-weight: 900 !important;
+  margin: 0 !important;
+  background: linear-gradient(90deg, var(--cdd-accent), #ffcc80) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+#cdd-mode-label {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.18em !important;
+  color: var(--cdd-accent) !important;
+  opacity: 0.8 !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+  background: rgba(255,145,0,0.12) !important;
+  border: 1px solid rgba(255,145,0,0.25) !important;
+  border-radius: 20px !important;
+  padding: 2px 10px !important;
+}
+
+/* ── Scoreboard: horizontal, card + vs + card ── */
+#cdd-scoreboard {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.cdd-score-card {
+  flex: 1 !important;
+  background: rgba(255,255,255,0.04) !important;
+  border: 1.5px solid rgba(255,255,255,0.08) !important;
+  border-radius: 12px !important;
+  padding: 10px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s !important;
+}
+
+.cdd-score-card.cdd-active-p1 {
+  background: rgba(96,165,250,0.09) !important;
+  border-color: var(--cdd-p1) !important;
+  box-shadow: 0 0 16px -4px var(--cdd-p1-glow) !important;
+}
+
+.cdd-score-card.cdd-active-p2 {
+  background: rgba(251,113,133,0.09) !important;
+  border-color: var(--cdd-p2) !important;
+  box-shadow: 0 0 16px -4px var(--cdd-p2-glow) !important;
+}
+
+.cdd-player-label {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.cdd-score-val {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(1.6rem, 5vw, 2.2rem) !important;
+  font-weight: 900 !important;
+  color: #f1f5f9 !important;
+  line-height: 1 !important;
+}
+
+#cdd-vs-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  width: 32px !important;
+}
+
+.cdd-vs {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  color: rgba(255,255,255,0.2) !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* ── Turn indicator ── */
+#cdd-turn-banner {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+#cdd-turn-indicator {
+  padding: 8px 24px !important;
+  border-radius: 30px !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  transition: border-color 0.3s, color 0.3s, background 0.3s, box-shadow 0.3s !important;
+  border: 1.5px solid rgba(255,255,255,0.1) !important;
+  background: rgba(255,255,255,0.03) !important;
+  color: #94a3b8 !important;
+}
+
+/* ── Grid wrap — responsive, centered, never overflows ── */
+#cdd-grid-wrap {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 4px 0 !important;
+  overflow: visible !important;
+  /* Let grid set its own size; wrapper just centers it */
+  flex-shrink: 0 !important;
+}
+
+#cdd-grid {
+  /* JS sets column/row sizes via style. CSS ensures it fits viewport. */
+  max-width: min(500px, calc(100vw - 28px)) !important;
+  max-height: min(500px, calc(100vw - 28px)) !important;
+  user-select: none !important;
+  touch-action: none !important;
+}
+
+/* ── Line hit-targets: larger on touch ── */
+@media (pointer: coarse) {
+  .cdd-line.h-line::before {
+    top:    -16px !important;
+    bottom: -16px !important;
+  }
+  .cdd-line.v-line::before {
+    left:  -16px !important;
+    right: -16px !important;
+  }
+  /* Slightly thicker visual lines on mobile */
+  .cdd-line.h-line::after {
+    height: 9px !important;
+  }
+  .cdd-line.v-line::after {
+    width: 9px !important;
+  }
+}
+
+/* ── Controls row (Reset button) ── */
+#cdd-controls {
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+#cdd-reset-btn {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  padding: 10px 28px !important;
+  border-radius: 30px !important;
+  background: rgba(255,145,0,0.10) !important;
+  border: 1.5px solid rgba(255,145,0,0.3) !important;
+  color: var(--cdd-accent) !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: background 0.2s, transform 0.1s !important;
+  min-height: 44px !important;
+}
+
+#cdd-reset-btn:hover { background: rgba(255,145,0,0.18) !important; }
+#cdd-reset-btn:active { transform: scale(0.96) !important; }
+
+/* ── Result overlay ── */
+#cdd-result-inner {
+  background: linear-gradient(160deg, #0d1029, #10142e) !important;
+  border: 1.5px solid rgba(255,145,0,0.3) !important;
+  border-radius: 20px !important;
+  padding: clamp(20px, 6vw, 32px) clamp(16px, 5vw, 28px) !important;
+  max-width: min(320px, 92vw) !important;
+  width: 100% !important;
+  box-shadow: 0 0 60px -12px rgba(255,145,0,0.3) !important;
+}
+
+#cdd-result-icon {
+  font-size: clamp(2rem, 7vw, 2.8rem) !important;
+  margin-bottom: 10px !important;
+}
+
+#cdd-result-title {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(1rem, 4vw, 1.3rem) !important;
+  font-weight: 900 !important;
+  color: #f1f5f9 !important;
+  margin-bottom: 8px !important;
+}
+
+#cdd-result-scores {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: clamp(0.85rem, 3vw, 0.95rem) !important;
+  color: #94a3b8 !important;
+  margin-bottom: 20px !important;
+  line-height: 1.5 !important;
+}
+
+#cdd-result-btns {
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+}
+
+/* Play Again — accent solid fill */
+#cdd-play-again {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+  padding: 11px 22px !important;
+  border-radius: 30px !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--cdd-accent), #ffcc02) !important;
+  color: #000 !important;
+  cursor: pointer !important;
+  min-height: 44px !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: transform 0.15s, filter 0.15s !important;
+  box-shadow: 0 4px 20px -4px rgba(255,145,0,0.5) !important;
+}
+#cdd-play-again:hover { filter: brightness(1.1) !important; transform: translateY(-1px) !important; }
+#cdd-play-again:active { transform: scale(0.96) !important; }
+
+/* Hub button — ghost pill */
+#cdd-result-hub {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  padding: 11px 22px !important;
+  border-radius: 30px !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1.5px solid rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.7) !important;
+  cursor: pointer !important;
+  min-height: 44px !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+#cdd-result-hub:hover { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.3) !important; }
+#cdd-result-hub:active { transform: scale(0.96) !important; }
+
+/* ── CDD mobile overrides ── */
+@media (max-width: 480px) {
+  #cdd-app {
+    padding: 8px 10px 20px !important;
+    gap: 8px !important;
+  }
+
+  .cdd-score-card {
+    padding: 8px 6px !important;
+    border-radius: 10px !important;
+  }
+
+  .cdd-player-label {
+    font-size: 0.6rem !important;
+  }
+
+  .cdd-score-val {
+    font-size: 1.5rem !important;
+  }
+
+  #cdd-turn-indicator {
+    font-size: 0.78rem !important;
+    padding: 7px 18px !important;
+  }
+
+  #cdd-reset-btn {
+    font-size: 0.78rem !important;
+    padding: 9px 22px !important;
+  }
+}
+
+/* ── END GAME UI FIXES ── */
 
 /* ══════════════════════════════════════════════════════════════
-   TOPBAR-REMOVAL SPACING FIX
-   Every play panel that previously had a .dz-topbar (~52px sticky
-   header) needs top padding to clear the hamburger button.
+   IN-GAME FLOATING MENU BUTTON
    ══════════════════════════════════════════════════════════════ */
-
-/* Standard inline panels */
-#ttt-play-panel,
-#rps-play-panel,
-#tap-play-panel,
-#d2048-play-panel  { padding-top: 68px !important; }
-
-#c4-play-panel     { padding-top: 68px !important; }
-#ah-play-panel     { padding-top: 68px !important; }
-#pb-play-panel     { padding-top: 68px !important; }
-
-.mfd-play-wrap     { padding-top: 68px !important; }
-.cdd-play-wrap     { padding-top: 68px !important; }
-.chess-play-wrap,
-#chess-play-panel  { padding-top: 68px !important; }
-#darts-play-panel  { padding-top: 68px !important; }
-
-/* Battleship and Checkers live directly inside their screen div */
-#screen-battleship { padding-top: 68px !important; }
-#screen-checkers   { padding-top: 68px !important; }
-
-/* Ping Pong: topbar was inside #pp-header — push score row down instead */
-#pp-header         { padding-top: 56px !important; }
-
-/* Fixed-position full-screen panels */
-#tetris-play       { padding-top: 68px !important; }
-#rd-play           { padding-top: 68px !important; }
-#ludo-play         { padding-top: 68px !important; }
-#carrom-play       { padding-top: 68px !important; }
-#sdk-play          { padding-top: 68px !important; }
-
-/* ══════════════════════════════════════════════════════════════════
-   DUELZONE MOBILE  —  Single authoritative block
-   All game panels scroll-free, fit within 100dvh on any phone.
-   No conflicting !important blocks above or below.
-   ══════════════════════════════════════════════════════════════════ */
-
-
-/* ─── 0. Global scrollbar erasure (every browser) ─────────────── */
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.dz-ig-menu-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 9500;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(13, 15, 28, 0.92);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.55);
 }
-*::-webkit-scrollbar {
-  display: none;
+.dz-ig-menu-btn:hover {
+  background: rgba(0,229,255,0.12);
+  border-color: rgba(0,229,255,0.45);
+}
+.dz-ig-menu-btn.open {
+  background: rgba(0,229,255,0.18);
+  border-color: rgba(0,229,255,0.6);
+}
+.igm-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 20px;
+}
+.igm-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.82);
+  transition: all 0.25s ease;
+  transform-origin: center;
+}
+.dz-ig-menu-btn.open .igm-line:first-child  { transform: translateY(7px) rotate(45deg); background: #00e5ff; }
+.dz-ig-menu-btn.open .igm-line--mid          { opacity: 0; transform: scaleX(0); }
+.dz-ig-menu-btn.open .igm-line--bot          { transform: translateY(-7px) rotate(-45deg); background: #00e5ff; }
+
+/* ══ SIDE PANEL ══ */
+.dz-ig-menu {
+  position: fixed;
+  top: 0; left: 0;
+  width: 270px;
+  height: 100dvh;
+  z-index: 9600;
+  background: linear-gradient(160deg, #0b0d1a 0%, #0f1120 100%);
+  border-right: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 6px 0 40px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+.dz-ig-menu.open { transform: translateX(0); }
+
+.igm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.igm-header-logo {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,#00e5ff,#0055ff);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.68rem; font-weight: 900;
+  color: #fff; letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.igm-header-title {
+  flex: 1;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.55);
+}
+.igm-close-x {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.38); padding: 4px;
+  border-radius: 6px; display: flex; align-items: center;
+  transition: color 0.18s;
+}
+.igm-close-x:hover { color: rgba(255,255,255,0.85); }
+.igm-close-x svg { width: 16px; height: 16px; }
+
+.igm-body {
+  flex: 1; padding: 14px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+
+.igm-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 13px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  text-align: left;
+}
+.igm-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); transform: translateX(3px); }
+.igm-item:active { transform: translateX(1px); }
+
+#igm-hub-btn:hover   { background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.3); }
+#igm-hub-btn:hover   .igm-item-icon { background: rgba(0,229,255,0.15); color: #00e5ff; }
+#igm-setup-btn:hover { background: rgba(170,0,255,0.08); border-color: rgba(170,0,255,0.3); }
+#igm-setup-btn:hover .igm-item-icon { background: rgba(170,0,255,0.15); color: #aa00ff; }
+#igm-volume-btn:hover { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.3); }
+#igm-volume-btn:hover .igm-item-icon { background: rgba(0,230,118,0.15); color: #00e676; }
+
+.igm-item-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.6); flex-shrink: 0;
+  transition: background 0.18s, color 0.18s;
+}
+.igm-item-icon svg { width: 17px; height: 17px; }
+.igm-item-label { flex: 1; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.82); letter-spacing: 0.03em; }
+.igm-item-arrow { color: rgba(255,255,255,0.22); font-size: 1.1rem; flex-shrink: 0; }
+
+.igm-vol-toggle {
+  font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.08em; color: #00e676;
+  background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.28);
+  border-radius: 5px; padding: 2px 7px; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.igm-vol-toggle.off { color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+
+.igm-footer {
+  padding: 12px 14px;
+  font-family: 'Rajdhani', sans-serif; font-size: 0.67rem;
+  color: rgba(255,255,255,0.18); letter-spacing: 0.08em;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0; text-align: center;
+}
+
+.dz-ig-menu-backdrop {
+  position: fixed; inset: 0; z-index: 9550;
+  background: rgba(0,0,0,0.52);
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s;
+}
+.dz-ig-menu-backdrop.active { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 480px) {
+  .dz-ig-menu { width: 250px; }
+  .dz-ig-menu-btn { top: 8px; left: 8px; width: 40px; height: 40px; }
+}
+
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DUELZONE — DEFINITIVE MENU & UI OVERRIDES
+   Single source of truth — these rules win over everything above.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Hub hamburger button: fixed top-left ─────────────────── */
+#dz-hamburger,
+.hamburger-btn {
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1100 !important;
+}
+
+/* ─── 2. Hub left-slide panel ─────────────────────────────────── */
+#dz-dropdown,
+.dz-dropdown {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  bottom: 0 !important;
+  width: 290px !important;
+  max-width: 88vw !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-right: 1px solid rgba(255,255,255,0.09) !important;
+  background: linear-gradient(160deg, #0b0d1a 0%, #0f1120 100%) !important;
+  box-shadow: 6px 0 48px rgba(0,0,0,0.75) !important;
+  z-index: 1090 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateX(-100%) !important;
+  transform-origin: left center !important;
+  transition: opacity 0.28s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.28s !important;
+  pointer-events: none !important;
+}
+#dz-dropdown.open,
+.dz-dropdown.open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateX(0) !important;
+  pointer-events: auto !important;
+}
+#dz-menu-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1085 !important;
+  background: rgba(0,0,0,0.55) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+  display: none !important;
+}
+#dz-menu-backdrop.active { display: block !important; }
+
+/* ─── 3. In-game menu button ──────────────────────────────────── */
+#dz-ig-menu-btn {
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  z-index: 1100 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  background: rgba(13,15,28,0.92) !important;
+  border: 1.5px solid rgba(255,255,255,0.15) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  cursor: pointer !important;
+  display: none !important;           /* shown only in games via body.dz-in-game */
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.55) !important;
+  transition: background 0.2s, border-color 0.2s !important;
+  padding: 0 !important;
+  flex-direction: column !important;
+}
+#dz-ig-menu-btn:hover  { background: rgba(0,229,255,0.12) !important; border-color: rgba(0,229,255,0.45) !important; }
+#dz-ig-menu-btn.open   { background: rgba(0,229,255,0.18) !important; border-color: rgba(0,229,255,0.6) !important; }
+#dz-ig-menu-btn .igm-lines {
+  display: flex !important; flex-direction: column !important;
+  gap: 5px !important; width: 20px !important; align-items: center !important;
+}
+#dz-ig-menu-btn .igm-line {
+  display: block !important; width: 20px !important; height: 2px !important;
+  border-radius: 2px !important; background: rgba(255,255,255,0.85) !important;
+  transition: all 0.25s ease !important; transform-origin: center !important;
+}
+#dz-ig-menu-btn.open .igm-line:first-child { transform: translateY(7px) rotate(45deg) !important; background: #00e5ff !important; }
+#dz-ig-menu-btn.open .igm-line--mid        { opacity: 0 !important; transform: scaleX(0) !important; }
+#dz-ig-menu-btn.open .igm-line--bot        { transform: translateY(-7px) rotate(-45deg) !important; background: #00e5ff !important; }
+
+/* ── Hide game menu btn on hub, show hamburger on hub ──────────
+   Pure CSS — no JS needed. Uses the :not(.hidden) state of screen-hub.
+   When #screen-hub is visible (!.hidden), the game btn hides.
+   When #screen-hub is hidden, the game btn shows. ──────────── */
+
+/* Game btn hidden when hub is active */
+#screen-hub:not(.hidden) ~ * #dz-ig-menu-btn,
+body:has(#screen-hub:not(.hidden)) #dz-ig-menu-btn {
+  display: none !important;
+}
+
+/* Hub hamburger hidden when a game screen is active */
+body:has([id^="screen-"]:not(#screen-hub):not(.hidden)) #dz-hamburger {
+  display: none !important;
+}
+
+/* ─── 4. In-game slide panel ──────────────────────────────────── */
+#dz-ig-menu {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important;
+  width: 270px !important; max-width: 88vw !important; height: 100dvh !important;
+  z-index: 10500 !important;
+  background: linear-gradient(160deg, #0b0d1a 0%, #0f1120 100%) !important;
+  border-right: 1px solid rgba(255,255,255,0.09) !important;
+  box-shadow: 6px 0 48px rgba(0,0,0,0.8) !important;
+  display: flex !important; flex-direction: column !important;
+  transform: translateX(-100%) !important;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+  overflow-y: auto !important; overflow-x: hidden !important;
+}
+#dz-ig-menu.open { transform: translateX(0) !important; }
+
+/* In-game panel internals */
+.igm-header {
+  display: flex !important; align-items: center !important; gap: 10px !important;
+  padding: 16px 14px !important;
+  background: rgba(255,255,255,0.03) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  flex-shrink: 0 !important;
+}
+.igm-header-logo {
+  width: 34px !important; height: 34px !important; border-radius: 8px !important;
+  background: linear-gradient(135deg,#00e5ff,#0055ff) !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.68rem !important; font-weight: 900 !important;
+  color: #fff !important; flex-shrink: 0 !important; letter-spacing: 0.04em !important;
+}
+.igm-header-title {
+  flex: 1 !important; font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.62rem !important; font-weight: 700 !important;
+  letter-spacing: 0.18em !important; color: rgba(255,255,255,0.55) !important;
+}
+.igm-close-x {
+  background: none !important; border: none !important; cursor: pointer !important;
+  color: rgba(255,255,255,0.38) !important; padding: 4px !important;
+  border-radius: 6px !important; display: flex !important; align-items: center !important;
+  transition: color 0.18s !important;
+}
+.igm-close-x:hover { color: rgba(255,255,255,0.9) !important; }
+.igm-close-x svg   { width: 16px !important; height: 16px !important; }
+.igm-body {
+  flex: 1 !important; padding: 16px 10px !important;
+  display: flex !important; flex-direction: column !important;
+  gap: 8px !important; overflow-y: auto !important;
+}
+.igm-item {
+  display: flex !important; align-items: center !important; gap: 12px !important;
+  width: 100% !important; padding: 14px 12px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  background: rgba(255,255,255,0.03) !important;
+  cursor: pointer !important;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s !important;
+  text-align: left !important; color: inherit !important;
+  font-family: inherit !important; box-sizing: border-box !important;
+}
+.igm-item:hover { background: rgba(255,255,255,0.07) !important; border-color: rgba(255,255,255,0.14) !important; transform: translateX(3px) !important; }
+#igm-hub-btn:hover    { background: rgba(0,229,255,0.08)   !important; border-color: rgba(0,229,255,0.3)   !important; }
+#igm-setup-btn:hover  { background: rgba(170,0,255,0.08)   !important; border-color: rgba(170,0,255,0.3)   !important; }
+#igm-volume-btn:hover { background: rgba(0,230,118,0.08)   !important; border-color: rgba(0,230,118,0.3)   !important; }
+#igm-hub-btn:hover    .igm-item-icon { background: rgba(0,229,255,0.15)   !important; color: #00e5ff  !important; }
+#igm-setup-btn:hover  .igm-item-icon { background: rgba(170,0,255,0.15)   !important; color: #aa00ff  !important; }
+#igm-volume-btn:hover .igm-item-icon { background: rgba(0,230,118,0.15)   !important; color: #00e676  !important; }
+.igm-item-icon {
+  width: 36px !important; height: 36px !important; border-radius: 8px !important;
+  background: rgba(255,255,255,0.06) !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  color: rgba(255,255,255,0.6) !important; flex-shrink: 0 !important;
+  transition: background 0.18s, color 0.18s !important;
+}
+.igm-item-icon svg { width: 17px !important; height: 17px !important; }
+.igm-item-label {
+  flex: 1 !important; font-family: 'Rajdhani', sans-serif !important;
+  font-size: 1rem !important; font-weight: 600 !important;
+  color: rgba(255,255,255,0.85) !important; letter-spacing: 0.03em !important;
+}
+.igm-item-arrow { color: rgba(255,255,255,0.22) !important; font-size: 1.1rem !important; flex-shrink: 0 !important; }
+.igm-vol-toggle {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.6rem !important; font-weight: 700 !important; letter-spacing: 0.08em !important;
+  color: #00e676 !important; background: rgba(0,230,118,0.1) !important;
+  border: 1px solid rgba(0,230,118,0.28) !important;
+  border-radius: 5px !important; padding: 3px 8px !important; flex-shrink: 0 !important;
+  transition: all 0.2s !important;
+}
+.igm-vol-toggle.off {
+  color: rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.igm-footer {
+  padding: 14px !important; font-family: 'Rajdhani', sans-serif !important;
+  font-size: 0.67rem !important; color: rgba(255,255,255,0.18) !important;
+  letter-spacing: 0.08em !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+  flex-shrink: 0 !important; text-align: center !important;
+}
+#dz-ig-menu-backdrop {
+  position: fixed !important; inset: 0 !important; z-index: 10490 !important;
+  background: rgba(0,0,0,0.6) !important;
+  backdrop-filter: blur(3px) !important; -webkit-backdrop-filter: blur(3px) !important;
+  opacity: 0 !important; pointer-events: none !important; transition: opacity 0.28s !important;
+}
+#dz-ig-menu-backdrop.active { opacity: 1 !important; pointer-events: auto !important; }
+
+/* ─── 5. Z-index stack ────────────────────────────────────────── */
+#dz-portrait-warn                    { z-index: 100000 !important; }
+#dz-ad-overlay, #dz-ad-interstitial  { z-index: 99999  !important; }
+#dz-loading-overlay, #launch-overlay { z-index: 50000  !important; }
+.lm-modal                            { z-index: 11000  !important; }
+#dz-legal-backdrop                   { z-index: 10900  !important; }
+.dz-side-panel                       { z-index: 1095   !important; }
+#dz-splash                           { z-index: 99990  !important; }
+
+/* ─── 6. Hide ALL in-game nav buttons — menu handles navigation ─ */
+/* The buttons remain in DOM for JS to call .click() programmatically */
+
+.ghp-back-hub,
+.ghp-back-v2,
+.ghp-back-game,
+.dz-topbar {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* Standalone hub/setup buttons in result & control areas */
+#pb-back-hub, #mfd-hub-btn,
+#chess-result-hub, #chess-setup-btn,
+#bs-hub-btn, #bs-hub-btn2, #bs-setup-btn,
+#ck-hub-btn, #ck-hub-btn2, #ck-setup-btn,
+#darts-result-hub,
+#pp-hub-btn, #pp-hub-top-btn,
+#tetris-result-hub,
+#rd-result-hub,
+#ludo-result-hub,
+#carrom-result-hub,
+#sdk-result-hub,
+#cricket-hub-btn,
+.card-setup-btn,
+.ah-back-btn {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ─── 7. Game home panels: top padding so content clears menu btn  */
+.game-home-panel {
+  padding-top: 70px !important;
+  box-sizing: border-box !important;
+}
+.ghp-wrap {
+  padding-top: 0 !important;
+}
+
+/* ─── 8. Fix Ping Pong layout ─────────────────────────────────── */
+#pp-header {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+#pp-wrap {
+  padding-top: 0 !important;
+}
+
+/* ─── 9. Fix AH scorebar so back btn gap is gone ──────────────── */
+.ah-scorebar {
+  padding-left: 14px !important;
+}
+
+/* ─── 10. Fix Battleship/Checkers outer screens ──────────────── */
+#screen-battleship,
+#screen-checkers {
+  padding-top: 0 !important;
+}
+
+/* ── Cricket, Battleship, Checkers — scroll from top ── */
+/* FIX: use :not(.hidden) so .hidden {display:none} is never overridden */
+#cricket-app,
+#cricket-setup:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: 100dvh !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  padding-top: 62px !important;
+  padding-bottom: 32px !important;
+}
+
+#bs-app,
+#ck-app {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: 100dvh !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ── Game home panel: always from top, scrollable ── */
+.game-home-panel {
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100dvh !important;
+  scroll-behavior: smooth !important;
+}
+
+/* ── ghp-wrap: centered column content starting at top ── */
+.ghp-wrap {
+  width: 100% !important;
+  max-width: 520px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding-bottom: 32px !important;
+}
+
+/* ─── 11. Mobile ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  #dz-hamburger, .hamburger-btn, #dz-ig-menu-btn {
+    top: 10px !important;
+    left: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+  #dz-dropdown, .dz-dropdown, #dz-ig-menu {
+    width: 84vw !important;
+    max-width: 300px !important;
+  }
+  .game-home-panel {
+    padding-top: 60px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DUELZONE — COMPREHENSIVE UI FIX PATCH
+   Applied: scrollbar removal + all broken layout fixes
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. Force-hide ALL scrollbars (belt & suspenders) ──── */
+html, body,
+.game-home-panel, .ghp-wrap, .lm-content, .lm-sidebar,
+.dz-dropdown, #dz-dropdown, .dz-side-panel,
+.panel-list, #chess-move-list, #screen-hub,
+.pb-history, #cdd-grid-wrap, .lm-shell,
+#cricket-app, #cricket-setup, #bs-app, #ck-app,
+.mfd-play-wrap, .cdd-play-wrap, .chess-play-wrap,
+#ludo-app, #sdk-play, #carrom-play, #tetris-play, #rd-play {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.game-home-panel::-webkit-scrollbar,
+.ghp-wrap::-webkit-scrollbar,
+.lm-content::-webkit-scrollbar,
+.lm-sidebar::-webkit-scrollbar,
+.dz-dropdown::-webkit-scrollbar,
+#dz-dropdown::-webkit-scrollbar,
+.dz-side-panel::-webkit-scrollbar,
+.panel-list::-webkit-scrollbar,
+#chess-move-list::-webkit-scrollbar,
+#screen-hub::-webkit-scrollbar,
+.pb-history::-webkit-scrollbar,
+#cdd-grid-wrap::-webkit-scrollbar,
+.lm-shell::-webkit-scrollbar,
+#cricket-app::-webkit-scrollbar,
+#bs-app::-webkit-scrollbar,
+#ck-app::-webkit-scrollbar,
+#ludo-app::-webkit-scrollbar,
+#sdk-play::-webkit-scrollbar,
+#carrom-play::-webkit-scrollbar,
+#tetris-play::-webkit-scrollbar,
+#rd-play::-webkit-scrollbar {
+  display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
 
+/* ── 2. Portrait warning overlay — base styles ─────────── */
+#dz-portrait-warn {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(4,6,18,0.97);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 24px;
+  text-align: center;
+}
 
-/* ─── 1. All play panels: overflow:hidden, no scroll ──────────── */
-[id$="-play"],
-[id$="-play-panel"],
-[id^="screen-"]:not(#screen-hub),
-#pp-wrap, .cdd-play-wrap, .mfd-play-wrap,
-.chess-play-wrap, .ah-play-wrap {
+.pw-icon {
+  font-size: 3.5rem;
+  animation: pwBounce 1.4s ease-in-out infinite;
+}
+@keyframes pwBounce {
+  0%,100% { transform: rotate(-15deg); }
+  50%      { transform: rotate(15deg); }
+}
+.pw-accent-line {
+  width: 56px; height: 3px;
+  background: linear-gradient(90deg, #00e5ff, #aa00ff);
+  border-radius: 2px;
+}
+.pw-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #fff;
+  letter-spacing: 0.1em;
+}
+.pw-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.55);
+  max-width: 280px;
+  line-height: 1.5;
+}
+.pw-skip {
+  margin-top: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 10px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pw-skip:hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.35);
+  color: #00e5ff;
+}
+
+/* ── 3. In-game floating menu button ───────────────────── */
+.dz-ig-menu-btn {
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  right: auto !important;
+  z-index: 9000 !important;
+  width: 44px !important;
+  height: 44px !important;
+  background: rgba(7,8,15,0.85) !important;
+  border: 1.5px solid rgba(0,229,255,0.2) !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.45) !important;
+  transition: border-color 0.22s, background 0.22s, box-shadow 0.22s !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.dz-ig-menu-btn.open {
+  border-color: rgba(0,229,255,0.6) !important;
+  background: rgba(0,229,255,0.1) !important;
+  box-shadow: 0 0 24px rgba(0,229,255,0.25), 0 4px 20px rgba(0,0,0,0.45) !important;
+}
+.igm-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.igm-line {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: rgba(255,255,255,0.75);
+  border-radius: 2px;
+  transition: all 0.32s cubic-bezier(0.23,1,0.32,1);
+  transform-origin: center;
+}
+
+/* ── 4. In-game side menu panel ────────────────────────── */
+/* dz-ig-menu: defined above via #dz-ig-menu ID rule */
+.igm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.igm-header-logo {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,#00e5ff,#aa00ff);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem; font-weight: 900;
+  color: #fff; letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.igm-header-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.65);
+  flex: 1;
+}
+.igm-close-x {
+  background: none; border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer; padding: 6px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.igm-close-x:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.igm-close-x svg { width: 14px; height: 14px; }
+.igm-body {
+  flex: 1; padding: 10px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  overflow: hidden;
+}
+.igm-item {
+  width: 100%;
+  display: flex; align-items: center;
+  gap: 12px; padding: 12px 12px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.18s;
+  text-align: left;
+}
+.igm-item:hover { background: rgba(255,255,255,0.05); }
+.igm-item-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.igm-item-icon svg { width: 16px; height: 16px; }
+.igm-icon--hub   { background: rgba(0,229,255,0.12); color: #00e5ff; }
+.igm-icon--setup { background: rgba(170,0,255,0.12); color: #aa00ff; }
+.igm-icon--vol   { background: rgba(0,230,118,0.12); color: #00e676; }
+.igm-item-label {
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.92rem; font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.03em;
+}
+.igm-item-arrow {
+  color: rgba(255,255,255,0.2);
+  font-size: 1rem;
+}
+.igm-vol-toggle {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0,230,118,0.15);
+  color: #00e676;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(0,230,118,0.2);
+}
+.igm-vol-toggle.off {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.1);
+}
+.igm-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* ── 5. Ad overlay text styles ─────────────────────────── */
+#dz-ad-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+#dz-ad-timer-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  flex: 1;
+  text-align: center;
+}
+#dz-ad-skip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.5);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#dz-ad-skip:not(:disabled):hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.35);
+  color: #00e5ff;
+}
+#dz-ad-skip:disabled { opacity: 0.35; cursor: not-allowed; }
+#dz-ad-content {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255,255,255,0.02);
+}
+#dz-ad-footer {
+  padding: 10px 16px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── 6. Loading overlay ────────────────────────────────── */
+.dz-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  background: rgba(4,6,18,0.97);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.dz-loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.dz-loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  padding: 40px 32px;
+}
+.dz-loading-spinner {
+  position: relative;
+  width: 72px; height: 72px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dz-spin-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+.dz-spin-ring--1 {
+  border-top-color: #00e5ff;
+  animation: dzSpin 1.1s linear infinite;
+}
+.dz-spin-ring--2 {
+  inset: 8px;
+  border-right-color: #aa00ff;
+  animation: dzSpin 0.8s linear infinite reverse;
+}
+.dz-spin-ring--3 {
+  inset: 16px;
+  border-bottom-color: #f50057;
+  animation: dzSpin 1.4s linear infinite;
+}
+@keyframes dzSpin { to { transform: rotate(360deg); } }
+.dz-spin-icon {
+  font-size: 1.4rem;
+  z-index: 1;
+  animation: dzIconPulse 1s ease-in-out infinite alternate;
+}
+@keyframes dzIconPulse { from { transform: scale(0.9); } to { transform: scale(1.1); } }
+.dz-loading-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+}
+.dz-loading-bar-wrap {
+  width: 200px;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.dz-loading-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00e5ff, #aa00ff);
+  border-radius: 2px;
+  transition: width 0.12s linear;
+}
+.dz-loading-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── 7. Splash screen ──────────────────────────────────── */
+.dz-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: #07080f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.dz-splash--exit {
+  animation: dzSplashExit 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
+}
+@keyframes dzSplashExit {
+  to { opacity: 0; transform: scale(1.04); }
+}
+.dz-splash--gone { display: none !important; }
+.dz-splash-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+.dz-splash-rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.dz-splash-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.1);
+  animation: dzRingPulse 3s ease-in-out infinite;
+}
+.dz-splash-ring--1 { width: 300px; height: 300px; animation-delay: 0s; }
+.dz-splash-ring--2 { width: 480px; height: 480px; animation-delay: 0.5s; border-color: rgba(170,0,255,0.08); }
+.dz-splash-ring--3 { width: 660px; height: 660px; animation-delay: 1s; border-color: rgba(245,0,87,0.06); }
+@keyframes dzRingPulse {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 0.3; }
+}
+.dz-splash-center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+}
+.dz-splash-logo-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.dz-splash-logo { height: 80px; width: auto; object-fit: contain; filter: drop-shadow(0 0 32px rgba(0,229,255,0.5)); animation: dzLogoPulse 2s ease-in-out infinite alternate; }
+@keyframes dzLogoPulse { from { filter: drop-shadow(0 0 24px rgba(0,229,255,0.4)); } to { filter: drop-shadow(0 0 48px rgba(0,229,255,0.7)); } }
+.dz-splash-logo-glow { position: absolute; inset: -20px; background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 70%); pointer-events: none; }
+.dz-splash-wordmark {
+  display: flex; gap: 0;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 8vw, 3.6rem);
+  letter-spacing: 0.14em;
+  background: linear-gradient(90deg, #00e5ff 0%, #b06aff 50%, #f50057 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.dz-splash-char {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: dzCharIn 0.45s cubic-bezier(0.23,1,0.32,1) calc(0.5s + var(--i) * 0.06s) forwards;
+}
+.dz-splash-char--gap { margin-left: 0.22em; }
+@keyframes dzCharIn { to { opacity: 1; transform: translateY(0); } }
+.dz-splash-tagline {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(0.65rem, 1.5vw, 0.82rem);
+  letter-spacing: 0.45em;
+  color: rgba(255,255,255,0.38);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: dzFadeIn 0.5s ease 1.2s forwards;
+}
+.dz-splash-bar-wrap {
+  width: 160px; height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: 0;
+  animation: dzFadeIn 0.5s ease 1.3s forwards;
+}
+.dz-splash-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #00e5ff, #aa00ff, #f50057);
+  border-radius: 2px;
+}
+.dz-splash-loading-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.22);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: dzFadeIn 0.5s ease 1.4s forwards;
+}
+@keyframes dzFadeIn { to { opacity: 1; } }
+
+/* ── 8. Card save button ───────────────────────────────── */
+/* ── 9. Result screen buttons ──────────────────────────── */
+.ghp-result-btn-primary {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rb-color, #00e5ff) 20%, transparent), color-mix(in srgb, var(--rb-color, #00e5ff) 10%, transparent));
+  border: 1.5px solid color-mix(in srgb, var(--rb-color, #00e5ff) 50%, transparent);
+  color: var(--rb-color, #00e5ff);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.22s;
+}
+.ghp-result-btn-primary:hover {
+  background: color-mix(in srgb, var(--rb-color, #00e5ff) 20%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--rb-color, #00e5ff) 35%, transparent);
+  transform: translateY(-1px);
+}
+.ghp-result-btn-secondary {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ghp-result-btn-secondary:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.75);
+}
+
+/* ── 10. Ludo result animation ─────────────────────────── */
+@keyframes ldResIn {
+  from { opacity: 0; transform: scale(0.88) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── 11. Prevent any scrollbar on all overflow:auto containers */
+[style*="overflow-y: auto"],
+[style*="overflow-y:auto"],
+[style*="overflow: auto"],
+[style*="overflow:auto"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+[style*="overflow-y: auto"]::-webkit-scrollbar,
+[style*="overflow-y:auto"]::-webkit-scrollbar,
+[style*="overflow: auto"]::-webkit-scrollbar,
+[style*="overflow:auto"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* ── 12. Hub screen — ensure no extra scrollbar on grid ── */
+#arena-grid {
+  scrollbar-width: none !important;
+}
+#arena-grid::-webkit-scrollbar { display: none !important; }
+
+/* ── 13. Mobile: hamburger always top-right ────────────── */
+@media (max-width: 600px) {
+  #dz-hamburger, .hamburger-btn {
+    top: 10px !important;
+    right: 10px !important;
+  }
+  .dz-ig-menu-btn {
+    top: 10px !important;
+    left: 10px !important;
+    right: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DUELZONE — MISSING CLASS DEFINITIONS PATCH
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── pb-rule-text (span inside pb-rule-card) ───────────── */
+.pb-rule-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.45;
+  flex: 1;
+}
+.pb-rule-text strong {
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+}
+
+/* ── panel-game-play / panel-save-remove (JS-generated) ── */
+.panel-game-play {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 5px 12px;
+  border-radius: 7px;
+  border: 1px solid rgba(0,229,255,0.3);
+  background: rgba(0,229,255,0.07);
+  color: #00e5ff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.panel-game-play:hover {
+  background: rgba(0,229,255,0.16);
+  border-color: rgba(0,229,255,0.55);
+  box-shadow: 0 0 12px rgba(0,229,255,0.2);
+}
+
+.panel-save-remove {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,50,50,0.2);
+  background: rgba(255,50,50,0.06);
+  color: rgba(255,100,100,0.6);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.panel-save-remove:hover {
+  background: rgba(255,50,50,0.14);
+  color: rgba(255,100,100,0.95);
+  border-color: rgba(255,50,50,0.4);
+}
+
+/* ── lm-vgwa-body (legal modal VGWA section) ───────────── */
+.lm-vgwa-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── ghp-mode-pvp / ghp-mode-bot modifier colors ──────── */
+.ghp-mode-pvp.active,
+.ghp-mode-pvp:hover:not(.active) {
+  border-color: rgba(0,229,255,0.4) !important;
+}
+.ghp-mode-pvp.active {
+  background: rgba(0,229,255,0.08) !important;
+  box-shadow: 0 0 0 1px rgba(0,229,255,0.2) inset, 0 0 20px rgba(0,229,255,0.12) !important;
+}
+.ghp-mode-bot.active,
+.ghp-mode-bot:hover:not(.active) {
+  border-color: rgba(170,0,255,0.4) !important;
+}
+.ghp-mode-bot.active {
+  background: rgba(170,0,255,0.08) !important;
+  box-shadow: 0 0 0 1px rgba(170,0,255,0.2) inset, 0 0 20px rgba(170,0,255,0.12) !important;
+}
+
+/* ── darts option buttons (mode/diff/dout/time) ─────────── */
+.darts-mode-btn,
+.darts-diff-btn,
+.darts-dout-btn,
+.darts-time-btn {
+  /* inherits .diff-btn base styles — just ensure active state */
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.darts-mode-btn:hover,
+.darts-diff-btn:hover,
+.darts-dout-btn:hover,
+.darts-time-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,23,68,0.35);
+  color: rgba(255,255,255,0.85);
+}
+.darts-mode-btn.active,
+.darts-diff-btn.active,
+.darts-dout-btn.active,
+.darts-time-btn.active {
+  background: rgba(255,23,68,0.15);
+  border-color: rgba(255,23,68,0.5);
+  color: #ff1744;
+  box-shadow: 0 0 12px rgba(255,23,68,0.18);
+}
+
+/* ── sdk-diff (sudoku difficulty pills) ─────────────────── */
+.sdk-diff {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(108,99,255,0.2);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sdk-diff:hover {
+  background: rgba(108,99,255,0.1);
+  border-color: rgba(108,99,255,0.4);
+  color: rgba(255,255,255,0.85);
+}
+.sdk-diff.active {
+  background: rgba(108,99,255,0.18);
+  border-color: rgba(108,99,255,0.6);
+  color: #6c63ff;
+  box-shadow: 0 0 14px rgba(108,99,255,0.2);
+}
+
+/* ── tetris-diff (tetris difficulty pills) ─────────────── */
+.tetris-diff {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(0,229,255,0.2);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tetris-diff:hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.4);
+  color: rgba(255,255,255,0.85);
+}
+.tetris-diff.active {
+  background: rgba(0,229,255,0.15);
+  border-color: rgba(0,229,255,0.55);
+  color: #00e5ff;
+  box-shadow: 0 0 14px rgba(0,229,255,0.2);
+}
+
+/* ── rd-diff (reaction duel difficulty pills) ──────────── */
+.rd-diff {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(170,0,255,0.2);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rd-diff:hover {
+  background: rgba(170,0,255,0.1);
+  border-color: rgba(170,0,255,0.4);
+  color: rgba(255,255,255,0.85);
+}
+.rd-diff.active {
+  background: rgba(170,0,255,0.15);
+  border-color: rgba(170,0,255,0.55);
+  color: #aa00ff;
+  box-shadow: 0 0 14px rgba(170,0,255,0.2);
+}
+
+/* ── carrom-diff / carrom-mode pills ────────────────────── */
+.carrom-diff,
+.carrom-mode {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,145,0,0.2);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.carrom-diff:hover,
+.carrom-mode:hover {
+  background: rgba(255,145,0,0.1);
+  border-color: rgba(255,145,0,0.4);
+  color: rgba(255,255,255,0.85);
+}
+.carrom-diff.active,
+.carrom-mode.active {
+  background: rgba(255,145,0,0.15);
+  border-color: rgba(255,145,0,0.55);
+  color: #ff9100;
+  box-shadow: 0 0 14px rgba(255,145,0,0.2);
+}
+
+/* ── Cricket toss/play buttons (cric-*-btn) ─────────────── */
+.cric-bot-toss-btn,
+.cric-pvp-toss-p1-btn,
+.cric-pvp-toss-p2-btn,
+.cric-pvp-p1-btn,
+.cric-pvp-p2-btn {
+  /* Inherit cricket-num-btn — just ensure pointer works */
+  pointer-events: auto !important;
+}
+
+/* ── right utility class (used on some elements) ────────── */
+.right { text-align: right; }
+
+/* ── Ensure lm-vgwa-card layout ─────────────────────────── */
+.lm-vgwa-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 6px;
+}
+.lm-vgwa-logo-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.lm-vgwa-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.lm-vgwa-desc {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.55;
+}
+
+/* ── ghp-start-btns (chess dual start buttons) ──────────── */
+.ghp-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin-top: 4px;
+}
+
+/* ── Ensure dz-topbar (hidden nav bar) is truly hidden ──── */
+.dz-topbar {
+  display: none !important;
+  height: 0 !important;
   overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
 }
 
+/* ── Fix any overflow on fixed game play panels ─────────── */
+#tetris-play,
+#rd-play,
+#carrom-play,
+#sdk-play,
+#ludo-play {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+#tetris-play::-webkit-scrollbar,
+#rd-play::-webkit-scrollbar,
+#carrom-play::-webkit-scrollbar,
+#sdk-play::-webkit-scrollbar,
+#ludo-play::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
 
-/* ─── 2. Hardcoded heights that cause overflow — neutralised ─── */
-/* Tap Battle arena */
-#tap-arena    { min-height: 0 !important; }
-.tap-zone     { min-height: 0 !important; }
-/* RPS choices area */
-#rps-choices-display { min-height: 0 !important; }
-/* Reaction Duel signal (inline 260px is overridden per-breakpoint below) */
+/* ── Footer link active/focus states ────────────────────── */
+.footer-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.footer-link:hover {
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Ensure all game screens scroll without visible bar ─── */
+[id^="screen-"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+[id^="screen-"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
 
 
 /* ══════════════════════════════════════════════════════════════════
-   3.  MOBILE  (≤ 768 px)
+   CRITICAL FIX: Re-hide game screens in landscape that were forced
+   visible by the group selector in the landscape @media block above
+   (lines ~12041-12069). That block adds display:flex !important to
+   #screen-tetris, #screen-tanks etc. via a group selector ending in
+   #tetris-play. We must override with an even more specific rule.
+
+   Rule: ANY [id^="screen-"].hidden in landscape = display:none.
+   This uses :is() for higher specificity to beat display:flex !important.
    ══════════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
 
-  html, body {
-    overflow-x: hidden !important;
-    max-width: 100vw;
-  }
-
-  /* Every game screen = 100dvh, flex column, no overflow */
-  [id^="screen-"]:not(#screen-hub) {
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  /* Fixed-position game panels get the same */
-  #tetris-play, #rd-play, #ludo-play, #carrom-play, #sdk-play {
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow: hidden !important;
-  }
-
-  /* All canvases: scale to fit, never overflow */
-  canvas {
-    max-width: 100% !important;
-    touch-action: none;
-    display: block;
-  }
-
-
-  /* ── TTT ─────────────────────────────────────────────────────── */
-  #ttt-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 68px 12px 12px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-  #ttt-app    { width: 100% !important; max-width: 360px !important; }
-  #ttt-board  { max-width: min(76vw, 300px) !important; margin: 0 auto !important; }
-  .ttt-cell   { font-size: clamp(1.5rem, 9vw, 2.2rem) !important; }
-
-
-  /* ── RPS ─────────────────────────────────────────────────────── */
-  #rps-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 68px 12px 12px !important;
-    gap: 8px !important;
-    overflow: hidden !important;
-  }
-  #rps-app { width: 100% !important; max-width: 380px !important; }
-  #rps-choices-display {
-    padding: 10px 8px !important;
-    min-height: 0 !important;
-  }
-  #rps-btn-row {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    justify-content: center !important;
-  }
-  .rps-choice-btn {
-    font-size: clamp(1.3rem, 7vw, 2rem) !important;
-    min-width: 64px !important;
-    min-height: 64px !important;
+@media (orientation: landscape) {
+  /* Re-enforce .hidden on ALL game screens in landscape.
+     Uses html prefix for maximum specificity to beat !important chains. */
+  html #screen-ttt.hidden,
+  html #screen-rps.hidden,
+  html #screen-tapbattle.hidden,
+  html #screen-duel2048.hidden,
+  html #screen-c4.hidden,
+  html #screen-cricket.hidden,
+  html #screen-airhockey.hidden,
+  html #screen-passbreach.hidden,
+  html #screen-chess.hidden,
+  html #screen-battleship.hidden,
+  html #screen-checkers.hidden,
+  html #screen-darts.hidden,
+  html #screen-tanks.hidden,
+  html #screen-starcatcher.hidden,
+  html #screen-spacedodge.hidden,
+  html #screen-pingpong.hidden,
+  html #screen-minesweeper.hidden,
+  html #screen-tetris.hidden,
+  html #screen-bomberman.hidden,
+  html #screen-drawguess.hidden,
+  html #screen-reaction.hidden,
+  html #screen-territory.hidden,
+  html #screen-memoryflip.hidden,
+  html #screen-connectdots.hidden,
+  html #screen-snake.hidden,
+  html #screen-typing.hidden,
+  html #screen-blackjack.hidden,
+  html #screen-pixelracer.hidden,
+  html #screen-ludo.hidden,
+  html #screen-sudoku.hidden,
+  html #screen-carrom.hidden {
+    display: none !important;
+    visibility: hidden !important;
   }
 
-
-  /* ── Tap Battle ──────────────────────────────────────────────── */
-  #tap-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 8px 8px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
+  /* Hide fixed play panels ONLY when their parent screen is hidden.
+     Previously this was unconditional (hiding them always in landscape = blank screen bug). */
+  html #screen-tetris.hidden  #tetris-play,
+  html #screen-reaction.hidden #rd-play,
+  html #screen-carrom.hidden  #carrom-play,
+  html #screen-sudoku.hidden  #sdk-play {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
-  #tap-header-bar  { flex-shrink: 0 !important; padding: 4px 0 !important; }
-  #tap-top-bar     { flex-shrink: 0 !important; padding: 0 4px !important; }
-  #tap-arena {
-    flex: 1 !important;
-    min-height: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    border-radius: 10px !important;
-  }
-  .tap-zone { min-height: 0 !important; }
-
-
-  /* ── Duel 2048 ────────────────────────────────────────────────── */
-  #d2048-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 8px 8px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-  #d2048-header   { flex-shrink: 0 !important; }
-  #d2048-top      { flex-shrink: 0 !important; }
-  #d2048-grid-wrap {
-    overflow: hidden !important;
-    max-width: min(92vw, 360px) !important;
-    flex-shrink: 1 !important;
-  }
-  .d2048-board { max-width: min(92vw, 360px) !important; }
-  .d2048-tile  { font-size: clamp(0.6rem, 3.2vw, 1rem) !important; }
-
-
-  /* ── Connect 4 ────────────────────────────────────────────────── */
-  #c4-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    gap: 4px !important;
-    overflow: hidden !important;
-  }
-  #c4-game-header { flex-shrink: 0 !important; padding: 4px 0 !important; }
-  #c4-player-bar  { flex-shrink: 0 !important; }
-  #c4-grid {
-    max-width: min(96vw, 420px) !important;
-    overflow: hidden !important;
-    flex-shrink: 1 !important;
-  }
-
-
-  /* ── Air Hockey ───────────────────────────────────────────────── */
-  #ah-play-panel {
-    flex-direction: column !important;
-    padding: 68px 0 0 !important;
-    overflow: hidden !important;
-  }
-  .ah-scorebar { flex-shrink: 0 !important; }
-  #ah-canvas-wrap {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-  #ah-canvas {
-    max-width: 100% !important;
-    max-height: calc(100dvh - 130px) !important;
-    width: auto !important;
-    height: auto !important;
-  }
-
-
-  /* ── Pass Breach ──────────────────────────────────────────────── */
-  #pb-play-panel {
-    flex-direction: column !important;
-    padding: 68px 8px 8px !important;
-    overflow: hidden !important;
-  }
-  #pb-game-wrap {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  #pb-numpad {
-    max-width: min(90vw, 320px) !important;
-    margin: 0 auto !important;
-    flex-shrink: 0 !important;
-  }
-  .pb-history {
-    flex: 1 !important;
-    min-height: 0 !important;
-    max-height: 120px !important;
-    overflow-y: auto !important;
-  }
-
-
-  /* ── Memory Flip ──────────────────────────────────────────────── */
-  .mfd-play-wrap {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-  #mfd-app   {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    width: 100% !important;
-  }
-  .mfd-board { max-width: min(96vw, 440px) !important; }
-
-
-  /* ── Connect Dots ─────────────────────────────────────────────── */
-  .cdd-play-wrap {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-  #cdd-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    width: 100% !important;
-  }
-  #cdd-grid-wrap {
-    max-width: min(96vw, 440px) !important;
-    overflow: hidden !important;
-    flex-shrink: 1 !important;
-  }
-
-
-  /* ── Chess ────────────────────────────────────────────────────── */
-  .chess-play-wrap, #chess-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    gap: 4px !important;
-    overflow: hidden !important;
-  }
-  #chess-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    width: 100% !important;
-  }
-  /* Hide move list & FEN panel — board gets full space */
-  #chess-sidebar { display: none !important; }
-  #chess-main-layout {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 4px !important;
-  }
-  #chess-board-wrap { max-width: min(92vw, 420px) !important; }
-  #chess-board      { max-width: min(92vw, 420px) !important; overflow: hidden !important; }
-  #chess-header     { padding: 2px 0 !important; }
-  #chess-turn-banner { padding: 4px 10px !important; font-size: 0.8rem !important; }
-
-
-  /* ── Sea Battle (Battleship) ──────────────────────────────────── */
-  #screen-battleship {
-    padding: 68px 6px 6px !important;
-    overflow: hidden !important;
-    align-items: center !important;
-  }
-  #bs-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    padding-top: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  #bs-header  { flex-shrink: 0 !important; padding: 4px 0 6px !important; }
-  #bs-message { flex-shrink: 0 !important; font-size: 0.8rem !important; padding: 2px 0 !important; }
-  #bs-boards {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin-bottom: 4px !important;
-    flex: 1 !important;
-    min-height: 0 !important;
-    justify-content: center !important;
-  }
-  .bs-board-title { font-size: 0.75rem !important; margin-bottom: 2px !important; }
-  /* Cells: scale to fit two grids on any phone height */
-  .bs-cell {
-    width:  clamp(19px, calc((100dvh - 260px) / 22), 32px) !important;
-    height: clamp(19px, calc((100dvh - 260px) / 22), 32px) !important;
-    font-size: 0.55rem !important;
-    border-radius: 2px !important;
-  }
-  .bs-grid { gap: 1px !important; }
-  .bs-grid-labels-col span,
-  .bs-grid-labels-row span {
-    font-size: 0.55rem !important;
-    width:  clamp(12px, 2vw, 16px) !important;
-    height: clamp(19px, calc((100dvh - 260px) / 22), 32px) !important;
-  }
-  #bs-controls { flex-shrink: 0 !important; padding: 4px 0 !important; }
-  #bs-placement-bar { flex-shrink: 0 !important; font-size: 0.8rem !important; }
-
-
-  /* ── Checkers ─────────────────────────────────────────────────── */
-  #screen-checkers {
-    padding: 68px 6px 6px !important;
-    overflow: hidden !important;
-    align-items: center !important;
-  }
-  #ck-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  #ck-header { flex-shrink: 0 !important; padding: 4px 0 !important; }
-  #ck-game-area {
-    flex: 1 !important;
-    min-height: 0 !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  #ck-board-wrap {
-    max-width: min(90vw, 380px) !important;
-    overflow: hidden !important;
-    flex-shrink: 1 !important;
-  }
-  /* Hide move history — saves space */
-  #ck-move-history { display: none !important; }
-
-
-  /* ── Darts ────────────────────────────────────────────────────── */
-  #darts-play-panel {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 8px 6px !important;
-    overflow: hidden !important;
-  }
-  #darts-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  #darts-header { flex-shrink: 0 !important; padding: 2px 0 !important; }
-  #darts-header h2 { font-size: 1rem !important; margin: 0 !important; }
-  #darts-score-bar {
-    flex-shrink: 0 !important;
-    padding: 4px 6px !important;
-    font-size: clamp(0.65rem, 2.5vw, 0.8rem) !important;
-    width: 100% !important;
-  }
-  .darts-score-num { font-size: clamp(1.1rem, 5.5vw, 1.6rem) !important; }
-  .darts-throw-row { font-size: clamp(0.6rem, 2.5vw, 0.75rem) !important; }
-  #darts-canvas-wrap {
-    flex: 1 !important;
-    min-height: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-  }
-  #darts-board {
-    max-width: min(78vw, 310px) !important;
-    max-height: calc(100dvh - 210px) !important;
-    width: auto !important;
-    height: auto !important;
-  }
-  #darts-aim-hint { font-size: 0.7rem !important; }
-
-
-  /* ── Ping Pong ────────────────────────────────────────────────── */
-  #pp-header {
-    padding-top: 56px !important;
-    overflow: hidden !important;
-  }
-  #pp-canvas-wrap {
-    overflow: hidden !important;
-    padding: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-  }
-  #pp-canvas {
-    max-width: 100% !important;
-    max-height: calc(100dvh - 150px) !important;
-    display: block !important;
-  }
-  #pp-wrap { overflow: hidden !important; }
-
-
-  /* ── Tetris ───────────────────────────────────────────────────── */
-  #tetris-play {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-  /* The inner flex row holding both boards */
-  #tetris-play > div:nth-child(2) {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 8px !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-    flex: 1 !important;
-    min-height: 0 !important;
-  }
-  #tetris-canvas-p1, #tetris-canvas-p2 {
-    max-width: calc(44vw - 10px) !important;
-    max-height: calc(100dvh - 170px) !important;
-    width: auto !important;
-    height: auto !important;
-  }
-  #tetris-next-p1, #tetris-next-p2 {
-    max-width: 36px !important;
-    max-height: 36px !important;
-  }
-  #tetris-score-p1, #tetris-score-p2,
-  #tetris-lines-p1, #tetris-lines-p2,
-  #tetris-level-p1, #tetris-level-p2 {
-    font-size: clamp(0.55rem, 2vw, 0.7rem) !important;
-  }
-
-
-  /* ── Reaction Duel ────────────────────────────────────────────── */
-  #rd-play {
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 68px 12px 12px !important;
-    gap: 8px !important;
-    overflow: hidden !important;
-  }
-  /* Score row at top */
-  #rd-play > div:first-child {
-    flex-shrink: 0 !important;
-    width: 100% !important;
-  }
-  #rd-signal-bg {
-    width: clamp(150px, 48vw, 230px) !important;
-    height: clamp(150px, 48vw, 230px) !important;
-    flex-shrink: 0 !important;
-  }
-  #rd-signal-emoji { font-size: clamp(2rem, 8.5vw, 3.2rem) !important; }
-  #rd-tap-p1, #rd-tap-p2 {
-    width: clamp(95px, 38vw, 125px) !important;
-    height: clamp(54px, 13vw, 66px) !important;
-    font-size: clamp(0.65rem, 2.5vw, 0.9rem) !important;
-    touch-action: manipulation !important;
-  }
-
-
-  /* ── Ludo ─────────────────────────────────────────────────────── */
-  #ludo-play {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding-top: 68px !important;
-    overflow: hidden !important;
-  }
-  #ludo-app {
-    overflow: hidden !important;
-    padding: 4px 6px 8px !important;
-    flex: 1 !important;
-    min-height: 0 !important;
-  }
-  #ludo-canvas {
-    max-width: min(88vw, 380px) !important;
-    max-height: calc(100dvh - 160px) !important;
-    width: auto !important;
-    height: auto !important;
-  }
-  #ludo-bwrap { max-width: min(88vw, 380px) !important; overflow: hidden !important; }
-  #ludo-roll-btn { flex-shrink: 0 !important; }
-
-
-  /* ── Carrom ───────────────────────────────────────────────────── */
-  #carrom-play {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding-top: 68px !important;
-    overflow: hidden !important;
-  }
-  #carrom-canvas-wrap {
-    flex: 1 !important;
-    min-height: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 2px 6px 6px !important;
-  }
-  #carrom-canvas {
-    max-width: min(92vw, 400px) !important;
-    max-height: calc(100dvh - 170px) !important;
-    width: auto !important;
-    height: auto !important;
-  }
-
-
-  /* ── Sudoku ───────────────────────────────────────────────────── */
-  #sdk-play {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 68px 6px 6px !important;
-    overflow: hidden !important;
-  }
-  #sdk-app {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    width: 100% !important;
-    max-width: 440px !important;
-  }
-  .sdk-grid-wrap {
-    flex-shrink: 1 !important;
-    overflow: hidden !important;
-  }
-  .sdk-numpad { gap: 3px !important; }
-
-
-  /* ── Result overlays: fit on any phone ───────────────────────── */
-  [id$="-result"] > div,
-  [id$="-result-inner"],
-  .bs-card {
-    max-width: calc(100vw - 32px) !important;
-    padding: 24px 18px !important;
-    box-sizing: border-box !important;
-  }
-
 }
-/* end @media 768px */
 
 
-/* ══════════════════════════════════════════════════════════════════
-   4.  SMALL PHONE  (≤ 480 px)
-   ══════════════════════════════════════════════════════════════════ */
-@media (max-width: 480px) {
+/* ═══════════════════════════════════════════════════════════════
+   DZ SHARE MODAL STYLES
+   ═══════════════════════════════════════════════════════════════ */
 
-  /* Tetris: stack boards vertically on very small phones */
-  #tetris-play > div:nth-child(2) {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 8px !important;
-  }
-  #tetris-canvas-p1, #tetris-canvas-p2 {
-    max-width: min(66vw, 200px) !important;
-    max-height: none !important;
-  }
-
-  /* Chess: compact header */
-  #chess-turn-banner { font-size: 0.72rem !important; padding: 3px 8px !important; }
-
-  /* Darts: smaller board */
-  #darts-board { max-width: min(70vw, 250px) !important; }
-
-  /* Reaction: smaller signal */
-  #rd-signal-bg {
-    width: clamp(130px, 44vw, 190px) !important;
-    height: clamp(130px, 44vw, 190px) !important;
-  }
-
-  /* Connect Dots: compact scores */
-  #cdd-header h2    { font-size: 0.9rem !important; }
-  .cdd-score-val    { font-size: 1.2rem !important; }
-
-  /* Battleship: even smaller cells on narrow phones */
-  .bs-cell {
-    width:  clamp(17px, calc((100dvh - 280px) / 22), 26px) !important;
-    height: clamp(17px, calc((100dvh - 280px) / 22), 26px) !important;
-  }
-
-  /* Tap Battle: reduce header text */
-  #tap-header-bar h2 { font-size: 1rem !important; }
-
-  /* Connect 4: ensure grid fits */
-  #c4-grid { max-width: min(98vw, 360px) !important; }
-
+/* ── Share button on result screens ── */
+.ghp-result-btn-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border: 1.5px solid rgba(0,229,255,0.5);
+  background: rgba(0,229,255,0.10);
+  color: #00e5ff;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
 }
-/* end @media 480px */
-
-
-/* ══════════════════════════════════════════════════════════════════
-   5.  LANDSCAPE PHONE  (height ≤ 500 px, landscape)
-   ══════════════════════════════════════════════════════════════════ */
-@media screen and (orientation: landscape) and (max-height: 500px) {
-
-  /* Reduce topbar clearance in landscape */
-  #ttt-play-panel, #rps-play-panel, #tap-play-panel, #d2048-play-panel,
-  #c4-play-panel, #ah-play-panel, #pb-play-panel, .mfd-play-wrap,
-  .cdd-play-wrap, .chess-play-wrap, #chess-play-panel, #darts-play-panel,
-  #screen-battleship, #screen-checkers,
-  #tetris-play, #rd-play, #ludo-play, #carrom-play, #sdk-play {
-    padding-top: 44px !important;
-  }
-  #pp-header { padding-top: 44px !important; }
-
-  /* Tetris: side by side in landscape */
-  #tetris-play > div:nth-child(2) {
-    flex-direction: row !important;
-    gap: 8px !important;
-  }
-  #tetris-canvas-p1, #tetris-canvas-p2 {
-    max-width: calc(43vw - 10px) !important;
-    max-height: calc(100dvh - 90px) !important;
-  }
-
-  /* Canvas-heavy games: use most of available height */
-  #ah-canvas, #carrom-canvas, #ludo-canvas, #darts-board, #pp-canvas {
-    max-height: calc(100dvh - 90px) !important;
-  }
-
-  /* Reaction Duel: compact signal */
-  #rd-signal-bg {
-    width: clamp(110px, 26vh, 160px) !important;
-    height: clamp(110px, 26vh, 160px) !important;
-  }
-
-  /* Battleship: landscape means wider space — bigger cells */
-  .bs-cell {
-    width:  clamp(22px, calc((100dvh - 140px) / 22), 38px) !important;
-    height: clamp(22px, calc((100dvh - 140px) / 22), 38px) !important;
-  }
-  #bs-boards {
-    flex-direction: row !important;
-    gap: 12px !important;
-  }
-
+.ghp-result-btn-share:hover,
+.ghp-result-btn-share:active {
+  background: rgba(0,229,255,0.20);
+  border-color: #00e5ff;
+  transform: translateY(-1px);
 }
-/* end landscape 500px */
+.pb-btn-share {
+  background: rgba(0,255,136,0.08) !important;
+  border-color: rgba(0,255,136,0.5) !important;
+  color: #00ff88 !important;
+}
+.pb-btn-share:hover { background: rgba(0,255,136,0.18) !important; }
+.pp-ov-sharebtn {
+  display: block; width:100%; max-width:220px; margin:6px auto 0;
+  padding:10px 0; border-radius:8px;
+  font-family:'Orbitron',sans-serif; font-size:0.8rem; font-weight:700;
+  letter-spacing:0.08em; cursor:pointer;
+  border:1.5px solid rgba(0,229,255,0.5);
+  background:rgba(0,229,255,0.08); color:#00e5ff;
+  transition:background 0.18s;
+}
+.pp-ov-sharebtn:hover { background:rgba(0,229,255,0.20); }
+
+/* ── Backdrop ── */
+.dz-share-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 100000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
+.dz-share-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ── Modal panel ── */
+.dz-share-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -46%) scale(0.93);
+  width: min(480px, 94vw);
+  max-height: 92vh;
+  background: #0d0f1c;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.9),
+              0 0 0 1px rgba(0,229,255,0.07);
+  z-index: 100001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease,
+              transform 0.28s cubic-bezier(0.34,1.4,0.64,1),
+              visibility 0.25s;
+}
+.dz-share-modal.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Header ── */
+.dz-share-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  flex-shrink: 0;
+}
+.dz-share-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.06em; color: #fff;
+}
+.dz-share-close {
+  width:30px; height:30px; border-radius:50%;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.05);
+  color:rgba(255,255,255,0.6); cursor:pointer;
+  font-size:0.85rem; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s, color 0.15s; flex-shrink:0;
+}
+.dz-share-close:hover { background:rgba(255,255,255,0.14); color:#fff; }
+
+/* ── Card preview ── */
+.dz-share-preview-wrap { padding: 12px 14px 6px; flex-shrink:0; }
+.dz-share-preview {
+  width:100%; min-height:100px;
+  border-radius:10px; overflow:hidden;
+  background:#07080f;
+  border:1px solid rgba(255,255,255,0.07);
+  display:flex; align-items:center; justify-content:center;
+}
+.dz-share-preview img { width:100%; border-radius:8px; display:block; }
+.dz-share-hint {
+  margin:5px 0 0; text-align:center;
+  font-family:'Rajdhani',sans-serif; font-size:0.7rem;
+  color:rgba(255,255,255,0.26); letter-spacing:0.04em;
+}
+
+/* ── Spinner ── */
+.dz-share-spinner {
+  width:32px; height:32px;
+  border:3px solid rgba(0,229,255,0.14);
+  border-top-color:#00e5ff;
+  border-radius:50%;
+  animation:dzShareSpin 0.7s linear infinite;
+}
+@keyframes dzShareSpin { to { transform:rotate(360deg); } }
+
+/* ── Action grid ── */
+.dz-share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 8px 14px 16px;
+  flex-shrink: 0;
+}
+.dz-share-btn--save   { grid-column: 1; }
+.dz-share-btn--native { grid-column: 2 / 4; }
+
+.dz-share-btn {
+  display:flex; align-items:center; justify-content:center;
+  gap:5px; padding:10px 4px;
+  border-radius:10px;
+  font-family:'Rajdhani',sans-serif;
+  font-weight:700; font-size:0.8rem;
+  letter-spacing:0.03em; cursor:pointer;
+  border:1.5px solid transparent;
+  transition:transform 0.12s, background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color:transparent; white-space:nowrap;
+}
+.dz-share-btn:active { transform:scale(0.95); }
+
+.dz-share-btn--save   { background:rgba(170,0,255,0.12); border-color:rgba(170,0,255,0.38); color:#cc44ff; }
+.dz-share-btn--save:hover { background:rgba(170,0,255,0.22); border-color:#aa00ff; }
+
+.dz-share-btn--native { background:rgba(0,229,255,0.10); border-color:rgba(0,229,255,0.38); color:#00e5ff; }
+.dz-share-btn--native:hover { background:rgba(0,229,255,0.20); border-color:#00e5ff; }
+
+.dz-share-btn--wa  { background:rgba(37,211,102,0.12); border-color:rgba(37,211,102,0.38); color:#25d366; }
+.dz-share-btn--wa:hover { background:rgba(37,211,102,0.22); border-color:#25d366; }
+
+.dz-share-btn--tw  { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.18); color:#fff; }
+.dz-share-btn--tw:hover { background:rgba(255,255,255,0.13); border-color:rgba(255,255,255,0.38); }
+
+.dz-share-btn--copy { background:rgba(0,229,255,0.07); border-color:rgba(0,229,255,0.24); color:#00e5ff; }
+.dz-share-btn--copy:hover { background:rgba(0,229,255,0.17); border-color:#00e5ff; }
+
+@media (max-width:360px) {
+  .dz-share-actions { grid-template-columns:1fr 1fr; }
+  .dz-share-btn--native { grid-column:2; }
+}

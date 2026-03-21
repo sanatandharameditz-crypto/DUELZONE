@@ -285,6 +285,11 @@ var bs = (function () {
     var msg   = dom('bs-passturn-msg');
     var btn   = dom('bs-passturn-btn');
 
+    // FIX BUG-2: msg, btn, and panel were all used without null guards.
+    // This function is the only path for PvP's pass-device flow — a TypeError
+    // here breaks both the placement handoff and every battle turn switch.
+    if (!msg || !btn || !panel) return;
+
     if (nextPhase === 'placement') {
       msg.innerHTML = '📱 Pass device to <strong>Player ' + nextPlayer + '</strong><br><span style="font-size:0.85rem;color:#94a3b8;">Player ' + (nextPlayer - 1) + '\'s fleet is now hidden</span>';
       btn.textContent = '✔ I\'m Player ' + nextPlayer + ' — Start Placement';
@@ -300,11 +305,15 @@ var bs = (function () {
   }
 
   function bsPassTurnContinue() {
+    // FIX BUG-3: btn and passturn-panel both used without null guards.
+    // btn.dataset access on null throws TypeError before any state is read.
     var btn        = dom('bs-passturn-btn');
+    if (!btn) return;
     var nextPlayer = parseInt(btn.dataset.nextPlayer, 10);
     var nextPhase  = btn.dataset.nextPhase;
 
-    dom('bs-passturn-panel').classList.add('bs-hidden');
+    var passPanel = dom('bs-passturn-panel');
+    if (passPanel) passPanel.classList.add('bs-hidden');
 
     if (nextPhase === 'placement') {
       state.placementTurn  = nextPlayer;
@@ -658,7 +667,9 @@ var bs = (function () {
     var target;
     if (state.difficulty === 'easy')   target = bsPickRandom();
     if (state.difficulty === 'medium') target = bsAIShotMedium();
-    if (state.difficulty === 'hard')   target = bsAIShotGodMode();
+    if (state.difficulty === 'hard')   target = bsAIShotHard(); // FIX BUG-4: was bsAIShotGodMode() which reads actual ship positions (cheating).
+                                                                       // bsAIShotHard() is the real probability-density + direction-locking AI
+                                                                       // that was fully implemented but completely unreachable (never called anywhere).
 
     if (!target) return;
     var r = target[0], c = target[1];
@@ -777,23 +788,33 @@ var bs = (function () {
     state.gameOver  = true;
     state.gamePhase = 'gameover';
 
-    var title  = dom('bs-result-title');
-    var detail = dom('bs-result-detail');
+    // FIX BUG-1: every dom() call in this block was unguarded — title/detail/
+    // result-panel/turn-indicator all crashed with TypeError if absent, leaving
+    // the player frozen on the board with no result panel ever shown.
+    var title       = dom('bs-result-title');
+    var detail      = dom('bs-result-detail');
+    var resultPanel = dom('bs-result-panel');
+    var turnInd     = dom('bs-turn-indicator');
 
     if (winner === 'player1') {
-      title.textContent  = state.mode === 'pvp' ? '🏆 Player 1 Wins!' : '🏆 Victory!';
-      detail.textContent = state.mode === 'pvp' ? 'Player 1 sunk all of Player 2\'s fleet!' : 'You sunk all enemy ships!';
+      if (title)  title.textContent  = state.mode === 'pvp' ? '🏆 Player 1 Wins!' : '🏆 Victory!';
+      if (detail) detail.textContent = state.mode === 'pvp' ? "Player 1 sunk all of Player 2's fleet!" : 'You sunk all enemy ships!';
     } else if (winner === 'player2') {
-      title.textContent  = '🏆 Player 2 Wins!';
-      detail.textContent = 'Player 2 sunk all of Player 1\'s fleet!';
+      if (title)  title.textContent  = '🏆 Player 2 Wins!';
+      if (detail) detail.textContent = "Player 2 sunk all of Player 1's fleet!";
     } else {
-      title.textContent  = '💀 Defeated!';
-      detail.textContent = 'The AI sunk all your ships.';
+      if (title)  title.textContent  = '💀 Defeated!';
+      if (detail) detail.textContent = 'The AI sunk all your ships.';
     }
 
-    dom('bs-result-panel').classList.remove('bs-hidden');
+    if (resultPanel) resultPanel.classList.remove('bs-hidden');
     bsSetMsg('');
-    dom('bs-turn-indicator').textContent = '';
+    if (turnInd) turnInd.textContent = '';
+    if (window.DZShare) {
+      var bsWinnerText = winner === 'player1' ? (state.mode==='pvp'?'Player 1 Wins! 🏆':'Victory! 🏆') : winner === 'player2' ? 'Player 2 Wins! 🏆' : 'Defeated 💀';
+      var bsDetail     = winner === 'player1' ? (state.mode==='pvp'?"Player 1 sunk Player 2's fleet!":'All enemy ships sunk!') : winner === 'player2' ? "Player 2 sunk Player 1's fleet!" : 'The AI sunk all your ships.';
+      DZShare.setResult({ game:'Battleship', slug:'battleship', winner:bsWinnerText, detail:bsDetail, accent:'#06b6d4', icon:'⚓' });
+    }
 
     // Reveal all enemy ships on the attack board
     if (state.mode === 'bot') {

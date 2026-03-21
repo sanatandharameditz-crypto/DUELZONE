@@ -12,20 +12,19 @@
 
   function calcCell() {
     var vw = window.innerWidth, vh = window.innerHeight;
-    var isLandscape = vw > vh && vh < 520;
+    var isLandscape = vw > vh; // any landscape, not just vh<520
     var cellByW, cellByH;
     if (isLandscape) {
       // Two boards side by side — each board is COLS wide
-      // Reserve 8px gutters: (vw - 32) / (COLS * 2 + gap_cols)
-      cellByW = Math.floor((vw - 40) / (COLS * 2 + 2));
-      // Height: full vh minus HUD(44px) + topbar
-      cellByH = Math.floor((vh - 56) / ROWS);
+      // Reserve gutters + HUD bar (~56px top)
+      cellByW = Math.floor((vw - 48) / (COLS * 2 + 3));
+      cellByH = Math.floor((vh - 60) / ROWS);
     } else {
-      // Portrait: boards stack side by side, fit in half screen width
+      // Portrait: boards side by side, fit in screen width
       cellByW = Math.floor((vw - 32) / (COLS * 2 + 2));
-      cellByH = Math.floor((vh * 0.7) / ROWS);
+      cellByH = Math.floor((vh * 0.65) / ROWS);
     }
-    CELL = Math.max(16, Math.min(28, cellByW, cellByH));
+    CELL = Math.max(14, Math.min(28, cellByW, cellByH));
   }
 
   var PIECES = [
@@ -46,13 +45,34 @@
     ],
     botTimer: null,
     _wired: false,
+    _resizeHandler: null,
   };
 
+  window.tetrisStop = function () { tbStop(); };
   window.tetrisInit = function () {
     if (!TB._wired) { tbWireUI(); TB._wired = true; }
     tbShowHome();
   };
   window.tetrisDestroy = function () { tbStop(); };
+
+  // Pause: freeze drop intervals without marking TB.over=true
+  window.tetrisPause = function () {
+    if (TB.over) return;
+    TB.players.forEach(function (p) {
+      if (p.interval) { clearInterval(p.interval); p.interval = null; }
+    });
+    if (TB.botTimer) { clearTimeout(TB.botTimer); TB.botTimer = null; }
+  };
+  // Resume: rebuild intervals at current level speeds and restart bot
+  window.tetrisResume = function () {
+    if (TB.over) return;
+    var playEl = document.getElementById('tetris-play');
+    if (!playEl || playEl.classList.contains('hidden')) return;
+    TB.players.forEach(function (p, i) {
+      if (!p.lost) tbRebuildInterval(i);
+    });
+    if (TB.mode === 'bot') tbBotLoop();
+  };
 
   function el(id) { return document.getElementById(id); }
   function on(id, fn) { var e = el(id); if (e) e.addEventListener('click', fn); }
@@ -112,10 +132,13 @@
   function tbKeyDown(e) {
     if (TB.over) return;
     if (!el('tetris-play') || el('tetris-play').classList.contains('hidden')) return;
+    // FIX BUG-2: guard must come BEFORE fn() is called. Previously the check ran
+    // after fn() had already executed, so P2 keys (a/d/s/w/q) still moved the bot's
+    // piece — the return statement at the end was unreachable dead code.
+    var isP2Key = (e.key === 'a' || e.key === 'd' || e.key === 's' || e.key === 'w' || e.key === 'q');
+    if (TB.mode === 'bot' && isP2Key) return;
     var fn = KEY_MAP[e.key];
     if (fn) { e.preventDefault(); fn(); }
-    // P2 keys only if PvP
-    if (TB.mode === 'bot' && (e.key === 'a' || e.key === 'd' || e.key === 's' || e.key === 'w' || e.key === 'q')) return;
   }
 
   function tbStop() {
@@ -124,6 +147,13 @@
       if (p.interval) { clearInterval(p.interval); p.interval = null; }
     });
     if (TB.botTimer) { clearTimeout(TB.botTimer); TB.botTimer = null; }
+    if (TB._resizeHandler) {
+      window.removeEventListener('resize', TB._resizeHandler);
+      TB._resizeHandler = null;
+    }
+    // Remove landscape class when stopping
+    var playEl = document.getElementById('tetris-play');
+    if (playEl) playEl.classList.remove('tetris-landscape');
   }
 
   // ── Board helpers ─────────────────────────────────────────────
@@ -182,13 +212,17 @@
     if (cleared > 0) {
       p.lines += cleared;
       p.score += [0, 100, 300, 500, 800][cleared] * p.level;
+      var prevLevel = p.level;
       p.level = Math.floor(p.lines / 10) + 1;
-      // Send garbage to opponent
+      // FIX BUG-3 (part 3/3): rebuild drop interval when level increases
+      if (p.level > prevLevel) tbRebuildInterval(pid);
+      // FIX BUG-1: removed immediate tbAddGarbage() call here. Garbage was applied
+      // to the board instantly AND stored in opp.garbage, so every line clear caused
+      // tbAddGarbage to fire twice — once immediately, once when opponent locked.
+      // Now garbage is only queued; it is applied in the pending-garbage block below.
       var garbage = cleared > 1 ? cleared - 1 : 0;
       if (garbage > 0) {
-        var opp = TB.players[1 - pid];
-        opp.garbage += garbage;
-        tbAddGarbage(1 - pid, garbage);
+        TB.players[1 - pid].garbage += garbage;
       }
     }
 
@@ -252,7 +286,28 @@
     if (!p.piece || p.lost || TB.over) return;
     while (!collides(p.board, p.piece, 0, 1)) { p.piece.y++; p.score += 2; }
     lock(pid);
-    if (p.lost) tbEndGame(1 - pid);
+    if (p.lost) {
+      // FIX BUG-4: mirror the simultaneous-loss draw check from tbMove.
+      // Garbage sent by this hard drop could have topped out the opponent in the
+      // same lock() call. Without this check, that edge case incorrectly awards
+      // the win to the player who actually lost at the same moment.
+      if (TB.players[0].lost && TB.players[1].lost) { tbEndGame(-1); return; }
+      tbEndGame(1 - pid);
+    }
+  }
+
+  // FIX BUG-3 (part 2/2): helper that (re)creates the drop interval for one player
+  // at the speed matching their current level. Called at game-start and whenever
+  // the player's level increases inside lock(). Without this, drop speed was fixed
+  // at the level-1 rate (800 ms) for the entire game.
+  function tbRebuildInterval(pid) {
+    var p = TB.players[pid];
+    if (p.interval) { clearInterval(p.interval); p.interval = null; }
+    var delay = Math.max(100, 800 - (p.level - 1) * 70);
+    p.interval = setInterval(function () {
+      if (TB.over || p.lost) return;
+      tbMove(pid, 0, 1);
+    }, delay);
   }
 
   // ── Start game ────────────────────────────────────────────────
@@ -263,7 +318,7 @@
 
     el('tetris-home').classList.add('hidden');
     var playEl = el('tetris-play');
-    if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
+    if (playEl) { playEl.classList.remove('hidden'); playEl.style.setProperty('display','block','important'); playEl.scrollTop = 0; }
     el('tetris-result').classList.add('hidden');
     var backBtn = el('tetris-back-play'); if (backBtn) backBtn.style.display = 'block';
 
@@ -298,19 +353,50 @@
     var p2ctrl = el('tetris-p2-keys');
     if (p2ctrl) p2ctrl.style.display = TB.mode === 'bot' ? 'none' : '';
 
-    // Game loops
+    // Game loops — one interval per player.
+    // FIX BUG-3 (part 1/2): store player index on the player object so lock() can
+    // rebuild the interval when the level changes (see tbRebuildInterval below).
     TB.players.forEach(function (p, i) {
-      var delay = Math.max(100, 800 - (p.level - 1) * 70);
-      p.interval = setInterval(function () {
-        if (TB.over || p.lost) return;
-        tbMove(i, 0, 1);
-      }, delay);
+      p._idx = i;
+      tbRebuildInterval(i);
     });
 
     if (TB.mode === 'bot') tbBotLoop();
 
     // Mobile swipe support
     tbAddSwipeControls();
+
+    // ── Resize / orientationchange: recalc cell size & redraw ──
+    function tbOnResize() {
+      if (TB.over) return;
+      calcCell();
+      TB.players.forEach(function (p, i) {
+        if (p.canvas) {
+          p.canvas.width  = COLS * CELL;
+          p.canvas.height = ROWS * CELL;
+          p.ctx = p.canvas.getContext('2d');
+        }
+        if (p.nextCanvas) {
+          p.nextCanvas.width  = 4 * CELL;
+          p.nextCanvas.height = 4 * CELL;
+          p.nextCtx = p.nextCanvas.getContext('2d');
+        }
+        tbDraw(i);
+        tbDrawNext(i);
+      });
+      // Update play panel layout class for CSS
+      var playEl = el('tetris-play');
+      if (playEl) {
+        var isLandscape = window.innerWidth > window.innerHeight;
+        playEl.classList.toggle('tetris-landscape', isLandscape);
+      }
+    }
+    // Remove any old listener before adding new one
+    if (TB._resizeHandler) window.removeEventListener('resize', TB._resizeHandler);
+    TB._resizeHandler = tbOnResize;
+    window.addEventListener('resize', tbOnResize);
+    // Apply layout class immediately
+    tbOnResize();
   }
 
   function tbAddSwipeControls() {
@@ -504,9 +590,11 @@
     if (winner === -1) {
       el('tetris-result-title').textContent = '🤝 Draw!';
       el('tetris-result-detail').textContent = 'Both players topped out simultaneously!';
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:"It's a Draw!", detail:'Both topped out simultaneously', accent:'#00e5ff', icon:'🧱' });
     } else {
       el('tetris-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
       el('tetris-result-detail').textContent = 'Scores: P1 ' + TB.players[0].score + ' | ' + names[1] + ' ' + TB.players[1].score;
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:names[winner]+' Wins! 🏆', detail:'Scores: P1 '+TB.players[0].score+' | '+names[1]+' '+TB.players[1].score, accent:'#00e5ff', icon:'🧱' });
     }
     el('tetris-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();

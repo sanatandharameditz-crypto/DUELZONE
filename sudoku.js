@@ -226,7 +226,11 @@
      Navigation wiring
   ══════════════════════════════════════════════════════════ */
 
-  function showAllScreensExcept(keepId) {
+  // FIX BUG-A: Renamed from showAllScreensExcept → hideAllScreensExcept.
+  // toggle('hidden', el.id !== keepId) ADDS hidden to everything except keepId
+  // and REMOVES it from keepId — i.e. it shows ONLY keepId, hides the rest.
+  // The old name said the exact opposite, which is a maintenance landmine.
+  function hideAllScreensExcept(keepId) {
     document.querySelectorAll('[id^="screen-"]').forEach(el => {
       el.classList.toggle('hidden', el.id !== keepId);
     });
@@ -236,7 +240,7 @@
   document.addEventListener('click', e => {
     if (e.target.closest('.arena-card[data-screen="sudoku"]')) {
       if(typeof window.showSudoku==='function') window.showSudoku();
-      else showAllScreensExcept('screen-sudoku');
+      else hideAllScreensExcept('screen-sudoku');
     }
   });
 
@@ -244,7 +248,7 @@
   document.addEventListener('click', e => {
     if (e.target.id === 'sdk-back-hub') {
       stopTimer();
-      if(typeof window.showHub==='function') window.showHub(); else showAllScreensExcept('screen-hub');
+      if(typeof window.showHub==='function') window.showHub(); else hideAllScreensExcept('screen-hub');
     }
   });
 
@@ -254,8 +258,10 @@
       stopTimer();
       window.scrollTo(0, 0);
       var backBtn = document.getElementById('sdk-back-play'); if (backBtn) backBtn.style.display = 'none';
-      $('sdk-play').classList.add('hidden');
-      $('sdk-home').classList.remove('hidden');
+      var playEl = $('sdk-play');
+      if (playEl) { playEl.classList.add('hidden'); playEl.style.display = 'none'; }
+      var homeEl = $('sdk-home');
+      if (homeEl) { homeEl.classList.remove('hidden'); homeEl.style.removeProperty('display'); homeEl.style.removeProperty('visibility'); }
     }
   });
 
@@ -272,9 +278,10 @@
   document.addEventListener('click', e => {
     if (e.target.id === 'sdk-start-btn' || e.target.closest('#sdk-start-btn')) {
       window.scrollTo(0, 0);
-      $('sdk-home').classList.add('hidden');
+      var homeEl = $('sdk-home');
+      if (homeEl) { homeEl.classList.add('hidden'); homeEl.style.display = 'none'; }
       var playEl = $('sdk-play');
-      if (playEl) { playEl.classList.remove('hidden'); playEl.scrollTop = 0; }
+      if (playEl) { playEl.classList.remove('hidden'); playEl.style.setProperty('display','flex','important'); playEl.scrollTop = 0; }
       var backBtn = document.getElementById('sdk-back-play'); if (backBtn) backBtn.style.display = 'block';
       initGame();
     }
@@ -283,7 +290,7 @@
   // "New Puzzle" on result
   document.addEventListener('click', e => {
     if (e.target.id === 'sdk-again') {
-      $('sdk-result').classList.add('hidden');
+      var res = $('sdk-result'); if (res) res.classList.add('hidden');
       initGame();
     }
   });
@@ -294,10 +301,14 @@
       stopTimer();
       window.scrollTo(0, 0);
       var backBtn = document.getElementById('sdk-back-play'); if (backBtn) backBtn.style.display = 'none';
-      $('sdk-result').classList.add('hidden');
-      $('sdk-play').classList.add('hidden');
-      $('sdk-home').classList.remove('hidden');
-      if(typeof window.showHub==='function') window.showHub(); else showAllScreensExcept('screen-hub');
+      // FIX BUG-B: guard every $() call — getElementById returns null if the element
+      // is missing, and calling .classList on null throws a TypeError that crashes
+      // hub navigation, leaving the user stuck on the result screen.
+      const _res=$('sdk-result'), _play=$('sdk-play'), _home=$('sdk-home');
+      if(_res)  _res.classList.add('hidden');
+      if(_play) _play.classList.add('hidden');
+      if(_home) _home.classList.remove('hidden');
+      if(typeof window.showHub==='function') window.showHub(); else hideAllScreensExcept('screen-hub');
     }
   });
 
@@ -555,14 +566,15 @@
     }
 
     if (board[selected]===d) return;
+    // FIX BUG-5: only count a new error if the cell was not already wrong
+    // (prevents extra error-increments when overwriting one wrong digit with another)
+    const _wasAlreadyWrong = board[selected]!==0 && board[selected]!==solution[selected];
     pushHistory(selected, board[selected], new Set(notes[selected]));
     notes[selected].clear();
     board[selected] = d;
 
     if (d !== solution[selected]) {
-      errors++;
-      updateHearts();
-      buzz();
+      if (!_wasAlreadyWrong) { errors++; updateHearts(); buzz(); }
       refreshCell(selected);
       if (errors >= MAX_ERR) { done=true; stopTimer(); showResult(false); }
     } else {
@@ -573,10 +585,13 @@
       for(let i=0;i<9;i++){peers.add(r*9+i);peers.add(i*9+c);}
       for(let rr=br;rr<br+3;rr++)for(let cc=bc;cc<bc+3;cc++)peers.add(rr*9+cc);
       peers.forEach(pi=>{if(notes[pi].has(d)){notes[pi].delete(d);refreshCell(pi);}});
-      flashCorrect(selected);
     }
 
-    refreshCell(selected);
+    refreshCell(selected); // note: applyGivenClass inside adds 'user-entry' if correct
+    // FIX BUG-1: check if correct AFTER refreshCell (class is set), then flash
+    if (board[selected] === solution[selected] && !given[selected] && board[selected] !== 0) {
+      flashCorrect(selected);
+    }
     refreshNumpad();
     highlight();
 
@@ -607,6 +622,13 @@
     if(!history.length) return;
     const {idx,val,n}=history.pop();
     board[idx]=val; notes[idx]=n;
+    // FIX BUG-3: recalculate errors from the actual board so undoing a mistake
+    // correctly restores the error count and heart display
+    errors=0;
+    for(let i=0;i<81;i++){
+      if(!given[i]&&board[i]!==0&&board[i]!==solution[i]) errors++;
+    }
+    updateHearts();
     refreshCell(idx); refreshNumpad(); highlight();
   }
 
@@ -625,6 +647,12 @@
     pushHistory(t,board[t],new Set(notes[t]));
     board[t]=solution[t]; notes[t].clear();
     selected=t;
+    // FIX BUG-4: clear revealed digit from peer cell notes (same row/col/box)
+    const _d=solution[t], _r=t/9|0, _c=t%9, _br=(_r/3|0)*3, _bc=(_c/3|0)*3;
+    const _peers=new Set();
+    for(let _i=0;_i<9;_i++){_peers.add(_r*9+_i);_peers.add(_i*9+_c);}
+    for(let _rr=_br;_rr<_br+3;_rr++)for(let _cc=_bc;_cc<_bc+3;_cc++)_peers.add(_rr*9+_cc);
+    _peers.forEach(_pi=>{if(_pi!==t&&notes[_pi].has(_d)){notes[_pi].delete(_d);refreshCell(_pi);}});
     refreshCell(t); refreshNumpad(); highlight();
 
     const cell=document.querySelector(`.sdk-cell[data-idx="${t}"]`);
@@ -694,6 +722,17 @@
   function stopTimer(){ clearInterval(timerInt); timerInt=null; }
   function fmt(s){ return `${(s/60|0)}:${(s%60).toString().padStart(2,'0')}`; }
 
+  /* ── Expose stop/pause so dzPauseAllGames() and orientation handler can call them ── */
+  window.sudokuStop  = function() { stopTimer(); };
+  window.sudokuPause = function() { stopTimer(); };
+  window.sudokuResume = function() {
+    // Only resume if a game is actively in progress (not on home screen, not done)
+    var playEl = document.getElementById('sdk-play');
+    if (playEl && !playEl.classList.contains('hidden') && !done) {
+      startTimer();
+    }
+  };
+
   /* ── Buzz (haptic) ── */
   function buzz(){ if('vibrate' in navigator) navigator.vibrate([50,20,50]); }
 
@@ -701,12 +740,14 @@
   function showResult(won){
     const res=$('sdk-result');
     if(!res) return;
-    $('sdk-result-emoji').textContent = won?'🏆':'💀';
-    $('sdk-result-title').textContent  = won?'PUZZLE SOLVED!':'GAME OVER';
-    $('sdk-result-detail').textContent = won
+    const emojiEl=$('sdk-result-emoji'), titleEl=$('sdk-result-title'), detailEl=$('sdk-result-detail');
+    if(emojiEl)  emojiEl.textContent  = won?'🏆':'💀';
+    if(titleEl)  titleEl.textContent  = won?'PUZZLE SOLVED!':'GAME OVER';
+    if(detailEl) detailEl.textContent = won
       ? `${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`
       : 'Too many mistakes! Try again.';
     res.classList.remove('hidden');
+    if (window.DZShare) DZShare.setResult({ game:'Sudoku', slug:'sudoku', winner:won?'Puzzle Solved! 🏆':'Game Over 💀', detail:won?`${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`:'Too many mistakes!', accent:'#6c63ff', icon:'🔢' });
   }
 
   /* ══════════════════════════════════════════════════════════
