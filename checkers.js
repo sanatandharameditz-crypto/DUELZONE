@@ -724,7 +724,7 @@ var ck = (function () {
         SoundManager.lose && SoundManager.lose();
       }
     }
-    if (window.DZShare) DZShare.setResult({ game:'Checkers', slug:'checkers', winner:title.textContent, detail:detail.textContent, accent:'#e85d04', icon:'⚫' });
+    if (window.DZShare) DZShare.setResult({ game:'Checkers', slug:'checkers', winner:title.textContent, detail:detail.textContent, accent:'#e85d04', icon:'⚫', score:0, diff:state&&state.gameMode?state.gameMode:'', isWin:isP1Win });
 
     panel.classList.remove('ck-hidden');
     ckAnimateResult(isP1Win || state.gameMode === 'pvp');
@@ -995,6 +995,21 @@ var ck = (function () {
       var btn = ckDom('ck-diff-' + d + '-btn');
       if (btn) btn.addEventListener('click', function() { ckSetDifficulty(d); });
     });
+
+    /* ── Auto-apply difficulty from challenge link ─────────────
+       Pre-selects the difficulty button; user still clicks to start. */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'checkers' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      if (['easy','medium','hard'].indexOf(target) === -1) return;
+      state.difficulty = target;
+      ['easy','medium','hard'].forEach(function(d) {
+        var btn = ckDom('ck-diff-' + d + '-btn');
+        if (btn) btn.classList.toggle('active', d === target);
+      });
+    })();
 
     // Reset / play again
     var resetBtn  = ckDom('ck-reset-btn');

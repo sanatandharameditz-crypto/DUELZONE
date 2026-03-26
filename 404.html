@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DuelZone</title>
+  <script>
+    (function () {
+      var KNOWN = ['tic-tac-toe','connect-four','rock-paper-scissors','tap-battle',
+        'hand-cricket','2048-duel','air-hockey','password-breaker','memory-flip',
+        'connect-dots','chess','battleship','checkers','darts','ping-pong','tetris',
+        'reaction-duel','ludo','sudoku','carrom','minesweeper','bomberman',
+        'space-dodge','star-catcher','tanks','territory','draw-and-guess'];
+
+      var path  = window.location.pathname;
+      var parts = path.split('/').filter(Boolean);
+
+      // Find game slug — scan backwards
+      var slug = null;
+      for (var i = parts.length - 1; i >= 0; i--) {
+        if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
+      }
+
+      // Find repo base path
+      var base = '/';
+      if (parts.length > 0) {
+        var slugIdx = slug ? parts.indexOf(slug) : parts.length;
+        base = '/' + parts.slice(0, slugIdx).join('/') + '/';
+      }
+
+      // Build redirect URL — put game in query param (no sessionStorage needed)
+      var qs = slug ? ('?game=' + slug) : '';
+      // Keep any existing challenge params
+      var existing = window.location.search;
+      if (existing && slug) {
+        qs = qs + '&' + existing.slice(1);
+      } else if (existing && !slug) {
+        qs = existing;
+      }
+
+      window.location.replace(
+        window.location.origin + base + qs + (window.location.hash || '')
+      );
+    })();
+  </script>
+</head>
+<body style="background:#07080f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:12px">
+  <div style="font-size:2.5rem">🎮</div>
+  <div style="opacity:0.5;font-size:0.9rem;letter-spacing:0.1em">LOADING DUELZONE…</div>
+</body>
+</html>

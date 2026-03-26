@@ -1164,7 +1164,7 @@ function tttPlace(idx, mark){
     tttBoardEl.classList.add('disabled'); tttActive=false;
     SoundManager.tttWinLine();
     setTimeout(function(){ SoundManager.win(); }, 200);
-    if (window.DZShare) DZShare.setResult({ game:'Tic Tac Toe', slug:'tic-tac-toe', winner:tttNames[mark]+' Wins! 🏆', detail:'Classic 3×3 battle', accent:'#00e5ff', icon:'✖' });
+    if (window.DZShare) DZShare.setResult({ game:'Tic Tac Toe', slug:'tic-tac-toe', winner:tttNames[mark]+' Wins! 🏆', detail:'Difficulty: '+tttDifficulty, accent:'#00e5ff', icon:'✖', score:tttScores[mark], diff:tttDifficulty, isWin:true });
     return true;
   }
   if(tttFull()){
@@ -1359,7 +1359,7 @@ function rpsRevealChoices(p1c, p2c) {
     setTimeout(function() {
       if (rpsScores.p1 >= winsNeeded) SoundManager.win(); else SoundManager.lose();
     }, 300);
-    if (window.DZShare) DZShare.setResult({ game:'Rock Paper Scissors', slug:'rock-paper-scissors', winner:matchWinner+' wins the match! 🏆', detail:'Best of '+rpsBestOf+' · '+rpsScores.p1+' – '+rpsScores.p2, accent:'#00e676', icon:'✊' });
+    if (window.DZShare) DZShare.setResult({ game:'Rock Paper Scissors', slug:'rock-paper-scissors', winner:matchWinner+' wins the match! 🏆', detail:'Best of '+rpsBestOf+' · '+rpsScores.p1+' – '+rpsScores.p2, accent:'#00e676', icon:'✊', score:Math.max(rpsScores.p1,rpsScores.p2), diff:'best-of-'+rpsBestOf, isWin:true });
     return;
   }
   if (winner === 'draw') setTimeout(function() { SoundManager.draw(); }, 300);
@@ -1615,7 +1615,7 @@ function tapRegisterHit(player) {
     var winnerName = player === 'p1' ? 'Player 1' : (tapMode === 'pve' ? 'Bot' : 'Player 2');
     tapWinTextEl.textContent = winnerName + ' Wins! 🎉';
     tapWinOverlay.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Tap Battle', slug:'tap-battle', winner:winnerName+' Wins! 🎉', detail:'First to 100 taps', accent:'#f50057', icon:'👊' });
+    if (window.DZShare) DZShare.setResult({ game:'Tap Battle', slug:'tap-battle', winner:winnerName+' Wins! 🎉', detail:'First to 100 taps', accent:'#f50057', icon:'👊', score:100, diff:'speed', isWin:true });
   }
 }
 
@@ -2000,7 +2000,7 @@ function d2048ShowWin(name, sub) {
   d2048WinOverlay.classList.remove('hidden');
   SoundManager.d2048GameOver();
   setTimeout(function() { SoundManager.win(); }, 400);
-  if (window.DZShare) DZShare.setResult({ game:'2048 Duel', slug:'2048-duel', winner:name+' Wins! 🏆', detail:sub, accent:'#aa00ff', icon:'🔢' });
+  if (window.DZShare) DZShare.setResult({ game:'2048 Duel', slug:'2048-duel', winner:name+' Wins! 🏆', detail:sub, accent:'#aa00ff', icon:'🔢', score:0, diff:'', isWin:true });
 }
 
 // ── Turn UI ────────────────────────────────────────────────────
@@ -2639,7 +2639,7 @@ function cricShowResult() {
   if (window.DZShare) {
     var cricWinner = tie ? 'It\'s a Tie!' : (p1s > p2s ? p1n + ' Win'+(cricIsPvP?'s':'')+'!' : p2n + ' Wins!');
     var cricDetail = p1n+': '+p1s+' runs  ·  '+p2n+': '+p2s+' runs';
-    DZShare.setResult({ game:'Hand Cricket', slug:'hand-cricket', winner:cricWinner, detail:cricDetail, accent:'#76ff03', icon:'🏏' });
+    DZShare.setResult({ game:'Hand Cricket', slug:'hand-cricket', winner:cricWinner, detail:cricDetail, accent:'#76ff03', icon:'🏏', score:Math.max(p1s,p2s), diff:'', isWin:p1s>p2s });
   }
 }
 
@@ -3751,7 +3751,7 @@ function c4EndGame(winner, winPairs) {
     setTimeout(function() {
       if (winner === C4_P1) SoundManager.win(); else SoundManager.lose();
     }, 300);
-    if (window.DZShare) DZShare.setResult({ game:'Connect Four', slug:'connect-four', winner:wName+' Wins! 🏆', detail:'Scores: P1 '+c4Scores[C4_P1]+' · P2 '+c4Scores[C4_P2], accent:'#ff6d00', icon:'🔴' });
+    if (window.DZShare) DZShare.setResult({ game:'Connect Four', slug:'connect-four', winner:wName+' Wins! 🏆', detail:'Scores: P1 '+c4Scores[C4_P1]+' · P2 '+c4Scores[C4_P2], accent:'#ff6d00', icon:'🔴', score:c4Scores[winner], diff:c4GameMode==='pve'?'bot':'pvp', isWin:winner===C4_P1 });
   } else {
     c4SetStatus("It's a Draw!", 'draw');
     SoundManager.draw();
@@ -5114,7 +5114,7 @@ function pbShowResult(won, elapsed, reason) {
                                             'Well done, the code is yours.';
     card.classList.add('pb-result-card--win');
     pbSpawnParticles();
-    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Code Cracked! 🏆', detail:'Cracked in '+pb.attempts+' attempt'+(pb.attempts!==1?'s':'')+' · Score: '+pb.score, accent:'#00ff88', icon:'🔐' });
+    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Code Cracked! 🏆', detail:'Cracked in '+pb.attempts+' attempt'+(pb.attempts!==1?'s':'')+' · Score: '+pb.score, accent:'#00ff88', icon:'🔐', score:pb.score, diff:pb.difficulty||'', isWin:true });
   } else {
     icon.textContent  = '💥';
     title.textContent = 'BREACH FAILED';
@@ -5122,7 +5122,7 @@ function pbShowResult(won, elapsed, reason) {
     sub.textContent   = (reason || 'Time ran out!') + ' · The code was:';
     card.classList.remove('pb-result-card--win');
     SoundManager.lose();
-    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Breach Failed 💥', detail:'The code was: '+pb.secret.join(''), accent:'#00ff88', icon:'🔐' });
+    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Breach Failed 💥', detail:'The code was: '+pb.secret.join(''), accent:'#00ff88', icon:'🔐', score:0, diff:pb.difficulty||'', isWin:false });
   }
 
   // Code reveal tiles
@@ -5674,7 +5674,7 @@ function mfdShowResult() {
   if (rt) rt.textContent = title;
   if (rs) rs.textContent = 'P1: ' + s1 + '  ·  ' + p2name + ': ' + s2;
   if (res) res.classList.remove('hidden');
-  if (window.DZShare) DZShare.setResult({ game:'Memory Flip Duel', slug:'memory-flip', winner:title, detail:'P1: '+s1+' pairs  ·  '+p2name+': '+s2+' pairs', accent:'#c084fc', icon:'🃏' });
+  if (window.DZShare) DZShare.setResult({ game:'Memory Flip Duel', slug:'memory-flip', winner:title, detail:'P1: '+s1+' pairs  ·  '+p2name+': '+s2+' pairs', accent:'#c084fc', icon:'🃏', score:Math.max(s1,s2), diff:'', isWin:s1>s2 });
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -7551,7 +7551,7 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
     if (cddResultTitle)  cddResultTitle.textContent  = title;
     if (cddResultScores) cddResultScores.textContent = detail;
     if (cddResult)       cddResult.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Connect Dots Duel', slug:'connect-dots', winner:title, detail:detail, accent:'#ff9100', icon:'🔵' });
+    if (window.DZShare) DZShare.setResult({ game:'Connect Dots Duel', slug:'connect-dots', winner:title, detail:detail, accent:'#ff9100', icon:'🔵', score:0, diff:'', isWin:true });
   }
 
   function cddHideResult() {
@@ -8051,21 +8051,33 @@ function dzResumeAllGames() {
 }
 
 function dzStopAllGames() {
-  // Full stop — pause everything then also kill the Air Hockey RAF loop
+  // Full stop — pause everything and kill all loops
   dzPauseAllGames();
 
-  // ── CRITICAL: reset the global pause flag and audio ──────────
-  // dzPauseAllGames() sets DZ_PAUSED=true (correct for menu-open).
-  // dzStopAllGames() is also called during game-to-game navigation,
-  // so we must clear DZ_PAUSED immediately or the incoming game's
-  // RAF loop hits `if (window.DZ_PAUSED) return` and never runs.
+  // Clear DZ_PAUSED so the NEXT game's RAF loop can start cleanly.
+  // Do NOT call dzResumeAllAudio() here — that would restart music!
   window.DZ_PAUSED = false;
-  dzResumeAllAudio();
 
   // Air Hockey: stop RAF loop entirely (not just paused flag)
   if (typeof ahStopLoop === 'function') ahStopLoop();
   // Reset AH pause flag so next session starts clean
   if (typeof ahPaused !== 'undefined') ahPaused = false;
+
+  // ── Stop ALL game-specific music/audio ──────────────────────
+  var _s = function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} };
+  _s(window.ludomStop);        // Ludo background music
+  _s(window.stopMusic);        // Ludo stopMusic alias
+  _s(window.tetrisStop);       // Tetris game loop + sound
+  _s(window.rdStop);           // Reaction Duel
+  _s(window.ppStop);           // Ping Pong
+  _s(window.carromStop);       // Carrom
+  _s(window.sudokuStop);       // Sudoku timer
+  _s(window.mineDestroy);      // Minesweeper
+  _s(window.bombermanDestroy); // Bomberman
+  _s(window.sdStopGame);       // Space Dodge
+  _s(window.territoryDestroy); // Territory
+  _s(window.tanksDestroy);     // Tanks
+  _s(window.scDestroy);        // Star Catcher
 
   // Cricket: unlock numpad for next fresh session
   if (typeof cricNumpadLocked !== 'undefined') cricNumpadLocked = false;
@@ -8539,15 +8551,34 @@ window._dzRouter = (function () {
     'draw-and-guess':      'drawguess',
   };
 
-  // ── Screen ID → Slug (reverse map, built automatically) ───
+  // ── Screen ID → Slug ──────────────────────────────────────
   var SCREEN_TO_SLUG = {};
   Object.keys(SLUG_TO_SCREEN).forEach(function (slug) {
     SCREEN_TO_SLUG[SLUG_TO_SCREEN[slug]] = slug;
   });
 
-  // ── Per-game SEO metadata ─────────────────────────────────
+  // ── Auto-detect base path ─────────────────────────────────
+  // duelzone.online/chess    → base = '/'
+  // github.io/hi-/chess      → base = '/hi-/'
+  // github.io/DUELZONE/chess → base = '/DUELZONE/'
+  var _base = (function () {
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    if (!parts.length) return '/';
+    // Walk from the end — find the first known game slug
+    for (var i = parts.length - 1; i >= 0; i--) {
+      if (SLUG_TO_SCREEN[parts[i]]) {
+        // Everything before this is the base
+        var b = '/' + parts.slice(0, i).join('/');
+        return b ? (b + '/') : '/';
+      }
+    }
+    // No game slug in URL — entire path is the base
+    return '/' + parts.join('/') + '/';
+  })();
+
+  // ── SEO metadata ──────────────────────────────────────────
   var GAME_META = {
-    ttt:         { title: 'Tic Tac Toe',          desc: 'Classic 3×3 strategy duel. Play Tic Tac Toe free on DuelZone — no download, no signup.' },
+    ttt:         { title: 'Tic Tac Toe',          desc: 'Classic 3×3 strategy duel. Play Tic Tac Toe free on DuelZone.' },
     c4:          { title: 'Connect Four',          desc: 'Drop discs and connect four to win. Play Connect Four free on DuelZone.' },
     rps:         { title: 'Rock Paper Scissors',   desc: 'Classic hand duel showdown. Play Rock Paper Scissors free on DuelZone.' },
     tapbattle:   { title: 'Tap Battle',            desc: 'Speed-tap reflex duel. Play Tap Battle free on DuelZone.' },
@@ -8569,74 +8600,85 @@ window._dzRouter = (function () {
     carrom:      { title: 'Carrom',                desc: 'Flick the striker, pocket the coins. Play Carrom free on DuelZone.' },
     minesweeper: { title: 'Minesweeper',           desc: 'Classic minesweeper, mobile-first edition. Play Minesweeper free on DuelZone.' },
     bomberman:   { title: 'Bomberman Duel',        desc: 'Place bombs, blast your rival. Play Bomberman Duel free on DuelZone.' },
-    spacedodge:  { title: 'Space Dodge',           desc: 'Dodge the asteroids — survive as long as you can. Play Space Dodge free on DuelZone.' },
-    starcatcher: { title: 'Star Catcher',          desc: 'Catch falling stars before your rival. Play Star Catcher free on DuelZone.' },
+    spacedodge:  { title: 'Space Dodge',           desc: 'Dodge the asteroids. Play Space Dodge free on DuelZone.' },
+    starcatcher: { title: 'Star Catcher',          desc: 'Catch falling stars. Play Star Catcher free on DuelZone.' },
     tanks:       { title: 'Tanks Arena',           desc: 'Tank battle showdown. Play Tanks Arena free on DuelZone.' },
     territory:   { title: 'Territory Wars',        desc: 'Claim the most territory. Play Territory Wars free on DuelZone.' },
     drawguess:   { title: 'Draw and Guess',        desc: 'Draw it, guess it. Play Draw and Guess free on DuelZone.' },
   };
 
-  // ── Internal flag: skip pushState while handling popstate ─
   var _handlingPop = false;
 
-  // ── Update <title>, <meta description>, <link canonical> ──
+  // ── Update SEO tags ───────────────────────────────────────
   function _updateMeta(screenId) {
     var meta = screenId ? GAME_META[screenId] : null;
     var slug = screenId ? SCREEN_TO_SLUG[screenId] : null;
     var BASE = 'https://duelzone.online';
 
-    // Page title
     document.title = meta
       ? (meta.title + ' — DuelZone')
       : 'DuelZone \u2013 Choose Your Arena';
 
-    // <link rel="canonical">
     var can = document.querySelector('link[rel="canonical"]');
-    if (!can) {
-      can = document.createElement('link');
-      can.rel = 'canonical';
-      document.head.appendChild(can);
-    }
+    if (!can) { can = document.createElement('link'); can.rel = 'canonical'; document.head.appendChild(can); }
     can.href = slug ? (BASE + '/' + slug) : (BASE + '/');
 
-    // <meta name="description">
     var desc = document.querySelector('meta[name="description"]');
-    if (!desc) {
-      desc = document.createElement('meta');
-      desc.name = 'description';
-      document.head.appendChild(desc);
-    }
-    desc.content = meta
-      ? meta.desc
-      : 'DuelZone \u2014 25+ free browser games for 2 players. No download. No signup. Play now!';
+    if (!desc) { desc = document.createElement('meta'); desc.name = 'description'; document.head.appendChild(desc); }
+    desc.content = meta ? meta.desc : 'DuelZone \u2014 25+ free browser games. No download. No signup. Play now!';
   }
 
-  // ── Push a new history entry (skipped during popstate) ────
+  // ── Build full path including base ────────────────────────
+  function _fullPath(slug) {
+    // _base is '/hi-/' or '/'
+    // result: '/hi-/chess' or '/chess'
+    var b = _base === '/' ? '' : _base.replace(/\/$/, '');
+    return b + '/' + (slug || '');
+  }
+
+  // ── Push history entry ────────────────────────────────────
   function _push(path, screenId) {
     if (_handlingPop) return;
     try { history.pushState({ screenId: screenId || null }, '', path); } catch (e) {}
     _updateMeta(screenId || null);
   }
 
-  // ── Get slug from current URL pathname ────────────────────
+  // ── Extract just the game slug from current URL ───────────
   function _currentSlug() {
-    return window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '') || null;
+    // Priority 1: set by early script in index.html (from ?game= or pathname)
+    if (window.__dz_startup_slug) {
+      var s = window.__dz_startup_slug;
+      window.__dz_startup_slug = null;
+      return s;
+    }
+    // Priority 2: ?game= query param (set by 404.html redirect)
+    try {
+      var qp = new URLSearchParams(window.location.search);
+      var gp = qp.get('game');
+      if (gp && SLUG_TO_SCREEN[gp]) return gp;
+    } catch(e) {}
+    // Priority 3: pathname (duelzone.online/chess direct visit)
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    for (var i = parts.length - 1; i >= 0; i--) {
+      if (SLUG_TO_SCREEN[parts[i]]) return parts[i];
+    }
+    return null;
   }
 
-  // ── Show correct screen from slug (uses existing show fns) ─
+  // ── Route from slug ───────────────────────────────────────
   function _routeFromSlug(slug) {
     var screenId = slug ? SLUG_TO_SCREEN[slug] : null;
-    if (!screenId) return; // unknown slug → stay on hub
+    if (!screenId) return;
+    // Hide hub defensively
+    var hub = document.getElementById('screen-hub');
+    if (hub) hub.classList.add('hidden');
     _routeToGame(screenId);
   }
 
-  // ── Show hub silently (no ad, no pushState) ───────────────
-  // Used only during popstate when going back to '/'
+  // ── Silent hub show (no ad, no pushState) ─────────────────
   function _showHubSilent() {
     if (typeof dzStopAllGames === 'function') dzStopAllGames();
-    var allScreens = document.querySelectorAll('[id^="screen-"]');
-    allScreens.forEach(function (s) { s.classList.add('hidden'); });
-    // Also hide fixed-position panels that escape parent visibility
+    document.querySelectorAll('[id^="screen-"]').forEach(function (s) { s.classList.add('hidden'); });
     ['mine-play','tetris-play','bm-play','rd-play',
      'tw-play','sdk-play','carrom-play','ludo-play'].forEach(function (id) {
       var el = document.getElementById(id);
@@ -8650,87 +8692,100 @@ window._dzRouter = (function () {
     window.scrollTo(0, 0);
   }
 
-  // ── Public API (called by hooked functions in script.js) ──
+  // ── Public API ────────────────────────────────────────────
   var api = {
-    // Called inside launchWithOverlay after _routeToGame runs
     onGameLaunched: function (screenId) {
       var slug = SCREEN_TO_SLUG[screenId];
-      if (slug) _push('/' + slug, screenId);
+      if (slug) _push(_fullPath(slug), screenId);
     },
-    // Called by showHub() and dzNavShowHome()
     onHub: function () {
-      _push('/', null);
+      _push(_base, null);
     },
   };
 
   // ── Browser back / forward ────────────────────────────────
   window.addEventListener('popstate', function (e) {
     _handlingPop = true;
-    var state = e.state;
+    var state    = e.state;
     var screenId = (state && state.screenId) ? state.screenId : null;
-
-    // Fall back to reading the URL if no state (e.g. initial history entry)
     if (!screenId) {
       var slug = _currentSlug();
       screenId = slug ? SLUG_TO_SCREEN[slug] : null;
     }
-
     if (screenId) {
       _routeToGame(screenId);
       _updateMeta(screenId);
     } else {
-      // Back to hub — show hub WITHOUT triggering the ad interstitial
-      _showHubSilent();
+      // Route through dzNavShowHome so the ad interstitial fires on back button too
+      if (typeof dzNavShowHome === 'function') {
+        dzNavShowHome();
+      } else {
+        _showHubSilent();
+      }
       _updateMeta(null);
     }
-
     _handlingPop = false;
   });
 
-  // ── Page load: route directly from URL ───────────────────
+  // ── Page load ─────────────────────────────────────────────
   (function _init() {
-    var slug      = _currentSlug();
-    var screenId  = slug ? SLUG_TO_SCREEN[slug] : null;
+    var slug     = _currentSlug();
+    var screenId = slug ? SLUG_TO_SCREEN[slug] : null;
 
-    // Stamp the initial history entry with state
     try {
       history.replaceState(
         { screenId: screenId || null },
         '',
-        window.location.pathname || '/'
+        screenId ? _fullPath(slug) : _base
       );
     } catch (e) {}
 
-    // Always update meta on page load
     _updateMeta(screenId || null);
 
-    // If no game slug, user is on the hub — nothing to do
     if (!screenId) return;
 
-    // ── Hide hub immediately so it never flashes ──────────
+    var _routed = false;
+
+    function _doRoute() {
+      if (_routed) return;
+      _routed = true;
+      var h = document.getElementById('screen-hub');
+      if (h) { h.classList.add('hidden'); h.style.setProperty('display','none','important'); }
+      try {
+        history.replaceState({ screenId: SLUG_TO_SCREEN[slug] || null }, '', _fullPath(slug));
+      } catch(e) {}
+      try {
+        _routeFromSlug(slug);
+      } catch(err) {
+        console.error('[DZRouter] routing failed, retrying:', err);
+        // Retry once after 500ms if first attempt throws
+        setTimeout(function(){
+          try { _routeFromSlug(slug); } catch(e2) { console.error('[DZRouter] retry failed:', e2); }
+        }, 500);
+      }
+      setTimeout(function() {
+        var hub2 = document.getElementById('screen-hub');
+        if (hub2) hub2.style.removeProperty('display');
+      }, 800);
+    }
+
+    // Hide hub immediately
     var hub = document.getElementById('screen-hub');
     if (hub) hub.classList.add('hidden');
 
-    // Direct URL visit → show game home/setup screen
-    // Wait for 'load' so all game JS files are fully executed
-    function _doRoute() {
-      // Hide hub again (defensive — some game inits call hideAllScreens)
-      var h = document.getElementById('screen-hub');
-      if (h) h.classList.add('hidden');
-      _routeFromSlug(slug);
-    }
-
+    // Wait for load event (ensures all game JS files are ready)
+    window.addEventListener('load', function() {
+      setTimeout(_doRoute, 80);
+    });
+    // Safety net: if load already fired
     if (document.readyState === 'complete') {
-      _doRoute();
-    } else {
-      window.addEventListener('load', _doRoute);
+      setTimeout(_doRoute, 80);
     }
   })();
 
   return api;
 
 })();
-
 
 // ═══════════════════════════════════════════════════════════════
 // DuelZone SHARE MODULE  (DZShare)
@@ -8741,249 +8796,7 @@ window._dzRouter = (function () {
 //   DZShare.setResult({ game, slug, winner, detail, accent, icon });
 //   Then the share button in HTML calls DZShare.openModal()
 // ═══════════════════════════════════════════════════════════════
-var DZShare = (function () {
-  'use strict';
 
-  // ── Current result ────────────────────────────────────────
-  var _r = { game:'DuelZone', slug:'', winner:'', detail:'', accent:'#00e5ff', icon:'🎮' };
-  var _dataURL = null;   // cached PNG data URL
 
-  // ── Card dimensions (16:9, looks great everywhere) ───────
-  var CW = 800, CH = 450;
 
-  // ── setResult: called by every game when it ends ─────────
-  function setResult(data) {
-    _r.game   = data.game   || 'DuelZone';
-    _r.slug   = data.slug   || '';
-    _r.winner = data.winner || '';
-    _r.detail = data.detail || '';
-    _r.accent = data.accent || '#00e5ff';
-    _r.icon   = data.icon   || '🎮';
-    _dataURL  = null;
-  }
-
-  // ── Draw card on an off-screen canvas ────────────────────
-  function _generateCard(cb) {
-    try {
-      var cv = document.createElement('canvas');
-      cv.width = CW; cv.height = CH;
-      var c = cv.getContext('2d');
-
-      // ── Background ──
-      c.fillStyle = '#07080f';
-      c.fillRect(0, 0, CW, CH);
-
-      // Grid overlay
-      c.strokeStyle = 'rgba(255,255,255,0.04)';
-      c.lineWidth = 1;
-      for (var gx = 0; gx < CW; gx += 40) { c.beginPath(); c.moveTo(gx,0); c.lineTo(gx,CH); c.stroke(); }
-      for (var gy = 0; gy < CH; gy += 40) { c.beginPath(); c.moveTo(0,gy); c.lineTo(CW,gy); c.stroke(); }
-
-      // Top accent bar
-      var tg = c.createLinearGradient(0,0,CW,0);
-      tg.addColorStop(0, _r.accent); tg.addColorStop(0.6, _r.accent+'88'); tg.addColorStop(1,'transparent');
-      c.fillStyle = tg; c.fillRect(0,0,CW,6);
-
-      // Bottom accent bar (reverse)
-      var bg2 = c.createLinearGradient(0,0,CW,0);
-      bg2.addColorStop(0,'transparent'); bg2.addColorStop(0.4,_r.accent+'88'); bg2.addColorStop(1,_r.accent);
-      c.fillStyle = bg2; c.fillRect(0,CH-6,CW,6);
-
-      // Left glow strip
-      var lg = c.createLinearGradient(0,0,0,CH);
-      lg.addColorStop(0,_r.accent+'00'); lg.addColorStop(0.5,_r.accent+'44'); lg.addColorStop(1,_r.accent+'00');
-      c.fillStyle = lg; c.fillRect(0,0,4,CH);
-
-      // ── Branding ──
-      c.font = 'bold 15px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.30)';
-      c.textAlign = 'left'; c.textBaseline = 'top';
-      c.fillText('DUELZONE', 30, 24);
-
-      // Right side URL
-      c.font = '13px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.22)';
-      c.textAlign = 'right';
-      c.fillText('duelzone.online' + (_r.slug ? '/' + _r.slug : ''), CW - 30, 24);
-
-      // ── Game icon ──
-      c.font = '80px serif';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(_r.icon, CW / 2, 130);
-
-      // ── Game name ──
-      c.font = 'bold 36px Arial, sans-serif';
-      c.fillStyle = _r.accent;
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(_r.game.toUpperCase(), CW / 2, 200);
-
-      // ── Accent underline under game name ──
-      var uw = 160;
-      var uGrad = c.createLinearGradient(CW/2-uw/2, 0, CW/2+uw/2, 0);
-      uGrad.addColorStop(0,'transparent'); uGrad.addColorStop(0.5,_r.accent); uGrad.addColorStop(1,'transparent');
-      c.strokeStyle = uGrad; c.lineWidth = 2;
-      c.beginPath(); c.moveTo(CW/2-uw/2, 218); c.lineTo(CW/2+uw/2, 218); c.stroke();
-
-      // ── Winner ──
-      var winText = _r.winner.length > 26 ? _r.winner.slice(0,26)+'…' : _r.winner;
-      c.font = 'bold 44px Arial, sans-serif';
-      c.fillStyle = '#ffffff';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(winText, CW/2, 285);
-
-      // ── Detail ──
-      if (_r.detail) {
-        var detText = _r.detail.length > 55 ? _r.detail.slice(0,55)+'…' : _r.detail;
-        c.font = '20px Arial, sans-serif';
-        c.fillStyle = 'rgba(255,255,255,0.50)';
-        c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.fillText(detText, CW/2, 330);
-      }
-
-      // ── Divider ──
-      var divGrad = c.createLinearGradient(60, 0, CW-60, 0);
-      divGrad.addColorStop(0,'transparent'); divGrad.addColorStop(0.5,'rgba(255,255,255,0.12)'); divGrad.addColorStop(1,'transparent');
-      c.strokeStyle = divGrad; c.lineWidth = 1;
-      c.beginPath(); c.moveTo(60,363); c.lineTo(CW-60,363); c.stroke();
-
-      // ── Bottom tagline ──
-      c.font = '14px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.22)';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText('Play free at duelzone.online — No download needed', CW/2, 400);
-
-      _dataURL = cv.toDataURL('image/png');
-      if (cb) cb(_dataURL);
-    } catch (err) {
-      if (cb) cb(null);
-    }
-  }
-
-  // ── Open the share modal ──────────────────────────────────
-  function openModal() {
-    var modal    = document.getElementById('dz-share-modal');
-    var preview  = document.getElementById('dz-share-preview');
-    var backdrop = document.getElementById('dz-share-backdrop');
-    if (!modal) { console.warn('[DZShare] modal not found'); return; }
-
-    if (preview) preview.innerHTML = '<div class="dz-share-spinner"></div>';
-    if (backdrop) backdrop.classList.add('active');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-
-    _generateCard(function(dataURL) {
-      if (!preview) return;
-      if (!dataURL) {
-        preview.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.8rem;padding:20px;text-align:center;">Preview unavailable</div>';
-        return;
-      }
-      var img = document.createElement('img');
-      img.src = dataURL;
-      img.style.cssText = 'width:100%;border-radius:8px;display:block;';
-      preview.innerHTML = '';
-      preview.appendChild(img);
-    });
-  }
-
-  function closeModal() {
-    var modal    = document.getElementById('dz-share-modal');
-    var backdrop = document.getElementById('dz-share-backdrop');
-    if (modal)    modal.classList.remove('active');
-    if (backdrop) backdrop.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  // ── Share text builder ────────────────────────────────────
-  function _text(platform) {
-    var base  = 'https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
-    var line1 = '\uD83C\uDFC6 ' + (_r.winner || ('Play ' + _r.game + ' on DuelZone!'));
-    var line2 = _r.detail ? ('\n' + _r.detail) : '';
-    var line3 = '\nThink you can beat it? \uD83D\uDC47\n' + base;
-    var hash  = platform === 'twitter' ? '\n#DuelZone #gaming' : '';
-    return encodeURIComponent(line1 + line2 + line3 + hash);
-  }
-
-  // ── Share actions ─────────────────────────────────────────
-  function _whatsapp() { window.open('https://wa.me/?text=' + _text('whatsapp'), '_blank', 'noopener'); }
-  function _twitter()  { window.open('https://twitter.com/intent/tweet?text=' + _text('twitter'), '_blank', 'noopener'); }
-
-  function _copyLink() {
-    var link = 'https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
-    var btn  = document.getElementById('dz-share-copy-btn');
-    function _done() {
-      if (btn) { btn.textContent = '✅ Copied!'; setTimeout(function(){ btn.textContent = '🔗 Copy Link'; }, 2000); }
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(link).then(_done).catch(function() {
-        _fallbackCopy(link); _done();
-      });
-    } else { _fallbackCopy(link); _done(); }
-  }
-
-  function _fallbackCopy(text) {
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0;';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); } catch(e){}
-    document.body.removeChild(ta);
-  }
-
-  function _saveImage() {
-    var doSave = function(url) {
-      if (!url) return;
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = 'duelzone-' + (_r.slug || 'result') + '.png';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    };
-    if (_dataURL) { doSave(_dataURL); }
-    else { _generateCard(doSave); }
-  }
-
-  // ── Native share (mobile) — uses Web Share API if available ──
-  function _nativeShare() {
-    var text = '\uD83C\uDFC6 ' + (_r.winner || _r.game) +
-               (_r.detail ? '\n' + _r.detail : '') +
-               '\nPlay free: https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
-    if (navigator.share) {
-      navigator.share({ title: _r.game + ' — DuelZone', text: text })
-        .catch(function(){});
-    } else {
-      _whatsapp();
-    }
-  }
-
-  // ── Wire buttons ──────────────────────────────────────────
-  function _wire() {
-    function on(id, fn) {
-      var el = document.getElementById(id);
-      if (el && !el.__dzShareWired) { el.__dzShareWired = true; el.addEventListener('click', fn); }
-    }
-    on('dz-share-close',    closeModal);
-    on('dz-share-wa-btn',   _whatsapp);
-    on('dz-share-tw-btn',   _twitter);
-    on('dz-share-copy-btn', _copyLink);
-    on('dz-share-save-btn', _saveImage);
-    on('dz-share-native-btn', _nativeShare);
-
-    var bd = document.getElementById('dz-share-backdrop');
-    if (bd && !bd.__dzShareWired) { bd.__dzShareWired = true; bd.addEventListener('click', closeModal); }
-
-    // Escape key closes
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        var m = document.getElementById('dz-share-modal');
-        if (m && m.classList.contains('active')) closeModal();
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _wire);
-  } else {
-    _wire();
-  }
-
-  return { setResult: setResult, openModal: openModal, closeModal: closeModal };
-
-})();
+// DZShare loaded from dzshare.js

@@ -1061,7 +1061,7 @@
       if(chessResultTitle) chessResultTitle.textContent=title;
       if(chessResultDetail)chessResultDetail.textContent=detail;
       if(chessResultEl)    chessResultEl.classList.remove('hidden');
-      if(window.DZShare)   DZShare.setResult({ game:'Chess', slug:'chess', winner:title, detail:detail, accent:'#f5c518', icon:'♟' });
+      if(window.DZShare)   DZShare.setResult({ game:'Chess', slug:'chess', winner:title, detail:detail, accent:'#f5c518', icon:'♟', score:chess.state&&chess.state.history?chess.state.history.length:0, diff:chess.botDepth<=1?'easy':chess.botDepth<=3?'medium':'hard', isWin:reason==='checkmate'&&title.indexOf('Bot')===-1 });
     },400);
   }
 
@@ -1155,6 +1155,25 @@
         chess.botDepth=Math.min(Math.max(rawDepth,1),4);
       });
     });
+
+    /* ── Auto-apply difficulty from challenge link ───────────────
+       When Player 2 opens duelzone.online/chess?challenge=Rahul&diff=easy
+       we pre-select the matching difficulty button automatically.       */
+    if (window.DZShare && typeof DZShare.getChallenge === 'function') {
+      var _chParams = DZShare.getChallenge();
+      if (_chParams && _chParams.slug === 'chess' && _chParams.diff) {
+        var _targetDiff = _chParams.diff.toLowerCase();
+        if (chessDiffBtns) chessDiffBtns.forEach(function (btn) {
+          var depth  = parseInt(btn.dataset.depth, 10) || 2;
+          var bDiff  = depth <= 1 ? 'easy' : depth <= 3 ? 'medium' : 'hard';
+          if (bDiff === _targetDiff) {
+            chessDiffBtns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            chess.botDepth = Math.min(Math.max(depth, 1), 4);
+          }
+        });
+      }
+    }
 
     if(chessColorBtns) chessColorBtns.forEach(function(btn){
       btn.addEventListener('click',function(){

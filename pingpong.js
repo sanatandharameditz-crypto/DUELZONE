@@ -122,6 +122,18 @@
     on('pp-diff-easy', function(){ setDiff('easy'); });
     on('pp-diff-med',  function(){ setDiff('med');  });
     on('pp-diff-hard', function(){ setDiff('hard'); });
+
+    /* ── Auto-apply difficulty from challenge link ─────────────
+       Note: ping-pong uses 'med' internally for medium.          */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'ping-pong' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      /* normalise: challenge stores 'medium', game uses 'med' */
+      if (target === 'medium') target = 'med';
+      if (['easy','med','hard'].indexOf(target) !== -1) setDiff(target);
+    })();
     on('pp-start-btn',       startGame);
     on('pp-resume-btn',      resumeGame);
     on('pp-pause-menu-btn',  backToMenu);
@@ -453,7 +465,7 @@
         if($resTitle) $resTitle.textContent=w+' WINS!';
         if($resSub)   $resSub.textContent=s1+' – '+s2;
         showPanel('result'); stopLoop();
-        if(window.DZShare) DZShare.setResult({ game:'Ping Pong', slug:'ping-pong', winner:w+' WINS!', detail:'Final score: '+s1+' – '+s2, accent:'#00e5ff', icon:'🏓' });
+        if(window.DZShare) DZShare.setResult({ game:'Ping Pong', slug:'ping-pong', winner:w+' WINS!', detail:'Final score: '+s1+' – '+s2, accent:'#00e5ff', icon:'🏓', score:Math.max(s1,s2), diff:'', isWin:s1>=WIN });
       },700);
       return true;
     }

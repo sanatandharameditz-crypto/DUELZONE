@@ -85,6 +85,20 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'bomberman' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.bm-diff').forEach(function (b) {
+        if ((b.dataset.diff || '').toLowerCase() === target) {
+          document.querySelectorAll('.bm-diff').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); BM.diff = target;
+        }
+      });
+    })();
+
     document.addEventListener('keydown', bmKeyDown);
     document.addEventListener('keyup', bmKeyUp);
   }
@@ -398,6 +412,14 @@
     el('bm-result-detail').textContent = BM.scores[0] + ' – ' + BM.scores[1] + ' rounds';
     el('bm-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
+    if (window.DZShare) DZShare.setResult({
+      game: 'Bomberman', slug: 'bomberman',
+      winner: winner >= 0 ? names[winner] + ' Wins!' : "It's a Draw!",
+      detail: BM.scores[0] + ' – ' + BM.scores[1] + ' rounds',
+      accent: '#ff9100', icon: '💣',
+      score: winner >= 0 ? BM.scores[winner] : 0,
+      diff: BM.diff || '', isWin: winner === 0
+    });
   }
 
   function bmUpdateScores() {

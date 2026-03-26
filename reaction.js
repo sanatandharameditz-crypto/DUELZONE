@@ -120,6 +120,20 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'reaction-duel' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.rd-diff').forEach(function (b) {
+        if ((b.dataset.diff || '').toLowerCase() === target) {
+          document.querySelectorAll('.rd-diff').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); RD.diff = target;
+        }
+      });
+    })();
+
     on('rd-tap-p1', function () { rdPlayerTap(0); });
     on('rd-tap-p2', function () { rdPlayerTap(1); });
 
@@ -284,12 +298,12 @@
     if (RD.roundsWon[0] === RD.roundsWon[1]) {
       if (rdTitle)  rdTitle.textContent  = '🤝 Draw!';
       if (rdDetail) rdDetail.textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds (tied)';
-      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:"It's a Draw!", detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds (tied)', accent:'#aa00ff', icon:'⚡' });
+      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:"It's a Draw!", detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds (tied)', accent:'#aa00ff', icon:'⚡', score:0, diff:'', isWin:false });
     } else {
       var winner = RD.roundsWon[0] > RD.roundsWon[1] ? 0 : 1;
       if (rdTitle)  rdTitle.textContent  = '🏆 ' + names[winner] + ' Wins!';
       if (rdDetail) rdDetail.textContent = RD.roundsWon[0] + ' – ' + RD.roundsWon[1] + ' rounds';
-      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:names[winner]+' Wins! 🏆', detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds', accent:'#aa00ff', icon:'⚡' });
+      if (window.DZShare) DZShare.setResult({ game:'Reaction Duel', slug:'reaction-duel', winner:names[winner]+' Wins! 🏆', detail:RD.roundsWon[0]+' – '+RD.roundsWon[1]+' rounds', accent:'#aa00ff', icon:'⚡', score:RD.roundsWon[winner], diff:'', isWin:winner===0 });
     }
     if (rdResult) rdResult.classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();

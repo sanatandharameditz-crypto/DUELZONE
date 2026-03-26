@@ -45,6 +45,21 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'minesweeper' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.mine-diff').forEach(function(btn){
+        if ((btn.getAttribute('data-diff') || '').toLowerCase() === target) {
+          document.querySelectorAll('.mine-diff').forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          ms.diff = target;
+        }
+      });
+    })();
+
     // Start
     var startBtn = q('mine-start-btn');
     if (startBtn) startBtn.addEventListener('click', mineStartGame);
@@ -302,7 +317,7 @@
         res.appendChild(shareBtn);
       }
     }
-    if (window.DZShare) DZShare.setResult({ game:'Minesweeper', slug:'minesweeper', winner:won?'You Win! 🏆':'Boom! 💥', detail:won?'Cleared in '+ms.timerVal+'s':'Better luck next time!', accent:'#ef4444', icon:'💣' });
+    if (window.DZShare) DZShare.setResult({ game:'Minesweeper', slug:'minesweeper', winner:won?'You Win! 🏆':'Boom! 💥', detail:won?'Cleared in '+ms.timerVal+'s':'Better luck next time!', accent:'#ef4444', icon:'💣', score:ms.timerVal, diff:ms.diff||'medium', isWin:won });
   }
 
   // ── Timer ────────────────────────────────────────────

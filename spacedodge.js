@@ -169,6 +169,20 @@
       qa('.sd-diff-btn', function(x){ x.classList.remove('active'); });
       b.classList.add('active'); aiDiff = b.getAttribute('data-diff');
     }); });
+
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'space-dodge' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      qa('.sd-diff-btn', function(b){
+        if ((b.getAttribute('data-diff') || '').toLowerCase() === target) {
+          qa('.sd-diff-btn', function(x){ x.classList.remove('active'); });
+          b.classList.add('active'); aiDiff = target;
+        }
+      });
+    })();
     qs('.sd-arena-btn', function(b){ b.addEventListener('click', function(){
       qa('.sd-arena-btn', function(x){ x.classList.remove('active'); });
       b.classList.add('active'); arenaSize = b.getAttribute('data-size');
@@ -1257,6 +1271,15 @@
           localStorage.setItem('sd_wins', w + 1);
         }
       } catch(e) {}
+
+      if (window.DZShare) DZShare.setResult({
+        game: 'Space Dodge', slug: 'space-dodge',
+        winner: winner ? (isPvP ? winner.label + ' Wins!' : (winner.idx === 0 ? 'Victory!' : 'Bot Wins!')) : "It's a Draw!",
+        detail: winner ? (fmt(gameTime) + (winner.kills ? ' · Kills: ' + winner.kills : '')) : 'Both ships destroyed!',
+        accent: '#00e5ff', icon: '🚀',
+        score: winner ? winner.kills : 0,
+        diff: aiDiff || '', isWin: !!(winner && winner.idx === 0)
+      });
 
       render();
     }, 900);

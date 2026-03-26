@@ -964,6 +964,23 @@ var ahHPMode='pvb', ahHPDiff='easy', ahHPWinScore=7;
       el.classList.add('active'); ahSnd.click();
     });
   });
+
+  /* ── Auto-apply difficulty from challenge link ─────────────
+     e.g. duelzone.online/air-hockey?challenge=Rahul&diff=easy  */
+  (function() {
+    if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+    var _ch = DZShare.getChallenge();
+    if (!_ch || _ch.slug !== 'air-hockey' || !_ch.diff) return;
+    var target = _ch.diff.toLowerCase();
+    ['ah-diff-easy','ah-diff-medium','ah-diff-hard'].forEach(function(id){
+      var btn = q(id); if (!btn) return;
+      if ((btn.getAttribute('data-diff') || '').toLowerCase() === target) {
+        document.querySelectorAll('#ah-home .ah-pill[data-diff]').forEach(function(b){b.classList.remove('active');});
+        btn.classList.add('active');
+        ahHPDiff = target;
+      }
+    });
+  })();
   ['ah-score-5','ah-score-7','ah-score-10'].forEach(function(id){
     var el=q(id); if (!el) return;
     el.addEventListener('click',function(){

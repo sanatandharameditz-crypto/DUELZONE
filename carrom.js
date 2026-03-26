@@ -73,6 +73,21 @@
     });
   });
 
+  /* ── Auto-apply difficulty from challenge link ─────────── */
+  (function() {
+    if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+    const _ch = DZShare.getChallenge();
+    if (!_ch || _ch.slug !== 'carrom' || !_ch.diff) return;
+    const target = _ch.diff.toLowerCase();
+    qA('.carrom-diff').forEach(btn => {
+      if ((btn.dataset.diff || '').toLowerCase() === target) {
+        qA('.carrom-diff').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        difficulty = target;
+      }
+    });
+  })();
+
   $('carrom-start-btn').addEventListener('click', () => {
     window.scrollTo(0, 0);
     $('carrom-home').classList.add('hidden');
@@ -681,7 +696,7 @@
     $('carrom-result-title').textContent=title;
     $('carrom-result-detail').textContent=`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`;
     $('carrom-result').classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Carrom', slug:'carrom', winner:title, detail:`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`, accent:'#ff9100', icon:'🪙' });
+    if (window.DZShare) DZShare.setResult({ game:'Carrom', slug:'carrom', winner:title, detail:`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`, accent:'#ff9100', icon:'🪙', score:Math.max(s0,s1), diff:'', isWin:s0>s1 });
   }
 
   /* ══════════════════════════════════════════════════════════

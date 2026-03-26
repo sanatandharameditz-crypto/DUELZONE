@@ -382,6 +382,15 @@
     if(sub)sub.textContent=isBot?(wi===0?'VICTORY — You Dominated!':'Bot wins! Try a lower difficulty.'):'CLOSE CALL — Great duel!';
     el.classList.remove('hidden');
     if(typeof SoundManager!=='undefined'&&SoundManager.win)SoundManager.win();
+
+    if (window.DZShare) DZShare.setResult({
+      game: 'Tanks', slug: 'tanks',
+      winner: isBot && wi === 1 ? 'Bot Wins!' : 'Player ' + (wi + 1) + ' Wins!',
+      detail: 'First to ' + killTarget + ' kills',
+      accent: '#76ff03', icon: '🪖',
+      score: killTarget,
+      diff: botDiff || '', isWin: wi === 0
+    });
   }
 
   // ── Physics ───────────────────────────────────────────────
@@ -777,6 +786,20 @@
         botDiff=b.getAttribute('data-diff');
       });
     });
+
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'tanks' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.tanks-diff-btn').forEach(function(b){
+        if ((b.getAttribute('data-diff') || '').toLowerCase() === target) {
+          document.querySelectorAll('.tanks-diff-btn').forEach(function(x){x.classList.remove('active');});
+          b.classList.add('active'); botDiff = target;
+        }
+      });
+    })();
     document.querySelectorAll('.tanks-kills-btn').forEach(function(b){
       if(b.__tanksKillsWired) return;
       b.__tanksKillsWired = true;

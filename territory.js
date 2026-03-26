@@ -75,6 +75,20 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'territory' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.tw-diff').forEach(function (b) {
+        if ((b.dataset.diff || '').toLowerCase() === target) {
+          document.querySelectorAll('.tw-diff').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); TW.diff = target;
+        }
+      });
+    })();
+
     on('tw-end-turn', function () { twEndTurn(); });
   }
 
@@ -338,6 +352,15 @@
       'P1: ' + TW.scores[0] + ' cells  |  ' + names[1] + ': ' + TW.scores[1] + ' cells';
     el('tw-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();
+
+    if (window.DZShare) DZShare.setResult({
+      game: 'Territory War', slug: 'territory',
+      winner: winner >= 0 ? names[winner] + ' Wins!' : "It's a Tie!",
+      detail: 'P1: ' + TW.scores[0] + ' cells  |  ' + names[1] + ': ' + TW.scores[1] + ' cells',
+      accent: '#00e676', icon: '🗺️',
+      score: winner >= 0 ? TW.scores[winner] : TW.scores[0],
+      diff: TW.diff || '', isWin: winner === 0
+    });
   }
 
   // ── Bot AI ────────────────────────────────────────────────────

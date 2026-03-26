@@ -112,6 +112,20 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'tetris' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.tetris-diff').forEach(function (b) {
+        if ((b.dataset.diff || '').toLowerCase() === target) {
+          document.querySelectorAll('.tetris-diff').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); TB.diff = target;
+        }
+      });
+    })();
+
     // Keyboard controls
     document.addEventListener('keydown', tbKeyDown);
   }
@@ -590,11 +604,11 @@
     if (winner === -1) {
       el('tetris-result-title').textContent = '🤝 Draw!';
       el('tetris-result-detail').textContent = 'Both players topped out simultaneously!';
-      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:"It's a Draw!", detail:'Both topped out simultaneously', accent:'#00e5ff', icon:'🧱' });
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:"It's a Draw!", detail:'Both topped out simultaneously', accent:'#00e5ff', icon:'🧱', score:0, diff:TB.mode||'', isWin:false });
     } else {
       el('tetris-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
       el('tetris-result-detail').textContent = 'Scores: P1 ' + TB.players[0].score + ' | ' + names[1] + ' ' + TB.players[1].score;
-      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:names[winner]+' Wins! 🏆', detail:'Scores: P1 '+TB.players[0].score+' | '+names[1]+' '+TB.players[1].score, accent:'#00e5ff', icon:'🧱' });
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:names[winner]+' Wins! 🏆', detail:'Scores: P1 '+TB.players[0].score+' | '+names[1]+' '+TB.players[1].score, accent:'#00e5ff', icon:'🧱', score:TB.players[winner].score, diff:TB.mode||'', isWin:winner===0 });
     }
     el('tetris-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();

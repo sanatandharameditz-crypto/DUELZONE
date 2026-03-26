@@ -274,6 +274,21 @@
     diff = pill.dataset.diff;
   });
 
+  /* ── Auto-apply difficulty from challenge link ─────────── */
+  (function() {
+    if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+    const _ch = DZShare.getChallenge();
+    if (!_ch || _ch.slug !== 'sudoku' || !_ch.diff) return;
+    const target = _ch.diff.toLowerCase();
+    document.querySelectorAll('.sdk-diff').forEach(p => {
+      if ((p.dataset.diff || '').toLowerCase() === target) {
+        document.querySelectorAll('.sdk-diff').forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        diff = target;
+      }
+    });
+  })();
+
   // Start button
   document.addEventListener('click', e => {
     if (e.target.id === 'sdk-start-btn' || e.target.closest('#sdk-start-btn')) {
@@ -747,7 +762,7 @@
       ? `${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`
       : 'Too many mistakes! Try again.';
     res.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Sudoku', slug:'sudoku', winner:won?'Puzzle Solved! 🏆':'Game Over 💀', detail:won?`${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`:'Too many mistakes!', accent:'#6c63ff', icon:'🔢' });
+    if (window.DZShare) DZShare.setResult({ game:'Sudoku', slug:'sudoku', winner:won?'Puzzle Solved! 🏆':'Game Over 💀', detail:won?`${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`:'Too many mistakes!', accent:'#6c63ff', icon:'🔢', score:timerSec, diff:diff, isWin:won });
   }
 
   /* ══════════════════════════════════════════════════════════

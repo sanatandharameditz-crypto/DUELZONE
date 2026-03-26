@@ -376,6 +376,21 @@
     btn.classList.add('active'); botDiff=btn.dataset.ldiff;
   });
 
+  /* ── Auto-apply difficulty from challenge link ─────────── */
+  (function() {
+    if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+    const _ch = DZShare.getChallenge();
+    if (!_ch || _ch.slug !== 'ludo' || !_ch.diff) return;
+    const target = _ch.diff.toLowerCase();
+    document.querySelectorAll('#ludo-diff-group .diff-btn').forEach(btn => {
+      if ((btn.dataset.ldiff || '').toLowerCase() === target) {
+        document.querySelectorAll('#ludo-diff-group .diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        botDiff = target;
+      }
+    });
+  })();
+
   // Start game
   document.addEventListener('click', e=>{
     if (!(e.target.id==='ludo-start-btn'||e.target.closest('#ludo-start-btn'))) return;
@@ -996,7 +1011,7 @@
     $id('ludo-result-title').textContent  = title;
     $id('ludo-result-detail').textContent = detail;
     $id('ludo-result').classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Ludo', slug:'ludo', winner:title, detail:detail.replace(/[🎉💀🏆]/g,'').trim(), accent:'#ff1744', icon:'🎲' });
+    if (window.DZShare) DZShare.setResult({ game:'Ludo', slug:'ludo', winner:title, detail:detail.replace(/[🎉💀🏆]/g,'').trim(), accent:'#ff1744', icon:'🎲', score:turnCount, diff:botDiff, isWin:isHuman });
   }
 
   /* ═══════════════════════════════════════════════════════

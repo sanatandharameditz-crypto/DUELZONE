@@ -29,22 +29,43 @@
 </head>
 <body>
 
-  <!-- ── Early route guard: if URL is /chess, /ludo etc hide hub instantly
-       so the hub never flashes before the game screen appears ── -->
+  <!-- ── Early route guard ─────────────────────────────────────
+       Reads ?game= param (set by 404.html) OR pathname slug
+       Hides hub IMMEDIATELY before any other script runs
+  ──────────────────────────────────────────────────────────── -->
   <script>
   (function(){
-    var slug = window.location.pathname.replace(/^\/+/,'').replace(/\/+$/,'');
     var KNOWN = ['tic-tac-toe','connect-four','rock-paper-scissors','tap-battle',
       'hand-cricket','2048-duel','air-hockey','password-breaker','memory-flip',
       'connect-dots','chess','battleship','checkers','darts','ping-pong','tetris',
       'reaction-duel','ludo','sudoku','carrom','minesweeper','bomberman',
       'space-dodge','star-catcher','tanks','territory','draw-and-guess'];
-    if (slug && KNOWN.indexOf(slug) !== -1) {
-      // Hide hub immediately — before any other script runs
-      document.documentElement.style.setProperty('--dz-early-hide','1');
+
+    var slug = null;
+
+    // Priority 1: ?game= query param (set by 404.html redirect — most reliable)
+    try {
+      var qp = new URLSearchParams(window.location.search);
+      var gp = qp.get('game');
+      if (gp && KNOWN.indexOf(gp) !== -1) slug = gp;
+    } catch(e) {}
+
+    // Priority 2: pathname (works on duelzone.online/chess directly)
+    if (!slug) {
+      var parts = window.location.pathname.split('/').filter(Boolean);
+      for (var i = parts.length - 1; i >= 0; i--) {
+        if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
+      }
+    }
+
+    if (slug) {
+      window.__dz_startup_slug = slug;
+      // Hide hub RIGHT NOW — inline, synchronous, no waiting
+      document.documentElement.style.cssText += ';--dz-routing:1';
+      // Also hide on DOMContentLoaded (double safety)
       document.addEventListener('DOMContentLoaded', function(){
         var hub = document.getElementById('screen-hub');
-        if (hub) hub.classList.add('hidden');
+        if (hub) { hub.classList.add('hidden'); hub.style.setProperty('display','none','important'); }
       });
     }
   })();
@@ -2775,16 +2796,16 @@
         <div id="mfd-grid"></div>
 
         <!-- Game over overlay -->
-        <div id="mfd-result" class="hidden">
-          <div id="mfd-result-inner">
-            <div id="mfd-result-icon"></div>
-            <div id="mfd-result-title"></div>
-            <div id="mfd-result-scores"></div>
-            <div id="mfd-result-btns">
-              <button id="mfd-play-again" class="ghp-result-btn-primary" style="--rb-color:#c084fc;">▶ Play Again</button>
-              <button id="mfd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-              <button id="mfd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        <div id="mfd-result" class="dz-result-overlay hidden" style="--dz-res-color:#c084fc">
+          <div class="dz-result-card">
+            <div class="dz-result-trophy" id="mfd-result-icon">🏆</div>
+            <div class="dz-result-title" id="mfd-result-title"></div>
+            <div class="dz-result-sub" id="mfd-result-scores"></div>
+            <button id="mfd-play-again" class="dz-result-play-again">↺ Play Again</button>
+            <div class="dz-result-row">
+              <button id="mfd-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+              <button id="mfd-result-hub" class="dz-result-btn-sec">← Hub</button>
+              <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -2904,16 +2925,16 @@
         </div>
 
         <!-- Game over overlay -->
-        <div id="cdd-result" class="hidden">
-          <div id="cdd-result-inner">
-            <div id="cdd-result-icon"></div>
-            <div id="cdd-result-title"></div>
-            <div id="cdd-result-scores"></div>
-            <div id="cdd-result-btns">
-              <button id="cdd-play-again" class="ghp-result-btn-primary" style="--rb-color:#ff9100;">▶ Play Again</button>
-              <button id="cdd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-              <button id="cdd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        <div id="cdd-result" class="dz-result-overlay hidden" style="--dz-res-color:#ff9100">
+          <div class="dz-result-card">
+            <div class="dz-result-trophy" id="cdd-result-icon">🏆</div>
+            <div class="dz-result-title" id="cdd-result-title"></div>
+            <div class="dz-result-sub" id="cdd-result-scores"></div>
+            <button id="cdd-play-again" class="dz-result-play-again">↺ Play Again</button>
+            <div class="dz-result-row">
+              <button id="cdd-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+              <button id="cdd-result-hub" class="dz-result-btn-sec">← Hub</button>
+              <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -3044,16 +3065,16 @@
         </div>
 
         <!-- Game over overlay -->
-        <div id="chess-result" class="hidden chess-result-overlay">
-          <div id="chess-result-inner">
-            <div id="chess-result-icon"></div>
-            <div id="chess-result-title"></div>
-            <div id="chess-result-detail"></div>
-            <div id="chess-result-btns">
-              <button id="chess-play-again" class="ghp-result-btn-primary" style="--rb-color:#f5c518;">▶ Play Again</button>
-              <button id="chess-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-              <button id="chess-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        <div id="chess-result" class="dz-result-overlay hidden" style="--dz-res-color:#f5c518">
+          <div class="dz-result-card">
+            <div class="dz-result-trophy" id="chess-result-icon">♟</div>
+            <div class="dz-result-title" id="chess-result-title"></div>
+            <div class="dz-result-sub" id="chess-result-detail"></div>
+            <button id="chess-play-again" class="dz-result-play-again">↺ Play Again</button>
+            <div class="dz-result-row">
+              <button id="chess-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+              <button id="chess-result-hub" class="dz-result-btn-sec">← Hub</button>
+              <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -3205,15 +3226,16 @@
       </div>
 
       <!-- ─── Result Overlay ──────────────────────────────────── -->
-      <div id="bs-result-panel" class="bs-overlay bs-hidden">
-        <div id="bs-result-inner" class="bs-card">
-          <div id="bs-result-title"></div>
-          <div id="bs-result-detail"></div>
-          <div id="bs-result-btns">
-            <button id="bs-play-again-btn" class="bs-btn">↺ Play Again</button>
-            <button id="bs-result-setup-btn" class="bs-btn bs-btn-secondary">⚙ Setup</button>
-            <button id="bs-hub-btn2" class="bs-btn bs-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="bs-result-panel" class="dz-result-overlay bs-hidden" style="--dz-res-color:#06b6d4">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy">⚓</div>
+          <div class="dz-result-title" id="bs-result-title"></div>
+          <div class="dz-result-sub" id="bs-result-detail"></div>
+          <button id="bs-play-again-btn" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="bs-result-setup-btn" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="bs-hub-btn2" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3271,15 +3293,16 @@
       </div>
 
       <!-- Result Panel -->
-      <div id="ck-result-panel" class="ck-overlay-panel ck-hidden">
-        <div id="ck-result-inner" class="ck-panel-inner">
-          <div id="ck-result-title"></div>
-          <div id="ck-result-detail"></div>
-          <div class="ck-result-btns">
-            <button id="ck-play-again-btn" class="ck-btn">↺ Play Again</button>
-            <button id="ck-result-setup-btn" class="ck-btn ck-btn-secondary">⚙ Setup</button>
-            <button id="ck-hub-btn2" class="ck-btn ck-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="ck-result-panel" class="dz-result-overlay ck-hidden" style="--dz-res-color:#e85d04">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy">⚫</div>
+          <div class="dz-result-title" id="ck-result-title"></div>
+          <div class="dz-result-sub" id="ck-result-detail"></div>
+          <button id="ck-play-again-btn" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="ck-result-setup-btn" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="ck-hub-btn2" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3465,16 +3488,16 @@
         </div>
         <div id="darts-checkout-hint" class="hidden"></div>
         <div id="darts-score-popup" class="hidden"></div>
-        <div id="darts-result" class="hidden">
-          <div id="darts-result-inner">
-            <div id="darts-result-icon">🎯</div>
-            <div id="darts-result-title"></div>
-            <div id="darts-result-detail"></div>
-            <div id="darts-result-btns">
-              <button id="darts-play-again" class="ghp-result-btn-primary" style="--rb-color:#ff1744;">▶ Play Again</button>
-              <button id="darts-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-              <button id="darts-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-              <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+        <div id="darts-result" class="dz-result-overlay hidden" style="--dz-res-color:#ff1744">
+          <div class="dz-result-card">
+            <div class="dz-result-trophy" id="darts-result-icon">🎯</div>
+            <div class="dz-result-title" id="darts-result-title"></div>
+            <div class="dz-result-sub" id="darts-result-detail"></div>
+            <button id="darts-play-again" class="dz-result-play-again">↺ Play Again</button>
+            <div class="dz-result-row">
+              <button id="darts-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+              <button id="darts-result-hub" class="dz-result-btn-sec">← Hub</button>
+              <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
             </div>
           </div>
         </div>
@@ -3659,15 +3682,16 @@
           <div id="tetris-p2-keys" style="font-size:0.65rem;color:rgba(255,255,255,0.25);text-align:center;line-height:1.6;">W=Rotate · A/D=Move<br>S=Down · Q=Drop</div>
         </div>
       </div>
-      <div id="tetris-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
-        <div style="background:#0d0f1c;border:2px solid #00e5ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
-          <div id="tetris-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
-          <div id="tetris-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button id="tetris-again" class="ghp-result-btn-primary" style="--rb-color:#00e5ff;">▶ Play Again</button>
-            <button id="tetris-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-            <button id="tetris-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="tetris-result" class="dz-result-overlay hidden" style="--dz-res-color:#00e5ff;z-index:99;">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy">🧱</div>
+          <div class="dz-result-title" id="tetris-result-title"></div>
+          <div class="dz-result-sub" id="tetris-result-detail"></div>
+          <button id="tetris-again" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="tetris-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="tetris-result-hub" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3751,15 +3775,16 @@
       </div>
       <div style="margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.25);">P1: Spacebar · P2: Enter</div>
 
-      <div id="rd-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);z-index:99;">
-        <div style="background:#0d0f1c;border:2px solid #aa00ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:360px;">
-          <div id="rd-result-title" style="font-size:1.7rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;"></div>
-          <div id="rd-result-detail" style="color:rgba(255,255,255,0.6);margin-bottom:24px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button id="rd-again" class="ghp-result-btn-primary" style="--rb-color:#aa00ff;">▶ Play Again</button>
-            <button id="rd-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-            <button id="rd-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="rd-result" class="dz-result-overlay hidden" style="--dz-res-color:#aa00ff;z-index:99;">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy">⚡</div>
+          <div class="dz-result-title" id="rd-result-title"></div>
+          <div class="dz-result-sub" id="rd-result-detail"></div>
+          <button id="rd-again" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="rd-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="rd-result-hub" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -3942,17 +3967,16 @@
       <div id="ludo-app" style="flex:1;min-height:0;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:54px 10px 16px;box-sizing:border-box;"></div>
 
       <!-- Result overlay -->
-      <div id="ludo-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:99;animation:ldResIn 0.35s cubic-bezier(.34,1.56,.64,1);">
-        <div style="background:linear-gradient(160deg,#0e1020,#1a0a10);border:2px solid rgba(255,23,68,0.5);border-radius:20px;padding:32px 36px;text-align:center;max-width:300px;width:90%;box-shadow:0 0 60px rgba(255,23,68,0.2);">
-          <div id="ludo-result-emoji" style="font-size:3rem;margin-bottom:10px;filter:drop-shadow(0 0 16px rgba(255,23,68,0.6));">🏆</div>
-          <div id="ludo-result-title" style="font-size:1.45rem;font-weight:900;color:#fff;font-family:'Orbitron',sans-serif;margin-bottom:8px;letter-spacing:0.06em;"></div>
-          <div id="ludo-result-detail" style="color:rgba(255,200,200,0.65);margin-bottom:26px;font-size:0.82rem;font-family:'DM Mono',monospace;line-height:1.5;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button id="ludo-again" class="ghp-result-btn-primary" style="--rb-color:#ff1744;">▶ Play Again</button>
-            <button id="ludo-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-            <button id="ludo-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="ludo-result" class="dz-result-overlay hidden" style="--dz-res-color:#ff1744;z-index:99;">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy" id="ludo-result-emoji">🏆</div>
+          <div class="dz-result-title" id="ludo-result-title"></div>
+          <div class="dz-result-sub" id="ludo-result-detail"></div>
+          <button id="ludo-again" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="ludo-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="ludo-result-hub" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -4043,16 +4067,16 @@
       <!-- Canvas -->
       <div id="carrom-canvas-wrap" style="width:100%;max-width:480px;flex:1;display:flex;align-items:center;justify-content:center;padding:4px;box-sizing:border-box;"></div>
       <!-- Result overlay -->
-      <div id="carrom-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:99;">
-        <div style="background:#0d0f1c;border:2px solid #ff9100;border-radius:16px;padding:40px 48px;text-align:center;max-width:340px;width:90%;">
-          <div id="carrom-result-emoji" style="font-size:3rem;margin-bottom:10px;">🏆</div>
-          <div id="carrom-result-title" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:0.06em;"></div>
-          <div id="carrom-result-detail" style="color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-size:0.8rem;margin-bottom:28px;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button id="carrom-again" class="ghp-result-btn-primary" style="--rb-color:#ff9100;">▶ Play Again</button>
-            <button id="carrom-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-            <button id="carrom-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="carrom-result" class="dz-result-overlay hidden" style="--dz-res-color:#ff9100;z-index:99;">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy" id="carrom-result-emoji">🪙</div>
+          <div class="dz-result-title" id="carrom-result-title"></div>
+          <div class="dz-result-sub" id="carrom-result-detail"></div>
+          <button id="carrom-again" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="carrom-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="carrom-result-hub" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -4126,16 +4150,16 @@
       </div>
       <div id="sdk-app" style="width:100%;max-width:460px;padding:0 10px 24px;box-sizing:border-box;"></div>
       <!-- Result overlay -->
-      <div id="sdk-result" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:99;">
-        <div style="background:#0d0f1c;border:2px solid #6c63ff;border-radius:16px;padding:40px 48px;text-align:center;max-width:340px;width:90%;">
-          <div id="sdk-result-emoji" style="font-size:3rem;margin-bottom:10px;">🏆</div>
-          <div id="sdk-result-title" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:0.06em;"></div>
-          <div id="sdk-result-detail" style="color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-size:0.8rem;margin-bottom:28px;line-height:1.6;"></div>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button id="sdk-again" class="ghp-result-btn-primary" style="--rb-color:#6c63ff;">▶ Play Again</button>
-            <button id="sdk-result-setup" class="ghp-result-btn-secondary">⚙ Setup</button>
-            <button id="sdk-result-hub" class="ghp-result-btn-secondary">⬅ Hub</button>
-            <button class="ghp-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
+      <div id="sdk-result" class="dz-result-overlay hidden" style="--dz-res-color:#6c63ff;z-index:99;">
+        <div class="dz-result-card">
+          <div class="dz-result-trophy" id="sdk-result-emoji">🔢</div>
+          <div class="dz-result-title" id="sdk-result-title"></div>
+          <div class="dz-result-sub" id="sdk-result-detail"></div>
+          <button id="sdk-again" class="dz-result-play-again">↺ Play Again</button>
+          <div class="dz-result-row">
+            <button id="sdk-result-setup" class="dz-result-btn-sec">⚙ Setup</button>
+            <button id="sdk-result-hub" class="dz-result-btn-sec">← Hub</button>
+            <button class="dz-result-btn-share" onclick="DZShare.openModal()">📤 Share</button>
           </div>
         </div>
       </div>
@@ -4256,19 +4280,22 @@ window.dzShowScreen = function(screenId) {
 };
 
 window.dzNavShowHome = function() {
-  window.dzCloseMenu();
-  window.dzClosePanels();
-  // Remove dz-in-game BEFORE showing hub
+  // Delegate to the full dzNavShowHome in script.js which handles
+  // stopping games, cleaning up panels, and URL reset properly
+  if (typeof dzNavShowHome === 'function') {
+    dzNavShowHome();
+    return;
+  }
+  // Fallback if script.js not loaded yet
+  window.dzCloseMenu && window.dzCloseMenu();
   document.body.classList.remove('dz-in-game');
-  // Hide the floating game menu button (clear inline style set by dzShowGameMenuBtn)
-  var igBtn = document.getElementById('dz-ig-menu-btn');
-  if (igBtn) igBtn.style.removeProperty('display');
   window._dzCurrentGame = null;
-  window.dzShowScreen('screen-hub');
-  // highlight home button
-  document.querySelectorAll('.dropdown-item').forEach(function(el){ el.classList.remove('active'); });
-  var h = document.getElementById('dd-home-btn');
-  if (h) h.classList.add('active');
+  var hub = document.getElementById('screen-hub');
+  if (hub) {
+    document.querySelectorAll('[id^="screen-"]').forEach(function(s){ s.classList.add('hidden'); });
+    hub.classList.remove('hidden');
+  }
+  try { history.pushState({}, '', '/'); } catch(e) {}
 };
 
 /* ── Side panels ── */
@@ -4455,6 +4482,33 @@ function _launchGame(screenId, gameName) {
   setTimeout(function(){
     window.dzShowScreen('screen-' + screenId);
     window.dzHideLoading();
+    // ── Update URL directly — no router dependency ──
+    var SCREEN_TO_SLUG = {
+      ttt:'tic-tac-toe', c4:'connect-four', rps:'rock-paper-scissors',
+      tapbattle:'tap-battle', cricket:'hand-cricket', duel2048:'2048-duel',
+      airhockey:'air-hockey', passbreach:'password-breaker',
+      memoryflip:'memory-flip', connectdots:'connect-dots', chess:'chess',
+      battleship:'battleship', checkers:'checkers', darts:'darts',
+      pingpong:'ping-pong', tetris:'tetris', reaction:'reaction-duel',
+      ludo:'ludo', sudoku:'sudoku', carrom:'carrom',
+      minesweeper:'minesweeper', bomberman:'bomberman',
+      spacedodge:'space-dodge', starcatcher:'star-catcher',
+      tanks:'tanks', territory:'territory', drawguess:'draw-and-guess'
+    };
+    var slug = SCREEN_TO_SLUG[screenId];
+    if (slug) {
+      try {
+        // Auto-detect base: everything in pathname that isn't a game slug
+        var parts  = window.location.pathname.split('/').filter(Boolean);
+        var base   = '/';
+        for (var i = 0; i < parts.length; i++) {
+          if (!SCREEN_TO_SLUG[parts[i]]) base += parts[i] + '/';
+        }
+        var newUrl = base + slug;
+        history.pushState({ screenId: screenId }, '', newUrl);
+        document.title = gameName + ' \u2014 DuelZone';
+      } catch(e) {}
+    }
   }, 900 + Math.random() * 400);
 }
 
@@ -4593,28 +4647,34 @@ function _wireResultButtons() {
   // Helper: wire a button once
   function wire(id, fn) {
     var el = document.getElementById(id);
-    if (el && !el.__dz_result_wired) { el.__dz_result_wired = true; el.addEventListener('click', fn); }
+    if (el) { el.addEventListener('click', fn); }
   }
   // Hub helper
   function goHub() { window.dzNavShowHome && window.dzNavShowHome(); }
   // Setup helpers per game
-  function setupTTT()      { var b=document.getElementById('ttt-back-to-home');    if(b)b.click(); }
-  function setupRPS()      { var b=document.getElementById('rps-back-to-home');    if(b)b.click(); }
-  function setupTap()      { var b=document.getElementById('tap-back-to-home');    if(b)b.click(); }
-  function setup2048()     { var b=document.getElementById('d2048-back-to-home');  if(b)b.click(); }
-  function setupC4()       { var b=document.getElementById('c4-back-to-home');     if(b)b.click(); }
-  function setupCricket()  { var s=document.getElementById('cricket-setup'),p=document.getElementById('cricket-play'),r=document.getElementById('cricket-result'); if(s)s.classList.remove('hidden'); if(p)p.classList.add('hidden'); if(r)r.classList.add('hidden'); }
-  function setupPB()       { var h=document.getElementById('pb-home'),p=document.getElementById('pb-play-panel'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(p)p.classList.add('hidden'); }
-  function setupChess()    { var b=document.getElementById('chess-back-hub-play'); if(b)b.click(); }
-  function setupBS()       { var m=document.getElementById('bs-mode-panel'); if(m)m.classList.remove('bs-hidden'); }
-  function setupCK()       { var m=document.getElementById('ck-mode-panel'); if(m)m.classList.remove('ck-hidden'); }
-  function setupDarts()    { var b=document.getElementById('darts-back-setup');    if(b)b.click(); }
-  function setupPP()       { var b=document.getElementById('pp-setup-btn');        if(b)b.click(); }
-  function setupTetris()   { var h=document.getElementById('tetris-home'),p=document.getElementById('tetris-play'),r=document.getElementById('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.tetrisStop)try{tetrisStop();}catch(e){} }
-  function setupReaction() { var h=document.getElementById('rd-home'),p=document.getElementById('rd-play'),r=document.getElementById('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.rdStop)try{rdStop();}catch(e){} }
-  function setupLudo()     { var b=document.getElementById('ludo-back-play'); if(b)b.click(); var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); }
-  function setupCarrom()   { var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'),r=document.getElementById('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.carromStop)try{carromStop();}catch(e){} }
-  function setupSudoku()   { var h=document.getElementById('sdk-home'),p=document.getElementById('sdk-play'),r=document.getElementById('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.sudokuStop)try{sudokuStop();}catch(e){} }
+  function setupTTT()      { _stopForSetup(); var b=document.getElementById('ttt-back-to-home');    if(b)b.click(); }
+  function setupRPS()      { _stopForSetup(); var b=document.getElementById('rps-back-to-home');    if(b)b.click(); }
+  function setupTap()      { _stopForSetup(); var b=document.getElementById('tap-back-to-home');    if(b)b.click(); }
+  function setup2048()     { _stopForSetup(); var b=document.getElementById('d2048-back-to-home');  if(b)b.click(); }
+  function setupC4()       { _stopForSetup(); var b=document.getElementById('c4-back-to-home');     if(b)b.click(); }
+  function setupCricket()  { _stopForSetup(); var s=document.getElementById('cricket-setup'),p=document.getElementById('cricket-play'),r=document.getElementById('cricket-result'); if(s)s.classList.remove('hidden'); if(p)p.classList.add('hidden'); if(r)r.classList.add('hidden'); }
+  function setupPB()       { _stopForSetup(); var h=document.getElementById('pb-home'),p=document.getElementById('pb-play-panel'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(p)p.classList.add('hidden'); }
+  // ── Helper: stop all game loops/audio before showing setup ──
+  function _stopForSetup() {
+    if (typeof window.dzStopAllGames === 'function') window.dzStopAllGames();
+    // Also suspend audio context to kill any lingering sounds
+    if (typeof window.dzSuspendAllAudio === 'function') window.dzSuspendAllAudio();
+  }
+  function setupChess()    { _stopForSetup(); var b=document.getElementById('chess-back-hub-play'); if(b)b.click(); }
+  function setupBS()       { _stopForSetup(); var m=document.getElementById('bs-mode-panel'); if(m)m.classList.remove('bs-hidden'); }
+  function setupCK()       { _stopForSetup(); var m=document.getElementById('ck-mode-panel'); if(m)m.classList.remove('ck-hidden'); }
+  function setupDarts()    { _stopForSetup(); var b=document.getElementById('darts-back-setup'); if(b)b.click(); }
+  function setupPP()       { _stopForSetup(); var b=document.getElementById('pp-setup-btn'); if(b)b.click(); }
+  function setupTetris()   { _stopForSetup(); var h=document.getElementById('tetris-home'),p=document.getElementById('tetris-play'),r=document.getElementById('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupReaction() { _stopForSetup(); var h=document.getElementById('rd-home'),p=document.getElementById('rd-play'),r=document.getElementById('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupLudo()     { _stopForSetup(); var b=document.getElementById('ludo-back-play'); if(b)b.click(); var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); }
+  function setupCarrom()   { _stopForSetup(); var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'),r=document.getElementById('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupSudoku()   { _stopForSetup(); var h=document.getElementById('sdk-home'),p=document.getElementById('sdk-play'),r=document.getElementById('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
 
   // ── TTT ──
   wire('ttt-result-setup', setupTTT);
@@ -4693,11 +4753,27 @@ function _wireResultButtons() {
   // ── Sudoku (play-again + hub wired by sudoku.js; setup only here) ──
   wire('sdk-result-setup', setupSudoku);
 
-  // ── MFD (hub wired in script.js with cleanup; setup only here) ──
+  // ── MFD ──
   wire('mfd-result-setup', function(){ var b=document.getElementById('mfd-back-to-home'); if(b)b.click(); });
+  wire('mfd-result-hub',   goHub);
+  wire('mfd-play-again',   function(){ var r=document.getElementById('mfd-result'); if(r)r.classList.add('hidden'); var b=document.getElementById('mfd-back-to-home'); if(b)b.click(); });
 
-  // ── CDD (hub wired in script.js via GameLoader; setup only here) ──
+  // ── CDD ──
   wire('cdd-result-setup', function(){ var b=document.getElementById('cdd-back-to-home'); if(b)b.click(); });
+  wire('cdd-result-hub',   goHub);
+  wire('cdd-play-again',   function(){ var r=document.getElementById('cdd-result'); if(r)r.classList.add('hidden'); var b=document.getElementById('cdd-back-to-home'); if(b)b.click(); });
+
+  // ── Tetris (hub + play-again) ──
+  wire('tetris-result-hub', goHub);
+  wire('tetris-again',      function(){ var r=document.getElementById('tetris-result'); if(r)r.classList.add('hidden'); setupTetris(); });
+
+  // ── Reaction Duel (hub + play-again) ──
+  wire('rd-result-hub', goHub);
+  wire('rd-again',      function(){ var r=document.getElementById('rd-result'); if(r)r.classList.add('hidden'); setupReaction(); });
+
+  // ── Sudoku (hub + play-again) ──
+  wire('sdk-result-hub', goHub);
+  wire('sdk-again',      function(){ var r=document.getElementById('sdk-result'); if(r)r.classList.add('hidden'); setupSudoku(); });
 }
 
 function _init() {
@@ -5203,38 +5279,43 @@ if (document.readyState === 'loading') {
   <!-- ══════════════════════════════════════════════
        SHARE MODAL
   ══════════════════════════════════════════════ -->
-  <div id="dz-share-backdrop" class="dz-share-backdrop"></div>
+  <div id="dz-share-backdrop" class="dz-share-backdrop" onclick="DZShare.closeModal()"></div>
   <div id="dz-share-modal" class="dz-share-modal" role="dialog" aria-modal="true" aria-label="Share result">
     <div class="dz-share-header">
       <span class="dz-share-title">📤 Share Your Result</span>
-      <button id="dz-share-close" class="dz-share-close" aria-label="Close">✕</button>
+      <button id="dz-share-close" class="dz-share-close" aria-label="Close" onclick="DZShare.closeModal()">✕</button>
     </div>
-    <div class="dz-share-preview-wrap">
-      <div id="dz-share-preview" class="dz-share-preview">
-        <div class="dz-share-spinner"></div>
+    <div class="dz-share-modal-scroll">
+      <div class="dz-share-name-wrap">
+        <label class="dz-share-name-label" for="dz-share-name">Your name (shows on the card)</label>
+        <input id="dz-share-name" class="dz-share-name-input" type="text"
+               maxlength="18" placeholder="e.g. Rahul" autocomplete="off" spellcheck="false" />
       </div>
-      <p class="dz-share-hint">Save the image above, then share it anywhere!</p>
-    </div>
-    <div class="dz-share-actions">
-      <button id="dz-share-save-btn" class="dz-share-btn dz-share-btn--save">
-        📥 Save Image
-      </button>
-      <button id="dz-share-native-btn" class="dz-share-btn dz-share-btn--native">
-        📱 Share…
-      </button>
-      <button id="dz-share-wa-btn" class="dz-share-btn dz-share-btn--wa">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.97.554 3.81 1.516 5.374L2 22l4.709-1.489A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.395 17.605 2 12.05 2zm0 18.17a8.12 8.12 0 01-4.382-1.27l-.314-.186-3.26 1.031 1.05-3.17-.204-.325A8.13 8.13 0 013.88 11.95c0-4.51 3.66-8.17 8.17-8.17s8.17 3.66 8.17 8.17-3.66 8.22-8.17 8.22z"/></svg>
-        WhatsApp
-      </button>
-      <button id="dz-share-tw-btn" class="dz-share-btn dz-share-btn--tw">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Twitter / X
-      </button>
-      <button id="dz-share-copy-btn" class="dz-share-btn dz-share-btn--copy">
-        🔗 Copy Link
-      </button>
+      <div class="dz-share-preview-wrap">
+        <div id="dz-share-preview" class="dz-share-preview">
+          <div class="dz-share-spinner"></div>
+        </div>
+        <p id="dz-share-status" class="dz-share-status" style="display:none">⏳ Generating your card… (may take a few moments)</p>
+      <p class="dz-share-hint">💡 Type your name → Save image → Share anywhere</p>
+      </div>
+      <div class="dz-share-actions">
+        <button id="dz-share-save-btn" class="dz-share-btn dz-share-btn--save" onclick="DZShare._saveImg()">📥 Save Image</button>
+        <button id="dz-share-wa-btn" class="dz-share-btn dz-share-btn--wa" onclick="DZShare._wa()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.97.554 3.81 1.516 5.374L2 22l4.709-1.489A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.395 17.605 2 12.05 2zm0 18.17a8.12 8.12 0 01-4.382-1.27l-.314-.186-3.26 1.031 1.05-3.17-.204-.325A8.13 8.13 0 013.88 11.95c0-4.51 3.66-8.17 8.17-8.17s8.17 3.66 8.17 8.17-3.66 8.22-8.17 8.22z"/></svg>
+          WhatsApp
+        </button>
+        <button id="dz-share-ig-btn" class="dz-share-btn dz-share-btn--ig" onclick="DZShare._ig()">📸 Share / IG</button>
+        <button id="dz-share-copy-btn" class="dz-share-btn dz-share-btn--copy" onclick="DZShare._copy()">🔗 Copy Link</button>
+      </div>
+      <div id="dz-share-ig-wrap" class="dz-share-ig-wrap" style="display:none">
+        <div class="dz-share-ig-label">📋 Caption — copy &amp; paste to Instagram:</div>
+        <div id="dz-share-ig-caption" class="dz-share-ig-caption"></div>
+        <button id="dz-share-ig-copy" class="dz-share-ig-copy-btn" onclick="DZShare._copyCaption()">📋 Copy Caption</button>
+      </div>
     </div>
   </div>
 
+  <!-- DZShare loads last so all modal HTML exists in DOM -->
+  <script src="dzshare.js"></script>
 </body>
 </html>
